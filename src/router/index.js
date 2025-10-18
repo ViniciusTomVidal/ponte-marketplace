@@ -95,7 +95,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory('/marketplace_/dist/'),
+  history: createWebHistory('/'),
   routes
 })
 
