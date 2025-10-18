@@ -1,22 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Header -->
-    <header class="sticky top-0 z-50 shadow-lg border-b border-gray-200" style="background-color: rgb(0, 18, 66);">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-6">
-          <router-link to="/" class="flex items-center">
-            <img src="https://firebasestorage.googleapis.com/v0/b/ecouber-7cc97.firebasestorage.app/o/download.png?alt=media&token=dec8b046-0b0f-4440-8bde-94b71ce7f6a8" alt="Ponte Logo" class="h-14 w-auto mr-3">
-            <h1 class="text-2xl font-bold text-white"></h1>
-          </router-link>
-          <nav class="hidden md:flex items-center space-x-8">
-            <router-link to="/" class="text-gray-300 transition-colors hover:text-white">Home</router-link>
-            <button class="text-gray-300 transition-colors hover:text-white" style="color: gray;">How It Works</button>
-            <a class="text-gray-300 transition-colors hover:text-white" href="/">About</a>
-            <router-link to="/auth/investor/login" class="text-white px-6 py-2 rounded-lg hover:opacity-90 transition-all font-semibold" style="background-color: rgb(166, 133, 66);">Login</router-link>
-          </nav>
-        </div>
-      </div>
-    </header>
+    <AppHeader />
 
     <!-- Loading State -->
     <div v-if="loading" class="min-h-screen flex items-center justify-center">
@@ -367,9 +352,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useProperties } from '@/composables/useProperties'
+import AppHeader from '@/components/AppHeader.vue'
 
 export default {
   name: 'PropertyDetails',
+  components: {
+    AppHeader
+  },
   setup() {
     const route = useRoute()
     const { getPropertyById, formatCurrency, formatPercentage, fundedPercentage } = useProperties()

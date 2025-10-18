@@ -95,7 +95,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory('/'),
+  history: createWebHistory('/marketplace_/dist/'),
   routes
 })
 
@@ -106,7 +106,6 @@ router.beforeEach(async (to, from, next) => {
   // Routes that require authentication and completion checks
   const protectedRoutes = [
     '/investor/dashboard',
-    '/investor/property',
     '/investor/checkout',
     '/investor/success'
   ]

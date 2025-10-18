@@ -1,43 +1,13 @@
 <template>
   <div class="min-h-screen bg-white">
     <!-- Header -->
-    <header class="sticky top-0 z-50 shadow-lg border-b border-gray-200" style="background-color: rgb(0, 18, 66);">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-6">
-          <router-link to="/" class="flex items-center">
-            <img src="https://ponte.finance/wp-content/uploads/2024/06/Untitled-1080-x-900-px-1.png" alt="Ponte Logo" class="h-14 w-auto mr-3">
-            <h1 class="text-2xl font-bold text-white"></h1>
-          </router-link>
-          <nav class="hidden md:flex items-center space-x-8">
-            <router-link to="/" class="text-gray-300 transition-colors hover:text-white">Home</router-link>
-            <router-link to="/investor/portfolio" class="text-gray-300 transition-colors hover:text-white">
-              <i class="fas fa-chart-pie mr-2"></i>My Portfolio
-            </router-link>
-            <a href="#" class="text-gray-300 transition-colors hover:text-white">
-              <i class="fas fa-bell mr-2"></i>Notifications
-            </a>
-            <div class="flex items-center space-x-3">
-              <div class="text-right hidden md:block">
-                <p class="text-sm font-medium text-white">{{ userData.first_name || 'Investor' }}</p>
-                <p class="text-xs text-gray-300">Verified Investor</p>
-              </div>
-              <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: rgb(166, 133, 66);">
-                <span class="text-white text-sm font-semibold">{{ userInitials }}</span>
-              </div>
-              <button @click="logout" class="text-gray-300 hover:text-white transition-colors">
-                <i class="fas fa-sign-out-alt"></i>
-              </button>
-            </div>
-          </nav>
-        </div>
-      </div>
-    </header>
+    <AppHeader />
 
     <!-- Welcome Section -->
     <section class="bg-gradient-to-br from-blue-50 to-indigo-100 py-20">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 class="text-5xl font-bold text-gray-900 mb-6">
-          Welcome back, <span style="color: rgb(166, 133, 66);">{{ userData.first_name || 'Investor' }}!</span>
+          Welcome back, <span style="color: rgb(166, 133, 66);">Investor!</span>
         </h2>
         <p class="text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
           Manage your real estate investments and explore new opportunities in the UK property market.
@@ -218,12 +188,15 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProperties } from '@/composables/useProperties'
 import authService from '@/services/auth'
+import AppHeader from '@/components/AppHeader.vue'
 
 export default {
   name: 'InvestorDashboard',
+  components: {
+    AppHeader
+  },
   setup() {
     const router = useRouter()
-    const userData = ref({})
     
     const { 
       properties, 
@@ -235,13 +208,6 @@ export default {
       formatCurrency, 
       formatPercentage 
     } = useProperties()
-
-    // Get user initials for avatar
-    const userInitials = computed(() => {
-      const firstName = userData.value.first_name || ''
-      const lastName = userData.value.last_name || ''
-      return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase() || 'IN'
-    })
 
     // Get property image with fallback
     const getPropertyImage = (property) => {
@@ -263,31 +229,12 @@ export default {
       event.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Available'
     }
 
-    // Load user data
-    const loadUserData = () => {
-      const storedUserData = localStorage.getItem('user_data')
-      if (storedUserData) {
-        userData.value = JSON.parse(storedUserData)
-      }
-    }
-
-    // Logout function
-    const logout = () => {
-      if (confirm('Do you really want to log out?')) {
-        authService.clearAuth()
-        router.push('/auth/investor/login')
-      }
-    }
-
     // Fetch properties on component mount
     onMounted(() => {
-      loadUserData()
       fetchProperties()
     })
 
     return {
-      userData,
-      userInitials,
       properties,
       loading,
       error,
@@ -297,8 +244,7 @@ export default {
       formatCurrency,
       formatPercentage,
       getPropertyImage,
-      handleImageError,
-      logout
+      handleImageError
     }
   }
 }
