@@ -176,7 +176,7 @@
 
 <script>
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import authService from '@/services/auth';
 import { http } from '@/services/http';
 
@@ -184,6 +184,7 @@ export default {
   name: 'KycStatus',
   setup() {
     const router = useRouter();
+    const route = useRoute();
     const loading = ref(true);
     const error = ref('');
     const kycStatus = ref(null);
@@ -226,10 +227,52 @@ export default {
       }
     };
 
+    // Check for Idenfy status parameters
+    const checkIdenfyStatus = () => {
+      const statusParam = route.query.status;
+      
+      if (statusParam) {
+        // Map Idenfy status to our internal status
+        switch (statusParam) {
+          case 'success':
+            kycStatus.value = 'APPROVED';
+            break;
+          case 'error':
+          case 'unverified':
+            kycStatus.value = 'REJECTED';
+            break;
+          default:
+            kycStatus.value = 'pending';
+        }
+        
+        // Clear the URL parameters after processing
+        router.replace({ path: route.path, query: {} });
+        
+        // If approved, redirect to dashboard after a short delay
+        if (kycStatus.value === 'APPROVED') {
+          setTimeout(() => {
+            router.push('/investor/dashboard');
+          }, 3000);
+        }
+        
+        loading.value = false;
+        return true; // Status was set from URL parameters
+      }
+      
+      return false; // No status parameters found
+    };
+
     // Check authentication and status on component mount
     onMounted(async () => {
       await checkAuthentication();
-      await checkStatus();
+      
+      // First check if we have status from Idenfy redirect
+      const hasIdenfyStatus = checkIdenfyStatus();
+      
+      // If no Idenfy status, check via API
+      if (!hasIdenfyStatus) {
+        await checkStatus();
+      }
     });
 
     return {

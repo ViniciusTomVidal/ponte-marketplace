@@ -61,7 +61,7 @@
             <h3 class="text-lg font-semibold text-[#A68542] mb-4">Identity Verification Required</h3>
             <p class="text-[#ffffff] text-sm mb-6">
               To complete your verification, please click the button below to start the identity verification process. 
-              This will open a new window where you can complete your KYC verification securely.
+              You will be redirected to our secure verification partner to complete your KYC verification.
             </p>
 
             <!-- Loading State -->
@@ -97,9 +97,9 @@
               <div class="flex">
                 <i class="fas fa-check-circle text-green-400 mt-1"></i>
                 <div class="ml-3">
-                  <h3 class="text-sm font-medium text-green-400">Verification Started</h3>
+                  <h3 class="text-sm font-medium text-green-400">Redirecting to Verification</h3>
                   <p class="text-sm text-green-300 mt-1">
-                    Please complete the verification process in the new window.
+                    Please complete the verification process. You will be redirected back after completion.
                   </p>
                 </div>
               </div>
@@ -140,23 +140,22 @@ export default {
       success.value = false;
 
       try {
-        const data = await http.post('/wp-json/ponte/v1/investor/kyc/start');
+        // Get current domain and construct return URL
+        const currentDomain = window.location.origin;
+        const returnUrl = `${currentDomain}/auth/kyc-status`;
+        
+        const data = await http.post('/wp-json/ponte/v1/investor/kyc/start', {
+          return_url: returnUrl
+        });
 
         if (data.verification_url) {
-          // Open verification in new window
-          window.open(data.verification_url, '_blank', 'width=800,height=600');
-          success.value = true;
-          
-          // Redirect to status page after a short delay
-          setTimeout(() => {
-            router.push('/auth/kyc-status');
-          }, 2000);
+          // Redirect to Idenfy verification URL in same window
+          window.location.href = data.verification_url;
         }
 
       } catch (err) {
         error.value = err.message || 'Failed to start verification process';
         console.error('KYC verification error:', err);
-      } finally {
         loading.value = false;
       }
     };
