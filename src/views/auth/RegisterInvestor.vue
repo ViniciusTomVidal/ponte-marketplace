@@ -188,6 +188,12 @@ export default {
       }
     };
 
+    // Função para validar caracteres especiais
+    const validateName = (name, fieldName) => {
+      const specialChars = /[~!@#$%^*()_+={}[\]|:;",<>/?]/;
+      return !specialChars.test(name);
+    };
+
     const handleRegister = async () => {
       // Reset error
       error.value = '';
@@ -200,6 +206,18 @@ export default {
 
       if (!form.value.lastName.trim()) {
         error.value = 'Last name is required';
+        return;
+      }
+
+      // Validação de caracteres especiais no firstName
+      if (!validateName(form.value.firstName.trim(), 'First name')) {
+        error.value = 'First name cannot contain special characters (~!@#$%^*()_+={}[]|:;",<>/?)';
+        return;
+      }
+
+      // Validação de caracteres especiais no lastName
+      if (!validateName(form.value.lastName.trim(), 'Last name')) {
+        error.value = 'Last name cannot contain special characters (~!@#$%^*()_+={}[]|:;",<>/?)';
         return;
       }
 
