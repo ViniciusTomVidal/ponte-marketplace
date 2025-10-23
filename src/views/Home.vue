@@ -1,22 +1,7 @@
 <template>
   <div class="min-h-screen bg-white">
     <!-- Header -->
-    <header class="sticky top-0 z-50 shadow-lg border-b border-gray-200" style="background-color: rgb(0, 18, 66);">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-6">
-          <router-link to="/" class="flex items-center">
-            <img src="https://ponte.finance/wp-content/uploads/2024/06/Untitled-1080-x-900-px-1.png" alt="Ponte Logo" class="h-14 w-auto mr-3">
-            <h1 class="text-2xl font-bold text-white"></h1>
-          </router-link>
-          <nav class="hidden md:flex items-center space-x-8">
-            <router-link to="/" class="text-gray-300 transition-colors hover:text-white">Home</router-link>
-            <button class="text-gray-300 transition-colors hover:text-white" style="color: gray;">How It Works</button>
-            <a class="text-gray-300 transition-colors hover:text-white" href="/">About</a>
-            <router-link to="/auth/investor/login" class="text-white px-6 py-2 rounded-lg hover:opacity-90 transition-all font-semibold" style="background-color: rgb(166, 133, 66);">Login</router-link>
-          </nav>
-        </div>
-      </div>
-    </header>
+    <AppHeader />
 
     <!-- Hero Section -->
     <section class="bg-gradient-to-br from-blue-50 to-indigo-100 py-20">
@@ -243,9 +228,11 @@
 <script>
 import { onMounted } from 'vue'
 import { useProperties } from '@/composables/useProperties'
+import AppHeader from "@/components/AppHeader.vue";
 
 export default {
   name: 'Home',
+  components: {AppHeader},
   setup() {
     const { 
       properties, 
