@@ -17,7 +17,7 @@
         
         <!-- Authenticated Navigation -->
         <nav v-else class="hidden md:flex items-center space-x-8">
-          <router-link to="/" class="text-gray-300 transition-colors hover:text-white">Home</router-link>
+          <router-link to="/investor/dashboard" class="text-gray-300 transition-colors hover:text-white">Home</router-link>
           <router-link to="/investor/portfolio" class="text-gray-300 transition-colors hover:text-white">
             <i class="fas fa-chart-pie mr-2"></i>My Portfolio
           </router-link>
@@ -32,7 +32,7 @@
             <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: rgb(166, 133, 66);">
               <span class="text-white text-sm font-semibold">{{ userInitials }}</span>
             </div>
-            <button @click="logout" class="text-gray-300 hover:text-white transition-colors">
+            <button @click="logout" class="text-gray-300 hover:text-white hover:cursor-pointer transition-colors">
               <i class="fas fa-sign-out-alt"></i>
             </button>
           </div>

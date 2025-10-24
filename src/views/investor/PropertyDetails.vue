@@ -29,11 +29,12 @@
           <!-- Property Images -->
           <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
             <div class="relative">
-              <img 
-                :src="getPropertyImage(property)" 
-                :alt="property.title" 
+              <img
+                :src="mainImage"
+                :alt="property.title"
                 class="w-full h-96 object-cover"
                 @error="handleImageError"
+                @click="handleImage"
               >
               <div class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
                 {{ property.status_badge_text || 'Available for Investment' }}
@@ -41,29 +42,12 @@
             </div>
             <div class="p-6">
               <div class="flex space-x-2 mb-4">
-                <img 
-                  :src="getPropertyImage(property)" 
-                  :alt="property.title + ' - Image 1'" 
-                  class="w-20 h-16 object-cover rounded cursor-pointer hover:opacity-75 transition-opacity"
-                  @click="setMainImage(getPropertyImage(property))"
-                >
-                <img 
-                  src="https://ponte.finance/wp-content/uploads/marketplace/exemplos/interna01.png" 
-                  :alt="property.title + ' - Image 2'" 
-                  class="w-20 h-16 object-cover rounded cursor-pointer hover:opacity-75 transition-opacity"
-                  @click="setMainImage('https://ponte.finance/wp-content/uploads/marketplace/exemplos/interna01.png')"
-                >
-                <img 
-                  src="https://ponte.finance/wp-content/uploads/marketplace/exemplos/interna02.png" 
-                  :alt="property.title + ' - Image 3'" 
-                  class="w-20 h-16 object-cover rounded cursor-pointer hover:opacity-75 transition-opacity"
-                  @click="setMainImage('https://ponte.finance/wp-content/uploads/marketplace/exemplos/interna02.png')"
-                >
-                <img 
-                  src="https://ponte.finance/wp-content/uploads/marketplace/exemplos/interna03.png" 
-                  :alt="property.title + ' - Image 4'" 
-                  class="w-20 h-16 object-cover rounded cursor-pointer hover:opacity-75 transition-opacity"
-                  @click="setMainImage('https://ponte.finance/wp-content/uploads/marketplace/exemplos/interna03.png')"
+                <img v-for="(image, idx) in property.images"
+                     :key="idx"
+                     :src="image.url"
+                     :alt="`${property.title} - Image ${idx + 1}`"
+                     class="w-20 h-16 object-cover rounded cursor-pointer hover:opacity-75 transition-opacity"
+                     @click="setMainImage(image.url)"
                 >
               </div>
             </div>
@@ -73,7 +57,7 @@
           <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
             <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ property.title }}</h1>
             <p class="text-gray-600 mb-6">{{ property.full_description || property.description }}</p>
-            
+
             <div class="grid md:grid-cols-2 gap-6 mb-8">
               <div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Property Features</h3>
@@ -163,6 +147,7 @@
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Management Fee</span>
+                    {{console.log(property)}}
                     <span class="font-semibold">{{ formatPercentage(property.management_fee_rate) }} per annum</span>
                   </div>
                   <div class="flex justify-between">
@@ -177,9 +162,12 @@
                   <span>{{ fundedPercentage(property) }}%</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-3">
-                  <div 
-                    class="h-3 rounded-full transition-all duration-500" 
-                    style="width: {{ fundedPercentage(property) }}%; background-color: rgb(0, 18, 66);"
+                  <div
+                    class="h-3 rounded-full transition-all duration-500"
+                    :style="{
+                      width: fundedPercentage(property) + '%',
+                      backgroundColor: 'rgb(0, 18, 66)'
+                    }"
                   ></div>
                 </div>
                 <p class="text-xs text-gray-500 mt-2">{{ formatCurrency(property.funding_raised) }} already invested of {{ formatCurrency(property.funding_required) }} total</p>
@@ -192,12 +180,12 @@
             <h3 class="text-xl font-semibold text-gray-900 mb-4">Detailed Description</h3>
             <div class="prose text-gray-600 space-y-4">
               <div>{{ property.full_description || property.description }}</div>
-              
+
               <h4 v-if="property.key_features" class="text-lg font-semibold text-gray-900 mt-6 mb-3">Key Features:</h4>
               <ul v-if="property.key_features" class="list-disc list-inside space-y-2">
                 <li v-for="feature in parseKeyFeatures(property.key_features)" :key="feature">{{ feature }}</li>
               </ul>
-              
+
               <h4 v-if="property.investment_potential" class="text-lg font-semibold text-gray-900 mt-6 mb-3">Investment Potential:</h4>
               <p v-if="property.investment_potential">{{ property.investment_potential }}</p>
             </div>
@@ -220,10 +208,10 @@
               <div class="space-y-4">
                 <div v-if="property.development_plan_url">
                   <span class="text-gray-600 font-medium block mb-3">Development Plan</span>
-                  <a 
-                    :href="property.development_plan_url" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+                  <a
+                    :href="property.development_plan_url"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     class="inline-flex items-center justify-center w-full px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors group"
                   >
                     <i class="fas fa-file-word text-blue-600 text-lg mr-3"></i>
@@ -233,10 +221,10 @@
                 </div>
                 <div v-if="property.exit_strategy_url">
                   <span class="text-gray-600 font-medium block mb-3">Exit Strategy</span>
-                  <a 
-                    :href="property.exit_strategy_url" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+                  <a
+                    :href="property.exit_strategy_url"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     class="inline-flex items-center justify-center w-full px-4 py-3 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors group"
                   >
                     <i class="fas fa-file-word text-purple-600 text-lg mr-3"></i>
@@ -278,10 +266,10 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">Investment Amount</label>
                 <div class="relative">
                   <span class="absolute left-3 top-3 text-gray-500">£</span>
-                  <input 
-                    class="pl-8 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50" 
-                    placeholder="1,000" 
-                    type="text" 
+                  <input
+                    class="pl-8 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50"
+                    placeholder="1,000"
+                    type="text"
                     v-model="investmentAmount"
                     style="--tw-ring-color: #001242; --tw-border-color: #001242;"
                   >
@@ -305,7 +293,7 @@
                 </div>
               </div>
             </div>
-            <router-link 
+            <router-link
               :to="`/investor/checkout/${property.id}`"
               class="w-full text-white py-3 px-4 rounded-lg transition-colors font-semibold text-lg mb-4 block text-center"
               style="background-color: rgb(0, 18, 66);"
@@ -313,13 +301,13 @@
               <i class="fas fa-paper-plane mr-2"></i>Invest Now
             </router-link>
             <div class="mt-6 space-y-3">
-              <button class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+              <button class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 hover:cursor-pointer transition-colors">
                 <i class="fas fa-download mr-2"></i>Download Prospectus
               </button>
-              <button class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+              <button class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 hover:cursor-pointer transition-colors">
                 <i class="fas fa-question-circle mr-2"></i>Ask a Question
               </button>
-              <button class="w-full flex items-center justify-center px-4 py-2 border rounded-lg transition-colors border-gray-300 hover:bg-gray-50">
+              <button class="w-full flex items-center justify-center px-4 py-2 border rounded-lg transition-colors border-gray-300 hover:cursor-pointer hover:bg-gray-50">
                 <i class="fas fa-heart mr-2"></i>Add to Favorites
               </button>
             </div>
@@ -374,7 +362,7 @@ export default {
       error.value = null
       
       try {
-        // First try to get from existing properties list
+        // Fetch property By Id
         const data = await getPropertyById(route.params.id)
         if (data) {
           property.value = data
@@ -396,7 +384,7 @@ export default {
 
     const getPropertyImage = (property) => {
       if (property.images && property.images.length > 0) {
-        return property.images[0]
+        return property.images[0].url
       }
       // Fallback to mock images based on property ID
       const mockImages = {
@@ -405,6 +393,7 @@ export default {
         '3': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel03.jpg',
         '4': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel04.jpg'
       }
+
       return mockImages[property.id] || 'https://via.placeholder.com/600x400?text=Property+Image'
     }
 

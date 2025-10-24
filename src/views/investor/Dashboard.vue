@@ -81,9 +81,9 @@
             class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200"
           >
             <div class="relative">
-              <img 
-                :src="getPropertyImage(property)" 
-                :alt="property.title" 
+              <img
+                :src="getPropertyImage(property)"
+                :alt="property.title"
                 class="w-full h-48 object-cover"
                 @error="handleImageError"
               >
@@ -190,6 +190,7 @@ import { useProperties } from '@/composables/useProperties'
 import authService from '@/services/auth'
 import AppHeader from '@/components/AppHeader.vue'
 
+
 export default {
   name: 'InvestorDashboard',
   components: {
@@ -209,10 +210,14 @@ export default {
       formatPercentage 
     } = useProperties()
 
+
     // Get property image with fallback
     const getPropertyImage = (property) => {
+
       if (property.images && property.images.length > 0) {
-        return property.images[0]
+        return property.images[0].url
+      } else if (property.primary_image) {
+        return property.primary_image.url
       }
       // Fallback to mock images based on property ID
       const mockImages = {
