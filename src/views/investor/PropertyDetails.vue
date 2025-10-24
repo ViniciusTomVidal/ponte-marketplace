@@ -42,29 +42,12 @@
             </div>
             <div class="p-6">
               <div class="flex space-x-2 mb-4">
-                <img
-                  :src="getPropertyImage(property)"
-                  :alt="property.title + ' - Image 1'"
-                  class="w-20 h-16 object-cover rounded cursor-pointer hover:opacity-75 transition-opacity"
-                  @click="setMainImage(getPropertyImage(property))"
-                >
-                <img
-                  src="https://ponte.finance/wp-content/uploads/marketplace/exemplos/interna01.png"
-                  :alt="property.title + ' - Image 2'"
-                  class="w-20 h-16 object-cover rounded cursor-pointer hover:opacity-75 transition-opacity"
-                  @click="setMainImage('https://ponte.finance/wp-content/uploads/marketplace/exemplos/interna01.png')"
-                >
-                <img
-                  src="https://ponte.finance/wp-content/uploads/marketplace/exemplos/interna02.png"
-                  :alt="property.title + ' - Image 3'"
-                  class="w-20 h-16 object-cover rounded cursor-pointer hover:opacity-75 transition-opacity"
-                  @click="setMainImage('https://ponte.finance/wp-content/uploads/marketplace/exemplos/interna02.png')"
-                >
-                <img
-                  src="https://ponte.finance/wp-content/uploads/marketplace/exemplos/interna03.png"
-                  :alt="property.title + ' - Image 4'"
-                  class="w-20 h-16 object-cover rounded cursor-pointer hover:opacity-75 transition-opacity"
-                  @click="setMainImage('https://ponte.finance/wp-content/uploads/marketplace/exemplos/interna03.png')"
+                <img v-for="(image, idx) in property.images"
+                     :key="idx"
+                     :src="image.url"
+                     :alt="`${property.title} - Image ${idx + 1}`"
+                     class="w-20 h-16 object-cover rounded cursor-pointer hover:opacity-75 transition-opacity"
+                     @click="setMainImage(image.url)"
                 >
               </div>
             </div>
@@ -180,7 +163,10 @@
                 <div class="w-full bg-gray-200 rounded-full h-3">
                   <div
                     class="h-3 rounded-full transition-all duration-500"
-                    style="width: {{ fundedPercentage(property) }}%; background-color: rgb(0, 18, 66);"
+                    :style="{
+                      width: fundedPercentage(property) + '%',
+                      backgroundColor: 'rgb(0, 18, 66)'
+                    }"
                   ></div>
                 </div>
                 <p class="text-xs text-gray-500 mt-2">{{ formatCurrency(property.funding_raised) }} already invested of {{ formatCurrency(property.funding_required) }} total</p>
@@ -375,7 +361,7 @@ export default {
       error.value = null
       
       try {
-        // First try to get from existing properties list
+        // Fetch property By Id
         const data = await getPropertyById(route.params.id)
         if (data) {
           property.value = data
@@ -397,7 +383,7 @@ export default {
 
     const getPropertyImage = (property) => {
       if (property.images && property.images.length > 0) {
-        return property.images[0]
+        return property.images[0].url
       }
       // Fallback to mock images based on property ID
       const mockImages = {

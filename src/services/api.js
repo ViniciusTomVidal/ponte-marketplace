@@ -1,5 +1,7 @@
 // API service for Ponte Finance Marketplace
 const API_BASE_URL = 'https://ponte.finance/wp-json/marketplace/v1'
+const API_BASE_URL_PONTE = 'https://ponte.finance/wp-json/ponte/v1'
+
 
 export const api = {
   // Fetch all properties
@@ -7,16 +9,6 @@ export const api = {
     try {
       const response = await fetch(`${API_BASE_URL}/properties`, {
         method: 'GET',
-        headers: {
-          'accept': '*/*',
-          'accept-language': 'pt-BR,pt;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
-          'cache-control': 'no-cache',
-          'pragma': 'no-cache',
-          'sec-fetch-dest': 'empty',
-          'sec-fetch-mode': 'cors',
-          'sec-fetch-site': 'same-origin',
-          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0'
-        }
       })
       
       if (!response.ok) {
@@ -32,16 +24,22 @@ export const api = {
     }
   },
 
-  // Fetch single property by ID (from the properties list)
+  // Fetch single property by ID
   async getProperty(id) {
     try {
-      // Since the API doesn't have a single property endpoint, we fetch all and filter
-      const properties = await this.getProperties()
-      return properties.find(property => property.id === id.toString()) || null
-    } catch (error) {
-      console.error('Error fetching property:', error)
-      return null
-    }
+          const response = await fetch(`${API_BASE_URL_PONTE}/properties/${id}`, {
+              method: 'GET',
+          })
+
+          if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`)
+          }
+
+          const data = await response.json()
+          return data.data
+      } catch (error) {
+          console.error('Error fetching properties:', error)
+      }
   }
 }
 
