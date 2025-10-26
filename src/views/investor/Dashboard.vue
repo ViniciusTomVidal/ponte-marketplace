@@ -219,6 +219,7 @@ export default {
       } else if (property.primary_image) {
         return property.primary_image.url
       }
+
       // Fallback to mock images based on property ID
       const mockImages = {
         '1': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel01.jpg',

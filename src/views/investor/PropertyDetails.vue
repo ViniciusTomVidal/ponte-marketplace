@@ -147,7 +147,6 @@
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Management Fee</span>
-                    {{console.log(property)}}
                     <span class="font-semibold">{{ formatPercentage(property.management_fee_rate) }} per annum</span>
                   </div>
                   <div class="flex justify-between">
