@@ -34,8 +34,7 @@
             <img :src="mainImage" :alt="property.title" class="w-16 h-16 object-cover rounded mr-4">
             <div class="text-left">
               <h3 class="font-semibold text-gray-900">{{ property.title }}</h3>
-              <p v-if="property.address_line1" class="text-gray-600 text-sm">{{ property.address_line1 }}</p>
-              <p v-if="property.address_line2" class="text-gray-600 text-sm">{{ property.address_line2 }}</p>
+              <p class="text-gray-600 text-sm">{{ property.city }}, {{ property.country }}</p>
             </div>
           </div>
 

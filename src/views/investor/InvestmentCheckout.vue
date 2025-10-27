@@ -37,8 +37,7 @@
               <img :src="getPropertyImage(property)" :alt="property.title" class="w-20 h-20 object-cover rounded">
               <div class="flex-1">
                 <h3 class="font-semibold text-gray-900">{{ property.title }}</h3>
-                <p v-if="property.address_line1" class="text-gray-600 text-sm">{{ property.address_line1 }}</p>
-                <p v-if="property.address_line2" class="text-gray-600 text-sm">{{ property.address_line2 }}</p>
+                <p class="text-gray-600 text-sm">{{ property.city }}, {{ property.country }}</p>
               </div>
             </div>
 
