@@ -1,37 +1,44 @@
 <template>
   <div class="bg-gray-50 min-h-screen">
     <!-- Header -->
-    <header class="bg-white shadow-sm border-b">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-6">
-          <div class="flex items-center">
-            <i class="fas fa-building text-blue-600 text-3xl mr-3"></i>
-            <h1 class="text-2xl font-bold text-gray-900">Ponte Finance</h1>
-          </div>
-          <div class="flex items-center space-x-4">
-            <router-link to="/investor/dashboard" class="text-gray-500 hover:text-blue-600 transition-colors">
-              <i class="fas fa-arrow-left mr-2"></i>
-              Back to Dashboard
-            </router-link>
-          </div>
-        </div>
+    <AppHeader/>
+
+    <!-- Loading State -->
+    <div v-if="loading" class="min-h-screen flex items-center justify-center">
+      <div class="text-center">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2"
+             style="border-color: rgb(166, 133, 66);"></div>
+        <p class="mt-4 text-gray-600">Loading property details...</p>
       </div>
-    </header>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="error" class="min-h-screen flex items-center justify-center">
+      <div class="text-center">
+        <p class="text-red-600 mb-4">{{ error }}</p>
+        <button @click="fetchProperty" class="px-6 py-3 rounded-lg text-white hover:opacity-90 transition-all"
+                style="background-color: rgb(166, 133, 66);">
+          Try Again
+        </button>
+      </div>
+    </div>
+
 
     <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main v-else-if="property" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="grid lg:grid-cols-2 gap-8">
         <!-- Investment Summary -->
         <div class="space-y-6">
           <div class="bg-white rounded-lg shadow p-6">
             <h2 class="text-2xl font-bold text-gray-900 mb-4">Investment Summary</h2>
-            
+
             <!-- Property Info -->
             <div class="flex space-x-4 mb-6">
-              <img :src="property.image" :alt="property.title" class="w-20 h-20 object-cover rounded">
+              <img :src="getPropertyImage(property)" :alt="property.title" class="w-20 h-20 object-cover rounded">
               <div class="flex-1">
                 <h3 class="font-semibold text-gray-900">{{ property.title }}</h3>
-                <p class="text-gray-600 text-sm">{{ property.location }}</p>
+                <p v-if="property.address_line1" class="text-gray-600 text-sm">{{ property.address_line1 }}</p>
+                <p v-if="property.address_line2" class="text-gray-600 text-sm">{{ property.address_line2 }}</p>
               </div>
             </div>
 
@@ -43,15 +50,17 @@
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-600">Property Share</span>
-                <span class="font-semibold text-gray-900">{{ propertyShare }}%</span>
+                <span class="font-semibold text-gray-900">{{ sharePercentage }}%</span>
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-600">Projected Annual Return</span>
-                <span class="font-semibold text-green-600">{{ annualReturn }}</span>
+                <span class="font-semibold text-green-600">{{
+                    formatPercentage(property.expected_annual_return)
+                  }}</span>
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-600">Investment Term</span>
-                <span class="font-semibold text-gray-900">{{ property.term }}</span>
+                <span class="font-semibold text-gray-900">{{ property.investment_term_years }} years</span>
               </div>
             </div>
 
@@ -117,7 +126,8 @@
                 <input type="checkbox" id="terms" v-model="payment.agreeTerms" required
                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                 <label for="terms" class="ml-2 text-sm text-gray-700">
-                  I agree to the <a href="#" class="text-blue-600 hover:text-blue-800">Terms of Service</a> and <a href="#" class="text-blue-600 hover:text-blue-800">Investment Agreement</a>
+                  I agree to the <a href="#" class="text-blue-600 hover:text-blue-800">Terms of Service</a> and <a
+                    href="#" class="text-blue-600 hover:text-blue-800">Investment Agreement</a>
                 </label>
               </div>
 
@@ -188,7 +198,8 @@
             <h3 class="text-lg font-semibold text-gray-900 mb-4">What Happens Next?</h3>
             <div class="space-y-4">
               <div class="flex items-start">
-                <div class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                <div
+                    class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 mt-0.5">
                   <span class="text-sm font-bold">1</span>
                 </div>
                 <div>
@@ -197,7 +208,8 @@
                 </div>
               </div>
               <div class="flex items-start">
-                <div class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                <div
+                    class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 mt-0.5">
                   <span class="text-sm font-bold">2</span>
                 </div>
                 <div>
@@ -206,7 +218,8 @@
                 </div>
               </div>
               <div class="flex items-start">
-                <div class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                <div
+                    class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 mt-0.5">
                   <span class="text-sm font-bold">3</span>
                 </div>
                 <div>
@@ -215,7 +228,8 @@
                 </div>
               </div>
               <div class="flex items-start">
-                <div class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                <div
+                    class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 mt-0.5">
                   <span class="text-sm font-bold">4</span>
                 </div>
                 <div>
@@ -232,49 +246,126 @@
 </template>
 
 <script>
+
+import {useProperties} from "@/composables/useProperties.js";
+import {computed, onMounted, ref} from "vue";
+import {useRoute} from 'vue-router'
+import AppHeader from "@/components/AppHeader.vue";
+
 export default {
   name: 'InvestmentCheckout',
+  components: {AppHeader},
   props: {
     id: {
       type: String,
       required: true
     }
   },
-  data() {
-    return {
-      investmentAmount: parseInt(this.$route.query.amount) || 1000,
-      property: {
-        title: 'Mayfair Apartment, London',
-        location: 'Mayfair, London W1K',
-        image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-        term: '4 years',
-        totalValue: 850000
-      },
-      payment: {
-        cardNumber: '',
-        expiryDate: '',
-        cvv: '',
-        cardName: '',
-        billingAddress: '',
-        agreeTerms: false
+  setup() {
+    const route = useRoute()
+    const {getPropertyById, formatCurrency, formatPercentage, fundedPercentage, investProperty} = useProperties()
+
+    const property = ref(null)
+    const loading = ref(true)
+    const error = ref(null)
+    const payment = ref({
+      cardNumber: '',
+      expiryDate: '',
+      cvv: '',
+      cardName: '',
+      billingAddress: '',
+      agreeTerms: false
+    })
+    const investmentAmount = ref(1000)
+    const mainImage = ref('')
+
+
+    const fetchProperty = async () => {
+      loading.value = true
+      error.value = null
+
+      try {
+        const data = await getPropertyById(route.params.id)
+
+        if (data)
+          property.value = data
+        else
+          console.log(`Property with id ${route.params.id} not found`)
+      } catch (e) {
+        error.value = e.message
+        console.error("Error fetching property:", e)
+      } finally {
+        loading.value = false
       }
     }
-  },
-  computed: {
-    propertyShare() {
-      return ((this.investmentAmount / this.property.totalValue) * 100).toFixed(2)
-    },
-    annualReturn() {
-      const returnRate = 9.2 / 100
-      return `£${(this.investmentAmount * returnRate).toLocaleString()}`
+
+    const getPropertyImage = (property) => {
+      if (property.images && property.images.length > 0) {
+        return property.images[0].url
+      }
+      // Fallback to mock images based on property ID
+      const mockImages = {
+        '1': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel01.jpg',
+        '2': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel02.jpg',
+        '3': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel03.jpg',
+        '4': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel04.jpg'
+      }
+
+      return mockImages[property.id] || 'https://via.placeholder.com/600x400?text=Property+Image'
     }
-  },
-  methods: {
-    handlePayment() {
+
+    const setMainImage = (imageUrl) => {
+      mainImage.value = imageUrl
+    }
+
+    const handleImageError = (event) => {
+      event.target.src = 'https://via.placeholder.com/600x400?text=Image+Not+Available'
+    }
+
+    const handlePayment = () => {
+
+
+      // investProperty(route.params.id, investmentAmount)
+
       // Simulate payment processing
       alert('Payment processed successfully!')
-      this.$router.push('/investor/success')
+      route.push('/investor/success')
     }
+
+    const sharePercentage = computed(() => {
+      if (!property.value || !investmentAmount.value) return 0
+      const amount = parseFloat(investmentAmount.value.toString().replace(/[£,]/g, ''))
+      const total = parseFloat(property.value.total_value)
+      return ((amount / total) * 100).toFixed(2)
+    })
+
+    const annualIncome = computed(() => {
+      if (!property.value || !investmentAmount.value) return 0
+      const amount = parseFloat(investmentAmount.value.toString().replace(/[£,]/g, ''))
+      const returnRate = parseFloat(property.value.expected_annual_return) / 100
+      return amount * returnRate
+    })
+
+    onMounted(() => {
+      fetchProperty()
+    })
+
+    return {
+      property,
+      loading,
+      error,
+      payment,
+      investmentAmount,
+      sharePercentage,
+      annualIncome,
+      formatPercentage,
+      handlePayment,
+      fetchProperty,
+      getPropertyImage,
+      handleImageError,
+      investProperty
+    }
+
   }
 }
 </script>
