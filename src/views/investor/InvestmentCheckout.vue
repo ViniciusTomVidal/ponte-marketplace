@@ -320,8 +320,6 @@ export default {
     const formErrors = ref({})
 
     const investmentAmount = ref(1000)
-    const mainImage = ref('')
-
 
     const fetchProperty = async () => {
       loading.value = true
@@ -487,19 +485,29 @@ export default {
 
     const handlePayment = () => {
 
+      // Validate form
       if (!validateForm()) {
         return;
       }
 
       //Save data to local storage for success page
       localStorage.setItem('checkout_data', JSON.stringify({
-        property: property.value,
+        property: {
+          id: property.value.id,
+          title: property.value.title,
+          city: property.value.city,
+          country: property.value.country,
+          investment_term_years: property.value.investment_term_years,
+          total_value: property.value.total_value,
+          images: property.value.images,
+          expected_annual_return: property.value.expected_annual_return,
+        },
         investmentAmount: investmentAmount.value,
-        mainImage: mainImage.value,
         annualIncome: annualIncome.value,
         sharePercentage: sharePercentage.value,
       }))
 
+      // Uncomment the following lines when backend is ready
       // investProperty(route.params.id, investmentAmount)
 
       // Simulate payment processing
