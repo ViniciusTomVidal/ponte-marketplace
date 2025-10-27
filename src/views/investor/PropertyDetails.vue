@@ -80,11 +80,11 @@
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Floor</span>
-                    <span class="font-semibold">{{ property.floor }}</span>
+                    <span class="font-semibold">{{ property.floor || 'N/A'}}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Construction Year</span>
-                    <span class="font-semibold">{{ property.construction_year }}</span>
+                    <span class="font-semibold">{{ property.construction_year || 'N/A' }}</span>
                   </div>
                 </div>
               </div>

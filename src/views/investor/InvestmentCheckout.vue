@@ -37,8 +37,7 @@
               <img :src="getPropertyImage(property)" :alt="property.title" class="w-20 h-20 object-cover rounded">
               <div class="flex-1">
                 <h3 class="font-semibold text-gray-900">{{ property.title }}</h3>
-                <p v-if="property.address_line1" class="text-gray-600 text-sm">{{ property.address_line1 }}</p>
-                <p v-if="property.address_line2" class="text-gray-600 text-sm">{{ property.address_line2 }}</p>
+                <p class="text-gray-600 text-sm">{{ property.city }}, {{ property.country }}</p>
               </div>
             </div>
 
@@ -80,9 +79,19 @@
                 <label for="cardNumber" class="block text-sm font-medium text-gray-700 mb-2">
                   Card Number
                 </label>
-                <input type="text" id="cardNumber" v-model="payment.cardNumber" required
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                       placeholder="1234 5678 9012 3456" maxlength="19">
+                <input
+                    type="text" id="cardNumber" v-model="payment.cardNumber" required
+                    :class="[
+                          'w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent',
+                          formErrors.cardNumber
+                            ? 'border-red-500 focus:ring-red-500'
+                            : 'border-gray-300 focus:ring-blue-500'
+                    ]"
+                    placeholder="1234 5678 9012 3456" maxlength="19"
+                    @input="payment.cardNumber = formatCardNumber(payment.cardNumber)"
+                    @blur="validateFormByKey( 'cardNumber')"
+                >
+                <p v-if="formErrors.cardNumber" class="mt-1 text-sm text-red-600">{{ formErrors.cardNumber }}</p>
               </div>
 
               <div class="grid grid-cols-2 gap-4">
@@ -90,17 +99,36 @@
                   <label for="expiryDate" class="block text-sm font-medium text-gray-700 mb-2">
                     Expiry Date
                   </label>
-                  <input type="text" id="expiryDate" v-model="payment.expiryDate" required
-                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                         placeholder="MM/YY" maxlength="5">
+                  <input
+                      type="text" id="expiryDate" v-model="payment.expiryDate" required
+                      :class="[
+                          'w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent',
+                          formErrors.expiryDate
+                            ? 'border-red-500 focus:ring-red-500'
+                            : 'border-gray-300 focus:ring-blue-500'
+                      ]"
+                      placeholder="MM/YY" maxlength="5"
+                      @input="payment.expiryDate = formatExpiryDate(payment.expiryDate)"
+                      @blur="validateFormByKey( 'expiryDate')"
+                  >
+                  <p v-if="formErrors.expiryDate" class="mt-1 text-sm text-red-600">{{ formErrors.expiryDate }}</p>
                 </div>
                 <div>
                   <label for="cvv" class="block text-sm font-medium text-gray-700 mb-2">
                     CVV
                   </label>
-                  <input type="text" id="cvv" v-model="payment.cvv" required
-                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                         placeholder="123" maxlength="4">
+                  <input
+                      type="text" id="cvv" v-model="payment.cvv" required
+                      :class="[
+                          'w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent',
+                          formErrors.cvv
+                            ? 'border-red-500 focus:ring-red-500'
+                            : 'border-gray-300 focus:ring-blue-500'
+                      ]"
+                      placeholder="123" maxlength="4" @input="payment.cvv = formatCVV(payment.cvv)"
+                      @blur="validateFormByKey( 'cvv')"
+                  >
+                  <p v-if="formErrors.cvv" class="mt-1 text-sm text-red-600">{{ formErrors.cvv }}</p>
                 </div>
               </div>
 
@@ -108,9 +136,18 @@
                 <label for="cardName" class="block text-sm font-medium text-gray-700 mb-2">
                   Cardholder Name
                 </label>
-                <input type="text" id="cardName" v-model="payment.cardName" required
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                       placeholder="John Doe">
+                <input
+                    type="text" id="cardName" v-model="payment.cardName" required
+                    :class="[
+                          'w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent',
+                          formErrors.cardName
+                            ? 'border-red-500 focus:ring-red-500'
+                            : 'border-gray-300 focus:ring-blue-500'
+                    ]"
+                    placeholder="John Doe" @input="payment.cardName = formatCardName(payment.cardName)"
+                    @blur="validateFormByKey( 'cardName')"
+                >
+                <p v-if="formErrors.cardName" class="mt-1 text-sm text-red-600">{{ formErrors.cardName }}</p>
               </div>
 
               <div>
@@ -132,7 +169,7 @@
               </div>
 
               <button type="submit" :disabled="!payment.agreeTerms"
-                      class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed">
+                      class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 hover:cursor-pointer transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed">
                 <i class="fas fa-lock mr-2"></i>
                 Complete Investment (£{{ investmentAmount.toLocaleString() }})
               </button>
@@ -249,8 +286,9 @@
 
 import {useProperties} from "@/composables/useProperties.js";
 import {computed, onMounted, ref} from "vue";
-import {useRoute} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 import AppHeader from "@/components/AppHeader.vue";
+import {useFormatting} from "@/composables/useFormatting.js";
 
 export default {
   name: 'InvestmentCheckout',
@@ -263,7 +301,9 @@ export default {
   },
   setup() {
     const route = useRoute()
-    const {getPropertyById, formatCurrency, formatPercentage, fundedPercentage, investProperty} = useProperties()
+    const router = useRouter()
+    const {getPropertyById, formatPercentage, investProperty} = useProperties()
+    const {formatCardName, formatCardNumber, formatCVV, formatExpiryDate} = useFormatting()
 
     const property = ref(null)
     const loading = ref(true)
@@ -276,9 +316,10 @@ export default {
       billingAddress: '',
       agreeTerms: false
     })
-    const investmentAmount = ref(1000)
-    const mainImage = ref('')
 
+    const formErrors = ref({})
+
+    const investmentAmount = ref(1000)
 
     const fetchProperty = async () => {
       loading.value = true
@@ -314,9 +355,129 @@ export default {
       return mockImages[property.id] || 'https://via.placeholder.com/600x400?text=Property+Image'
     }
 
-    const setMainImage = (imageUrl) => {
-      mainImage.value = imageUrl
+    const validateForm = () => {
+      let validated = true;
+      formErrors.value = {}
+
+      // AGREED TERMS validations
+      if (!payment.value.agreeTerms) {
+        formErrors.value.agreeTerms = 'You must agree to the terms and conditions to continue'
+        validated = false
+      }
+
+      // CARD NUMBER validations
+      const cleanCardNumber = payment.value.cardNumber.replace(/\s/g, '');
+      if (!payment.value.cardNumber) {
+        formErrors.value.cardNumber = 'Card number is required';
+        validated = false;
+      } else if (!/^\d{16}$/.test(cleanCardNumber)) {
+        formErrors.value.cardNumber = 'Enter a valid 16-digit card number';
+        validated = false;
+      }
+
+      // EXPIRY DATE validations
+      if (!payment.value.expiryDate) {
+        formErrors.value.expiryDate = 'Expiry date is required';
+        validated = false;
+      } else {
+        const [month, year] = payment.value.expiryDate.split('/').map(v => parseInt(v));
+        const isValidFormat = /^\d{2}\/\d{2}$/.test(payment.value.expiryDate);
+
+        if (!isValidFormat || month < 1 || month > 12) {
+          formErrors.value.expiryDate = 'Enter a valid expiry date (MM/YY)';
+          validated = false;
+        } else {
+          // check if expiry date is in the past
+          const currentYear = new Date().getFullYear() % 100;
+          const currentMonth = new Date().getMonth() + 1;
+
+          if (year < currentYear || (year === currentYear && month < currentMonth)) {
+            formErrors.value.expiryDate = 'This card has expired';
+            validated = false;
+          }
+        }
+      }
+
+
+      // CVV Validations
+      if (!payment.value.cvv) {
+        formErrors.value.cvv = 'CVV is required';
+        validated = false;
+      } else if (!/^\d{3,4}$/.test(payment.value.cvv)) {
+        formErrors.value.cvv = 'Enter a valid 3–4 digit CVV';
+        validated = false;
+      }
+
+      // CARDHOLDER Validations
+      if (!payment.value.cardName) {
+        formErrors.value.cardName = 'Cardholder name is required';
+        validated = false;
+      } else if (!/^[A-Za-z ]{3,}$/.test(payment.value.cardName.trim())) {
+        formErrors.value.cardName = 'Enter a valid name';
+        validated = false;
+      }
+
+      return validated;
     }
+
+    const validateFormByKey = (key) => {
+      // Não limpar tudo — só remover erro do campo validado
+      delete formErrors.value[key];
+
+      switch (key) {
+        case 'agreeTerms':
+          if (!payment.value.agreeTerms) {
+            formErrors.value.agreeTerms = 'You must agree to the terms to continue';
+          }
+          break;
+
+        case 'cardNumber':
+          const cleanCardNumber = payment.value.cardNumber.replace(/\s/g, '');
+
+          if (!payment.value.cardNumber) {
+            formErrors.value.cardNumber = 'Card number is required';
+          } else if (!/^\d{16}$/.test(cleanCardNumber)) {
+            formErrors.value.cardNumber = 'Enter a valid 16-digit card number';
+          }
+          break;
+
+        case 'expiryDate':
+          if (!payment.value.expiryDate) {
+            formErrors.value.expiryDate = 'Expiry date is required';
+            break;
+          }
+
+          const isValidFormat = /^\d{2}\/\d{2}$/.test(payment.value.expiryDate);
+          const [month, year] = payment.value.expiryDate.split('/').map(v => parseInt(v));
+
+          if (!isValidFormat || month < 1 || month > 12) {
+            formErrors.value.expiryDate = 'Enter a valid expiry date (MM/YY)';
+          } else {
+            const currentYear = new Date().getFullYear() % 100;
+            const currentMonth = new Date().getMonth() + 1;
+            if (year < currentYear || (year === currentYear && month < currentMonth)) {
+              formErrors.value.expiryDate = 'This card has expired';
+            }
+          }
+          break;
+
+        case 'cvv':
+          if (!payment.value.cvv) {
+            formErrors.value.cvv = 'CVV is required';
+          } else if (!/^\d{3,4}$/.test(payment.value.cvv)) {
+            formErrors.value.cvv = 'Enter a valid 3 or 4-digit CVV';
+          }
+          break;
+
+        case 'cardName':
+          if (!payment.value.cardName) {
+            formErrors.value.cardName = 'Cardholder name is required';
+          } else if (!/^[A-Za-z\s]{3,}$/.test(payment.value.cardName)) {
+            formErrors.value.cardName = 'Enter a valid name';
+          }
+          break;
+      }
+    };
 
     const handleImageError = (event) => {
       event.target.src = 'https://via.placeholder.com/600x400?text=Image+Not+Available'
@@ -324,12 +485,34 @@ export default {
 
     const handlePayment = () => {
 
+      // Validate form
+      if (!validateForm()) {
+        return;
+      }
 
+      //Save data to local storage for success page
+      localStorage.setItem('checkout_data', JSON.stringify({
+        property: {
+          id: property.value.id,
+          title: property.value.title,
+          city: property.value.city,
+          country: property.value.country,
+          investment_term_years: property.value.investment_term_years,
+          total_value: property.value.total_value,
+          images: property.value.images,
+          expected_annual_return: property.value.expected_annual_return,
+        },
+        investmentAmount: investmentAmount.value,
+        annualIncome: annualIncome.value,
+        sharePercentage: sharePercentage.value,
+      }))
+
+      // Uncomment the following lines when backend is ready
       // investProperty(route.params.id, investmentAmount)
 
       // Simulate payment processing
       alert('Payment processed successfully!')
-      route.push('/investor/success')
+      router.push('/investor/success')
     }
 
     const sharePercentage = computed(() => {
@@ -354,10 +537,16 @@ export default {
       property,
       loading,
       error,
+      formErrors,
       payment,
       investmentAmount,
       sharePercentage,
       annualIncome,
+      validateFormByKey,
+      formatCardNumber,
+      formatCardName,
+      formatCVV,
+      formatExpiryDate,
       formatPercentage,
       handlePayment,
       fetchProperty,

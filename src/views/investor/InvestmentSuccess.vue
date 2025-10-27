@@ -29,12 +29,12 @@
         <!-- Investment Summary -->
         <div class="bg-white rounded-lg shadow-lg p-8 mb-8 max-w-2xl mx-auto">
           <h2 class="text-2xl font-bold text-gray-900 mb-6">Investment Summary</h2>
-          
+
           <div class="flex items-center justify-center mb-6">
-            <img :src="property.image" :alt="property.title" class="w-16 h-16 object-cover rounded mr-4">
+            <img :src="mainImage" :alt="property.title" class="w-16 h-16 object-cover rounded mr-4">
             <div class="text-left">
               <h3 class="font-semibold text-gray-900">{{ property.title }}</h3>
-              <p class="text-gray-600 text-sm">{{ property.location }}</p>
+              <p class="text-gray-600 text-sm">{{ property.city }}, {{ property.country }}</p>
             </div>
           </div>
 
@@ -45,7 +45,7 @@
             </div>
             <div class="bg-gray-50 rounded-lg p-4">
               <p class="text-sm text-gray-600">Property Share</p>
-              <p class="text-2xl font-bold text-gray-900">{{ propertyShare }}%</p>
+              <p class="text-2xl font-bold text-gray-900">{{ sharePercentage }}%</p>
             </div>
             <div class="bg-gray-50 rounded-lg p-4">
               <p class="text-sm text-gray-600">Expected Annual Return</p>
@@ -53,7 +53,7 @@
             </div>
             <div class="bg-gray-50 rounded-lg p-4">
               <p class="text-sm text-gray-600">Investment Term</p>
-              <p class="text-2xl font-bold text-gray-900">{{ property.term }}</p>
+              <p class="text-2xl font-bold text-gray-900">{{ property.investment_term_years }} years</p>
             </div>
           </div>
         </div>
@@ -98,12 +98,12 @@
 
         <!-- Action Buttons -->
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <router-link to="/investor/dashboard" 
+          <router-link to="/investor/dashboard"
                        class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
             <i class="fas fa-tachometer-alt mr-2"></i>
             Go to Dashboard
           </router-link>
-          <router-link to="/investor/portfolio" 
+          <router-link to="/investor/portfolio"
                        class="border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-lg hover:bg-blue-600 hover:text-white transition-colors font-semibold">
             <i class="fas fa-chart-pie mr-2"></i>
             View Portfolio
@@ -141,17 +141,46 @@ export default {
         image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
         term: '4 years',
         totalValue: 850000
+      },
+      checkoutData: JSON.parse(localStorage.getItem('checkout_data')) || {},
+      mainImage: '',
+      getPropertyImage(property) {
+        if (property.images && property.images.length > 0) {
+          return property.images[0].url
+        }
+        // Fallback to mock images based on property ID
+        const mockImages = {
+          '1': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel01.jpg',
+          '2': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel02.jpg',
+          '3': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel03.jpg',
+          '4': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel04.jpg'
+        }
+
+        return mockImages[property.id] || 'https://via.placeholder.com/600x400?text=Property+Image'
       }
     }
   },
   computed: {
-    propertyShare() {
-      return ((this.investmentAmount / this.property.totalValue) * 100).toFixed(2)
+    sharePercentage() {
+      if (!this.property || !this.investmentAmount) return 0
+      const amount = parseFloat(this.investmentAmount.toString().replace(/[£,]/g, ''))
+      const total = parseFloat(this.property.total_value)
+      return ((amount / total) * 100).toFixed(2)
     },
     annualReturn() {
-      const returnRate = 9.2 / 100
-      return `£${(this.investmentAmount * returnRate).toLocaleString()}`
-    }
+      if (!this.property || !this.investmentAmount) return 0
+      const amount = parseFloat(this.investmentAmount.toString().replace(/[£,]/g, ''))
+      const returnRate = parseFloat(this.property.expected_annual_return) / 100
+      return amount * returnRate
+    },
+  },
+  mounted() {
+    if (this.checkoutData.property)
+      this.property = this.checkoutData.property
+    if (this.checkoutData.investmentAmount)
+      this.investmentAmount = this.checkoutData.investmentAmount
+
+    this.mainImage = this.getPropertyImage(this.property)
   }
 }
 </script>
