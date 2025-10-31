@@ -339,6 +339,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useProperties } from '@/composables/useProperties'
+import { useDocumentTitle } from '@/composables/useDocumentTitle.js'
 import AppHeader from '@/components/AppHeader.vue'
 
 export default {
@@ -356,6 +357,8 @@ export default {
     const investmentAmount = ref(1000)
     const mainImage = ref('')
 
+    const { setTitle } = useDocumentTitle()
+
     const fetchProperty = async () => {
       loading.value = true
       error.value = null
@@ -366,12 +369,16 @@ export default {
         if (data) {
           property.value = data
           mainImage.value = getPropertyImage(data)
+          // Update page title with property name
+          setTitle(`${data.title} - Property Details`)
         } else {
           error.value = `Property with ID ${route.params.id} not found`
+          setTitle('Property Not Found')
         }
       } catch (err) {
         error.value = 'Failed to load property details'
         console.error('Error fetching property:', err)
+        setTitle('Property Details')
       } finally {
         loading.value = false
       }

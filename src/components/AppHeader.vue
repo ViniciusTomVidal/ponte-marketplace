@@ -17,9 +17,14 @@
         
         <!-- Authenticated Navigation -->
         <nav v-else class="hidden md:flex items-center space-x-8">
-          <router-link to="/" class="text-gray-300 transition-colors hover:text-white">Home</router-link>
+          <router-link to="/investor/dashboard" class="text-gray-300 transition-colors hover:text-white">
+            <i class="fas fa-home mr-2"></i>Dashboard
+          </router-link>
           <router-link to="/investor/portfolio" class="text-gray-300 transition-colors hover:text-white">
             <i class="fas fa-chart-pie mr-2"></i>My Portfolio
+          </router-link>
+          <router-link to="/investor/orders" class="text-gray-300 transition-colors hover:text-white">
+            <i class="fas fa-shopping-cart mr-2"></i>Orders
           </router-link>
           <a href="#" class="text-gray-300 transition-colors hover:text-white">
             <i class="fas fa-bell mr-2"></i>Notifications

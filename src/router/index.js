@@ -1,4 +1,5 @@
 import {createRouter, createWebHistory} from 'vue-router'
+import { setRouteLoading } from '@/composables/useRouteLoading'
 
 // Import views
 import Home from '@/views/Home.vue'
@@ -16,87 +17,133 @@ import InvestmentSuccess from '@/views/investor/InvestmentSuccess.vue'
 import BrokerDashboard from '@/views/broker/Dashboard.vue'
 import BrokerAddProperty from '@/views/broker/AddProperty.vue'
 import InvestorPortfolio from "@/views/investor/InvestorPortfolio.vue";
+import InvestorOrders from "@/views/investor/Orders.vue";
+import OrderDetails from "@/views/investor/OrderDetails.vue";
+import PaymentConfirmed from "@/views/investor/PaymentConfirmed.vue";
+import PaymentCancelled from "@/views/investor/PaymentCancelled.vue";
 
 const routes = [
     {
         path: '/',
         name: 'Home',
-        component: Home
+        component: Home,
+        meta: { title: 'Home - Ponte Finance' }
     },
     // Auth routes
     {
         path: '/auth/investor/login',
         name: 'LoginInvestor',
-        component: LoginInvestor
+        component: LoginInvestor,
+        meta: { title: 'Investor Login - Ponte Finance' }
     },
     {
         path: '/auth/broker/login',
         name: 'LoginBroker',
-        component: LoginBroker
+        component: LoginBroker,
+        meta: { title: 'Broker Login - Ponte Finance' }
     },
     {
         path: '/auth/investor/register',
         name: 'RegisterInvestor',
-        component: RegisterInvestor
+        component: RegisterInvestor,
+        meta: { title: 'Register as Investor - Ponte Finance' }
     },
     {
         path: '/auth/questionnaire',
         name: 'Questionnaire',
-        component: Questionnaire
+        component: Questionnaire,
+        meta: { title: 'Investment Questionnaire - Ponte Finance' }
     },
     {
         path: '/auth/risk-declaration',
         name: 'RiskDeclaration',
-        component: RiskDeclaration
+        component: RiskDeclaration,
+        meta: { title: 'Risk Declaration - Ponte Finance' }
     },
     {
         path: '/auth/kyc-verification',
         name: 'KycVerification',
-        component: KycVerification
+        component: KycVerification,
+        meta: { title: 'KYC Verification - Ponte Finance' }
     },
     {
         path: '/auth/kyc-status',
         name: 'KycStatus',
-        component: KycStatus
+        component: KycStatus,
+        meta: { title: 'KYC Status - Ponte Finance' }
     },
     // Investor routes
     {
         path: '/investor/dashboard',
         name: 'InvestorDashboard',
-        component: InvestorDashboard
+        component: InvestorDashboard,
+        meta: { title: 'Investor Dashboard - Ponte Finance' }
     },
     {
         path: '/investor/portfolio',
         name: 'InvestorPortfolio',
-        component: InvestorPortfolio
+        component: InvestorPortfolio,
+        meta: { title: 'My Portfolio - Ponte Finance' }
+    },
+    {
+        path: '/investor/orders',
+        name: 'InvestorOrders',
+        component: InvestorOrders,
+        meta: { title: 'My Orders - Ponte Finance' }
+    },
+    {
+        path: '/investor/orders/:id',
+        name: 'OrderDetails',
+        component: OrderDetails,
+        props: true,
+        meta: { title: 'Order Details - Ponte Finance' }
+    },
+    {
+        path: '/investor/orders/:id/payment-confirmed',
+        name: 'PaymentConfirmed',
+        component: PaymentConfirmed,
+        props: true,
+        meta: { title: 'Payment Confirmed - Ponte Finance' }
+    },
+    {
+        path: '/investor/orders/:id/payment-cancelled',
+        name: 'PaymentCancelled',
+        component: PaymentCancelled,
+        props: true,
+        meta: { title: 'Payment Cancelled - Ponte Finance' }
     },
     {
         path: '/investor/property/:id',
         name: 'PropertyDetails',
         component: PropertyDetails,
-        props: true
+        props: true,
+        meta: { title: 'Property Details - Ponte Finance' }
     },
     {
         path: '/investor/checkout/:id',
         name: 'InvestmentCheckout',
         component: InvestmentCheckout,
-        props: true
+        props: true,
+        meta: { title: 'Investment Checkout - Ponte Finance' }
     },
     {
         path: '/investor/success',
         name: 'InvestmentSuccess',
-        component: InvestmentSuccess
+        component: InvestmentSuccess,
+        meta: { title: 'Investment Successful - Ponte Finance' }
     },
     // Broker routes
     {
         path: '/broker/dashboard',
         name: 'BrokerDashboard',
-        component: BrokerDashboard
+        component: BrokerDashboard,
+        meta: { title: 'Broker Dashboard - Ponte Finance' }
     },
     {
         path: '/broker/add-property',
         name: 'BrokerAddProperty',
-        component: BrokerAddProperty
+        component: BrokerAddProperty,
+        meta: { title: 'Add Property - Ponte Finance' }
     }
 ]
 
@@ -110,14 +157,33 @@ const router = createRouter({
 
 // Navigation guards to enforce questionnaire and KYC flow
 router.beforeEach(async (to, from, next) => {
+    // Show loading when navigating to a different route
+    if (to.path !== from.path) {
+        setRouteLoading(true)
+    }
+    
     const API_BASE_URL = 'https://ponte.finance'
 
     // Routes that require authentication and completion checks
     const protectedRoutes = [
         '/investor/dashboard',
         '/investor/checkout',
-        '/investor/success'
+        '/investor/success',
+        '/investor/orders',
+        '/investor/portfolio'
     ]
+    
+    // Check if route is order detail or callback
+    if (to.path.startsWith('/investor/orders/')) {
+        // Allow order details and callbacks - they will handle their own auth
+        const isOrderDetailOrCallback = /^\/investor\/orders\/\d+(\/(payment-(confirmed|cancelled)))?$/.test(to.path)
+        if (isOrderDetailOrCallback) {
+            // These routes are protected but will be handled by the component
+            if (protectedRoutes.some(route => to.path.startsWith(route))) {
+                // Use same auth check logic
+            }
+        }
+    }
 
     // Routes that are part of the onboarding flow (should not be protected)
     const onboardingRoutes = [
@@ -149,6 +215,7 @@ router.beforeEach(async (to, from, next) => {
 
                 if (!data.logged_in) {
                     // User not logged in, redirect to login
+                    setRouteLoading(false) // Hide loading before redirect
                     return next('/auth/investor/login')
                 }
 
@@ -156,6 +223,7 @@ router.beforeEach(async (to, from, next) => {
                     // User needs to complete questionnaire, risk declaration or KYC
                     // Only redirect if we're not already going to that route
                     if (to.path !== data.status.redirect_to) {
+                        setRouteLoading(false) // Hide loading before redirect
                         return next(data.status.redirect_to)
                     }
                 }
@@ -168,10 +236,12 @@ router.beforeEach(async (to, from, next) => {
                 const riskDeclarationCompleted = localStorage.getItem('risk_declaration_completed')
 
                 if (!questionnaireCompleted) {
+                    setRouteLoading(false) // Hide loading before redirect
                     return next('/auth/questionnaire')
                 }
 
                 if (!riskDeclarationCompleted) {
+                    setRouteLoading(false) // Hide loading before redirect
                     return next('/auth/risk-declaration')
                 }
 
@@ -184,10 +254,12 @@ router.beforeEach(async (to, from, next) => {
             const riskDeclarationCompleted = localStorage.getItem('risk_declaration_completed')
 
             if (!questionnaireCompleted) {
+                setRouteLoading(false) // Hide loading before redirect
                 return next('/auth/questionnaire')
             }
 
             if (!riskDeclarationCompleted) {
+                setRouteLoading(false) // Hide loading before redirect
                 return next('/auth/risk-declaration')
             }
 
@@ -196,6 +268,23 @@ router.beforeEach(async (to, from, next) => {
     } else {
         next()
     }
+})
+
+// Hide loading after route is resolved and update page title
+router.afterEach((to) => {
+    // Update document title
+    document.title = to.meta.title || 'Ponte Finance - Property Investment Marketplace'
+    
+    // Small delay to ensure smooth transition
+    setTimeout(() => {
+        setRouteLoading(false)
+    }, 100)
+})
+
+// Hide loading if navigation fails
+router.onError((error) => {
+    console.error('Router error:', error)
+    setRouteLoading(false)
 })
 
 export default router

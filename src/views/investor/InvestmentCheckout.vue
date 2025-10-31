@@ -25,7 +25,7 @@
 
 
     <!-- Main Content -->
-    <main v-else-if="property" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main v-else-if="property" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="grid lg:grid-cols-2 gap-8">
         <!-- Investment Summary -->
         <div class="space-y-6">
@@ -71,92 +71,123 @@
             </div>
           </div>
 
+          <!-- Investment Amount -->
+          <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Investment Amount</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Amount (£)</label>
+                <div class="relative">
+                  <span class="absolute left-3 top-3 text-gray-500">£</span>
+                  <input
+                    type="number"
+                    v-model="investmentAmount"
+                    @input="validateFormByKey('investmentAmount')"
+                    class="pl-8 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="1000"
+                    min="1000"
+                    step="1000"
+                  >
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Minimum: £1,000 | Must be multiple of £1,000</p>
+                <p v-if="formErrors.investmentAmount" class="text-red-500 text-xs mt-1">{{ formErrors.investmentAmount }}</p>
+              </div>
+              
+              <div v-if="investmentAmount && isValidInvestmentAmount(investmentAmount)" class="bg-gray-50 rounded-lg p-4">
+                <div class="space-y-2">
+                  <div class="flex justify-between">
+                    <span class="text-sm text-gray-600">Your Share</span>
+                    <span class="font-semibold">{{ sharePercentage }}%</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-sm text-gray-600">Estimated Annual Return</span>
+                    <span class="font-semibold text-green-600">£{{ annualIncome.toLocaleString() }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Payment Information -->
           <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Payment Information</h3>
-            <form @submit.prevent="handlePayment" class="space-y-4">
-              <div>
-                <label for="cardNumber" class="block text-sm font-medium text-gray-700 mb-2">
-                  Card Number
-                </label>
-                <input
-                    type="text" id="cardNumber" v-model="payment.cardNumber" required
-                    :class="[
-                          'w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent',
-                          formErrors.cardNumber
-                            ? 'border-red-500 focus:ring-red-500'
-                            : 'border-gray-300 focus:ring-blue-500'
-                    ]"
-                    placeholder="1234 5678 9012 3456" maxlength="19"
-                    @input="payment.cardNumber = formatCardNumber(payment.cardNumber)"
-                    @blur="validateFormByKey( 'cardNumber')"
-                >
-                <p v-if="formErrors.cardNumber" class="mt-1 text-sm text-red-600">{{ formErrors.cardNumber }}</p>
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label for="expiryDate" class="block text-sm font-medium text-gray-700 mb-2">
-                    Expiry Date
-                  </label>
-                  <input
-                      type="text" id="expiryDate" v-model="payment.expiryDate" required
-                      :class="[
-                          'w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent',
-                          formErrors.expiryDate
-                            ? 'border-red-500 focus:ring-red-500'
-                            : 'border-gray-300 focus:ring-blue-500'
-                      ]"
-                      placeholder="MM/YY" maxlength="5"
-                      @input="payment.expiryDate = formatExpiryDate(payment.expiryDate)"
-                      @blur="validateFormByKey( 'expiryDate')"
-                  >
-                  <p v-if="formErrors.expiryDate" class="mt-1 text-sm text-red-600">{{ formErrors.expiryDate }}</p>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Payment Method</h3>
+            
+            <!-- Payment Method Selection -->
+            <div class="grid grid-cols-1 gap-4 mb-6">
+              <!-- Yapily -->
+              <label class="relative cursor-pointer">
+                <input type="radio" name="paymentMethod" value="bank_transfer" v-model="paymentMethod" class="peer sr-only d-none">
+                <div class="border-2 border-gray-300 rounded-lg p-4 hover:border-blue-500 peer-checked:border-blue-600 peer-checked:bg-blue-50 transition-all">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                      <div>
+                        <h4 class="font-semibold text-gray-900">Yapily</h4>
+                        <p class="text-sm text-gray-600">Invest directly from your UK bank account via Open Banking</p>
+                      </div>
+                    </div>
+                    <div class="bg-blue-600 text-white font-bold px-3 py-1 rounded text-sm">YAPILY</div>
+                  </div>
                 </div>
-                <div>
-                  <label for="cvv" class="block text-sm font-medium text-gray-700 mb-2">
-                    CVV
-                  </label>
-                  <input
-                      type="text" id="cvv" v-model="payment.cvv" required
-                      :class="[
-                          'w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent',
-                          formErrors.cvv
-                            ? 'border-red-500 focus:ring-red-500'
-                            : 'border-gray-300 focus:ring-blue-500'
-                      ]"
-                      placeholder="123" maxlength="4" @input="payment.cvv = formatCVV(payment.cvv)"
-                      @blur="validateFormByKey( 'cvv')"
-                  >
-                  <p v-if="formErrors.cvv" class="mt-1 text-sm text-red-600">{{ formErrors.cvv }}</p>
+              </label>
+
+              <!-- PayPal -->
+              <label class="relative cursor-pointer">
+                <input type="radio" name="paymentMethod" value="paypal" v-model="paymentMethod" class="peer sr-only">
+                <div class="border-2 border-gray-300 rounded-lg p-4 hover:border-blue-500 peer-checked:border-blue-600 peer-checked:bg-blue-50 transition-all">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                      <div>
+                        <h4 class="font-semibold text-gray-900">PayPal</h4>
+                        <p class="text-sm text-gray-600">Invest instantly in GBP with your card via PayPal</p>
+                      </div>
+                    </div>
+                    <i class="fab fa-cc-paypal text-3xl text-blue-600"></i>
+                  </div>
                 </div>
+              </label>
+
+              <!-- PIX -->
+              <label class="relative cursor-pointer">
+                <input type="radio" name="paymentMethod" value="pix" v-model="paymentMethod" class="peer sr-only">
+                <div class="border-2 border-gray-300 rounded-lg p-4 hover:border-blue-500 peer-checked:border-blue-600 peer-checked:bg-blue-50 transition-all">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                      <div>
+                        <h4 class="font-semibold text-gray-900">PIX</h4>
+                        <p class="text-sm text-gray-600">Exclusive for Brazil: invest directly in BRL via PIX</p>
+                      </div>
+                    </div>
+                    <div class="bg-green-600 text-white font-bold px-3 py-1 rounded">PIX</div>
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            <!-- Payment Complete Button -->
+            <div class="space-y-4">
+              <!-- Info Card based on selected method -->
+              <div v-if="paymentMethod === 'bank_transfer'" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div class="flex items-center mb-2">
+                  <i class="fas fa-university text-blue-600 mr-2"></i>
+                  <h4 class="font-semibold text-blue-900">Yapily Open Banking</h4>
+                </div>
+                <p class="text-sm text-blue-800">You'll be redirected to your bank via secure Open Banking to complete the payment.</p>
               </div>
 
-              <div>
-                <label for="cardName" class="block text-sm font-medium text-gray-700 mb-2">
-                  Cardholder Name
-                </label>
-                <input
-                    type="text" id="cardName" v-model="payment.cardName" required
-                    :class="[
-                          'w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent',
-                          formErrors.cardName
-                            ? 'border-red-500 focus:ring-red-500'
-                            : 'border-gray-300 focus:ring-blue-500'
-                    ]"
-                    placeholder="John Doe" @input="payment.cardName = formatCardName(payment.cardName)"
-                    @blur="validateFormByKey( 'cardName')"
-                >
-                <p v-if="formErrors.cardName" class="mt-1 text-sm text-red-600">{{ formErrors.cardName }}</p>
+              <div v-if="paymentMethod === 'paypal'" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div class="flex items-center mb-2">
+                  <i class="fab fa-paypal text-yellow-600 mr-2"></i>
+                  <h4 class="font-semibold text-yellow-900">PayPal Payment</h4>
+                </div>
+                <p class="text-sm text-yellow-800">You'll be redirected to PayPal to complete your payment securely.</p>
               </div>
 
-              <div>
-                <label for="billingAddress" class="block text-sm font-medium text-gray-700 mb-2">
-                  Billing Address
-                </label>
-                <textarea id="billingAddress" v-model="payment.billingAddress" required
-                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          rows="3" placeholder="Enter your billing address"></textarea>
+              <div v-if="paymentMethod === 'pix'" class="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div class="flex items-center mb-2">
+                  <i class="fas fa-mobile-alt text-green-600 mr-2"></i>
+                  <h4 class="font-semibold text-green-900">PIX Payment</h4>
+                </div>
+                <p class="text-sm text-green-800">Generate a PIX QR code to complete your investment instantly in BRL.</p>
               </div>
 
               <div class="flex items-center">
@@ -168,12 +199,19 @@
                 </label>
               </div>
 
-              <button type="submit" :disabled="!payment.agreeTerms"
-                      class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 hover:cursor-pointer transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed">
+              <button @click="handlePayment" :disabled="!payment.agreeTerms"
+                      :class="[
+                        'w-full py-3 px-4 rounded-lg hover:cursor-pointer transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed text-white',
+                        paymentMethod === 'bank_transfer' ? 'bg-blue-600 hover:bg-blue-700' :
+                        paymentMethod === 'paypal' ? 'bg-yellow-500 hover:bg-yellow-600' :
+                        'bg-green-600 hover:bg-green-700'
+                      ]">
                 <i class="fas fa-lock mr-2"></i>
-                Complete Investment (£{{ investmentAmount.toLocaleString() }})
+                <span v-if="paymentMethod === 'bank_transfer'">Complete Investment via Yapily (£{{ investmentAmount.toLocaleString() }})</span>
+                <span v-else-if="paymentMethod === 'paypal'">Pay with PayPal (£{{ investmentAmount.toLocaleString() }})</span>
+                <span v-else>Pay with PIX (£{{ investmentAmount.toLocaleString() }})</span>
               </button>
-            </form>
+            </div>
           </div>
         </div>
 
@@ -285,7 +323,7 @@
 <script>
 
 import {useProperties} from "@/composables/useProperties.js";
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {useRoute, useRouter} from 'vue-router'
 import AppHeader from "@/components/AppHeader.vue";
 import {useFormatting} from "@/composables/useFormatting.js";
@@ -303,11 +341,11 @@ export default {
     const route = useRoute()
     const router = useRouter()
     const {getPropertyById, formatPercentage, investProperty} = useProperties()
-    const {formatCardName, formatCardNumber, formatCVV, formatExpiryDate} = useFormatting()
 
     const property = ref(null)
     const loading = ref(true)
     const error = ref(null)
+    const paymentMethod = ref('bank_transfer') // Default payment method
     const payment = ref({
       cardNumber: '',
       expiryDate: '',
@@ -319,7 +357,35 @@ export default {
 
     const formErrors = ref({})
 
-    const investmentAmount = ref(1000)
+    // Initialize investment amount from localStorage or default
+    const getInitialInvestmentAmount = () => {
+      const savedAmount = localStorage.getItem(`investment_amount_${route.params.id}`)
+      if (savedAmount) {
+        const amount = parseInt(savedAmount)
+        return amount >= 1000 ? amount : 1000
+      }
+      return 1000
+    }
+    
+    const investmentAmount = ref(getInitialInvestmentAmount())
+
+    // Save investment amount to localStorage
+    const saveInvestmentAmount = (amount) => {
+      localStorage.setItem(`investment_amount_${route.params.id}`, amount.toString())
+    }
+
+    // Validate that amount is multiple of 1000
+    const isValidInvestmentAmount = (amount) => {
+      const numAmount = parseInt(amount.toString().replace(/[£,]/g, ''))
+      return numAmount >= 1000 && numAmount % 1000 === 0
+    }
+
+    // Watch for changes in investment amount and save to localStorage
+    watch(investmentAmount, (newAmount) => {
+      if (newAmount && isValidInvestmentAmount(newAmount)) {
+        saveInvestmentAmount(newAmount)
+      }
+    })
 
     const fetchProperty = async () => {
       loading.value = true
@@ -365,56 +431,13 @@ export default {
         validated = false
       }
 
-      // CARD NUMBER validations
-      const cleanCardNumber = payment.value.cardNumber.replace(/\s/g, '');
-      if (!payment.value.cardNumber) {
-        formErrors.value.cardNumber = 'Card number is required';
-        validated = false;
-      } else if (!/^\d{16}$/.test(cleanCardNumber)) {
-        formErrors.value.cardNumber = 'Enter a valid 16-digit card number';
-        validated = false;
-      }
-
-      // EXPIRY DATE validations
-      if (!payment.value.expiryDate) {
-        formErrors.value.expiryDate = 'Expiry date is required';
-        validated = false;
-      } else {
-        const [month, year] = payment.value.expiryDate.split('/').map(v => parseInt(v));
-        const isValidFormat = /^\d{2}\/\d{2}$/.test(payment.value.expiryDate);
-
-        if (!isValidFormat || month < 1 || month > 12) {
-          formErrors.value.expiryDate = 'Enter a valid expiry date (MM/YY)';
-          validated = false;
-        } else {
-          // check if expiry date is in the past
-          const currentYear = new Date().getFullYear() % 100;
-          const currentMonth = new Date().getMonth() + 1;
-
-          if (year < currentYear || (year === currentYear && month < currentMonth)) {
-            formErrors.value.expiryDate = 'This card has expired';
-            validated = false;
-          }
-        }
-      }
-
-
-      // CVV Validations
-      if (!payment.value.cvv) {
-        formErrors.value.cvv = 'CVV is required';
-        validated = false;
-      } else if (!/^\d{3,4}$/.test(payment.value.cvv)) {
-        formErrors.value.cvv = 'Enter a valid 3–4 digit CVV';
-        validated = false;
-      }
-
-      // CARDHOLDER Validations
-      if (!payment.value.cardName) {
-        formErrors.value.cardName = 'Cardholder name is required';
-        validated = false;
-      } else if (!/^[A-Za-z ]{3,}$/.test(payment.value.cardName.trim())) {
-        formErrors.value.cardName = 'Enter a valid name';
-        validated = false;
+      // INVESTMENT AMOUNT validations
+      if (!investmentAmount.value) {
+        formErrors.value.investmentAmount = 'Investment amount is required'
+        validated = false
+      } else if (!isValidInvestmentAmount(investmentAmount.value)) {
+        formErrors.value.investmentAmount = 'Investment amount must be a multiple of £1,000 (minimum £1,000)'
+        validated = false
       }
 
       return validated;
@@ -430,50 +453,11 @@ export default {
             formErrors.value.agreeTerms = 'You must agree to the terms to continue';
           }
           break;
-
-        case 'cardNumber':
-          const cleanCardNumber = payment.value.cardNumber.replace(/\s/g, '');
-
-          if (!payment.value.cardNumber) {
-            formErrors.value.cardNumber = 'Card number is required';
-          } else if (!/^\d{16}$/.test(cleanCardNumber)) {
-            formErrors.value.cardNumber = 'Enter a valid 16-digit card number';
-          }
-          break;
-
-        case 'expiryDate':
-          if (!payment.value.expiryDate) {
-            formErrors.value.expiryDate = 'Expiry date is required';
-            break;
-          }
-
-          const isValidFormat = /^\d{2}\/\d{2}$/.test(payment.value.expiryDate);
-          const [month, year] = payment.value.expiryDate.split('/').map(v => parseInt(v));
-
-          if (!isValidFormat || month < 1 || month > 12) {
-            formErrors.value.expiryDate = 'Enter a valid expiry date (MM/YY)';
-          } else {
-            const currentYear = new Date().getFullYear() % 100;
-            const currentMonth = new Date().getMonth() + 1;
-            if (year < currentYear || (year === currentYear && month < currentMonth)) {
-              formErrors.value.expiryDate = 'This card has expired';
-            }
-          }
-          break;
-
-        case 'cvv':
-          if (!payment.value.cvv) {
-            formErrors.value.cvv = 'CVV is required';
-          } else if (!/^\d{3,4}$/.test(payment.value.cvv)) {
-            formErrors.value.cvv = 'Enter a valid 3 or 4-digit CVV';
-          }
-          break;
-
-        case 'cardName':
-          if (!payment.value.cardName) {
-            formErrors.value.cardName = 'Cardholder name is required';
-          } else if (!/^[A-Za-z\s]{3,}$/.test(payment.value.cardName)) {
-            formErrors.value.cardName = 'Enter a valid name';
+        case 'investmentAmount':
+          if (!investmentAmount.value) {
+            formErrors.value.investmentAmount = 'Investment amount is required';
+          } else if (!isValidInvestmentAmount(investmentAmount.value)) {
+            formErrors.value.investmentAmount = 'Investment amount must be a multiple of £1,000 (minimum £1,000)';
           }
           break;
       }
@@ -483,36 +467,181 @@ export default {
       event.target.src = 'https://via.placeholder.com/600x400?text=Image+Not+Available'
     }
 
-    const handlePayment = () => {
+    const handlePayment = async () => {
 
-      // Validate form
-      if (!validateForm()) {
-        return;
+      try {
+        // Validate form
+        if (!validateForm()) {
+          return;
+        }
+
+        // Get real user data from localStorage or session
+        const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+        const realEmail = userData.email || 'investor@example.com';
+        const realFirstName = userData.first_name || 'Investor';
+        const realLastName = userData.last_name || 'User';
+        const realPhone = userData.phone || '+44 20 1234 5678';
+
+        // Prepare form data similar to index.html
+        const formData = new FormData();
+
+        // Basic investor information with real data
+        formData.append('type', 'individual'); // Default to individual
+        formData.append('first_name', realFirstName);
+        formData.append('last_name', realLastName);
+        formData.append('email', realEmail);
+        formData.append('phone', realPhone);
+
+        // Investment details
+        const numberOfShares = Math.floor(investmentAmount.value / 2); // £2 per share
+        formData.append('number_of_shares_requested', numberOfShares.toString());
+        formData.append('price', `£${investmentAmount.value.toLocaleString()}.00 GBP`);
+
+        // Payment method
+        formData.append('form_investment_type', paymentMethod.value);
+        formData.append('form_investment', 'form_investment');
+
+        // Terms and conditions
+        formData.append('terms_confirmation', 'on');
+        formData.append('sophisticated_investor_confirmation', 'on');
+        formData.append('agreement_confirmation', 'on');
+        formData.append('order_marketplace', true);
+        formData.append('value_marketplace', investmentAmount.value);
+        
+        // Property ID
+        const propertyId = parseInt(route.params.id) || null;
+        if (propertyId) {
+          formData.append('property_id', propertyId.toString());
+        }
+
+        // Build confirmation and cancellation URLs for payment callbacks
+        const frontendBase = window.location.origin;
+        // Generate order ID will be available after creation, but we'll need to update after
+        // For now, we'll pass placeholder URLs that the backend can use
+        const confirmationUrl = `${frontendBase}/investor/orders/{order_id}/payment-confirmed`;
+        const cancellationUrl = `${frontendBase}/investor/orders/{order_id}/payment-cancelled`;
+        
+        // Pass frontend base URL so backend can construct correct callback URLs
+        formData.append('frontend_base_url', frontendBase);
+        formData.append('confirmation_url_template', confirmationUrl);
+        formData.append('cancellation_url_template', cancellationUrl);
+
+        try {
+          // Submit to Ponte Finance with CORS handling
+          const response = await fetch('https://ponte.finance/', {
+            method: 'POST',
+            body: formData
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          let data;
+          try {
+            data = await response.json();
+          } catch (jsonError) {
+            console.error('JSON parse error:', jsonError);
+            // If JSON parsing fails, try to get text response
+            const textResponse = await response.text();
+            console.log('Response text:', textResponse);
+            throw new Error('Invalid JSON response from server');
+          }
+
+          // Handle different payment methods
+          if (paymentMethod.value === 'yapily' || paymentMethod.value === 'bank_transfer') {
+            // For Yapily/Bank Transfer: Get hosted URL from API CORS
+            const yapilyResponse = await fetch('https://api-proxy-cors.vercel.app/yapily-payment', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                localStorageData: {
+                  type: 'individual',
+                  first_name: realFirstName,
+                  last_name: realLastName,
+                  email: realEmail,
+                  phone: realPhone,
+                  number_of_shares_requested: numberOfShares,
+                  price: `£${investmentAmount.value.toLocaleString()}.00 GBP`,
+                  form_investment_type: paymentMethod.value,
+                  form_investment: 'form_investment',
+                  terms_confirmation: 'on',
+                  sophisticated_investor_confirmation: 'on',
+                  agreement_confirmation: 'on'
+                },
+                timestamp: new Date().toISOString(),
+                source: 'wordpress-form',
+                id: data.id
+              })
+            });
+
+            if (!yapilyResponse.ok) {
+              throw new Error(`Yapily error! status: ${yapilyResponse.status}`);
+            }
+
+            const yapilyData = await yapilyResponse.json();
+
+            // Update order with Yapily data
+            const updateFormData = new FormData();
+            updateFormData.append('update_yapily_data', 'true');
+            updateFormData.append('order_id', data.id);
+            updateFormData.append('url_yapily', yapilyData.hostedUrl);
+            updateFormData.append('payment_request_id', yapilyData.paymentRequestId);
+
+            await fetch('https://ponte.finance/', {
+              method: 'POST',
+              body: updateFormData,
+            });
+
+            // Redirect to Yapily hosted URL
+            if (yapilyData.hostedUrl) {
+              setTimeout(() => {
+                window.open(yapilyData.hostedUrl, '_self');
+              }, 1000);
+            }
+           } else {
+             // For PayPal and PIX: Use redirect_url directly from Ponte Finance
+             if (data.redirect_url) {
+               window.location.href = data.redirect_url;
+             } else {
+               throw new Error("No redirect URL provided");
+             }
+           }
+
+          // Save data to local storage for success page
+          localStorage.setItem('checkout_data', JSON.stringify({
+            property: {
+              id: property.value.id,
+              title: property.value.title,
+              city: property.value.city,
+              country: property.value.country,
+              investment_term_years: property.value.investment_term_years,
+              total_value: property.value.total_value,
+              images: property.value.images,
+              expected_annual_return: property.value.expected_annual_return,
+            },
+            investmentAmount: investmentAmount.value,
+            annualIncome: annualIncome.value,
+            sharePercentage: sharePercentage.value,
+            paymentMethod: paymentMethod.value,
+            userData: {
+              email: realEmail,
+              firstName: realFirstName,
+              lastName: realLastName,
+              phone: realPhone
+            }
+          }));
+
+         } catch (error) {
+           console.log(error)
+           alert("An error occurred while processing your payment. Please try again or contact support.");
+         }
       }
-
-      //Save data to local storage for success page
-      localStorage.setItem('checkout_data', JSON.stringify({
-        property: {
-          id: property.value.id,
-          title: property.value.title,
-          city: property.value.city,
-          country: property.value.country,
-          investment_term_years: property.value.investment_term_years,
-          total_value: property.value.total_value,
-          images: property.value.images,
-          expected_annual_return: property.value.expected_annual_return,
-        },
-        investmentAmount: investmentAmount.value,
-        annualIncome: annualIncome.value,
-        sharePercentage: sharePercentage.value,
-      }))
-
-      // Uncomment the following lines when backend is ready
-      // investProperty(route.params.id, investmentAmount)
-
-      // Simulate payment processing
-      alert('Payment processed successfully!')
-      router.push('/investor/success')
+      catch (error) {
+        console.log(error)
+      }
     }
 
     const sharePercentage = computed(() => {
@@ -539,20 +668,18 @@ export default {
       error,
       formErrors,
       payment,
+      paymentMethod,
       investmentAmount,
       sharePercentage,
       annualIncome,
       validateFormByKey,
-      formatCardNumber,
-      formatCardName,
-      formatCVV,
-      formatExpiryDate,
       formatPercentage,
       handlePayment,
       fetchProperty,
       getPropertyImage,
       handleImageError,
-      investProperty
+      investProperty,
+      isValidInvestmentAmount
     }
 
   }
