@@ -23,28 +23,28 @@
             <div class="p-4 rounded-lg inline-block mb-4" style="background-color: rgb(245, 241, 232);">
               <i class="fas fa-pound-sign text-2xl" style="color: rgb(166, 133, 66);"></i>
             </div>
-            <p class="text-3xl font-bold text-gray-900 mb-2">£15,000</p>
+            <p class="text-3xl font-bold text-gray-900 mb-2">{{ formatCurrencyStats(totalInvested) }}</p>
             <p class="text-gray-600">Total Invested</p>
           </div>
           <div class="bg-white rounded-lg shadow-lg p-8 text-center border border-gray-200">
             <div class="p-4 rounded-lg inline-block mb-4" style="background-color: rgb(245, 241, 232);">
               <i class="fas fa-chart-line text-2xl" style="color: rgb(166, 133, 66);"></i>
             </div>
-            <p class="text-3xl font-bold text-gray-900 mb-2">£1,250</p>
+            <p class="text-3xl font-bold text-gray-900 mb-2">{{ formatCurrencyStats(totalReturn) }}</p>
             <p class="text-gray-600">Total Return</p>
           </div>
           <div class="bg-white rounded-lg shadow-lg p-8 text-center border border-gray-200">
             <div class="p-4 rounded-lg inline-block mb-4" style="background-color: rgb(245, 241, 232);">
               <i class="fas fa-home text-2xl" style="color: rgb(166, 133, 66);"></i>
             </div>
-            <p class="text-3xl font-bold text-gray-900 mb-2">3</p>
+            <p class="text-3xl font-bold text-gray-900 mb-2">{{ propertiesCount }}</p>
             <p class="text-gray-600">Properties</p>
           </div>
           <div class="bg-white rounded-lg shadow-lg p-8 text-center border border-gray-200">
             <div class="p-4 rounded-lg inline-block mb-4" style="background-color: rgb(245, 241, 232);">
               <i class="fas fa-percentage text-2xl" style="color: rgb(166, 133, 66);"></i>
             </div>
-            <p class="text-3xl font-bold text-gray-900 mb-2">8.3%</p>
+            <p class="text-3xl font-bold text-gray-900 mb-2">{{ formatPercentageStats(averageROI) }}</p>
             <p class="text-gray-600">Average ROI</p>
           </div>
         </div>
@@ -105,7 +105,7 @@
                     <div class="w-full bg-gray-200 rounded-full h-2 mr-2">
                       <div 
                         class="h-2 rounded-full" 
-                        style="background-color: rgb(166, 133, 66); width: {{ fundedPercentage(property) }}%;"
+                        :style="{ backgroundColor: 'rgb(166, 133, 66)', width: fundedPercentage(property) + '%' }"
                       ></div>
                     </div>
                     <span class="text-xs text-gray-600">{{ fundedPercentage(property) }}%</span>
@@ -187,6 +187,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProperties } from '@/composables/useProperties'
+import { api } from '@/services/api'
 import authService from '@/services/auth'
 import AppHeader from '@/components/AppHeader.vue'
 
@@ -210,6 +211,45 @@ export default {
       formatPercentage 
     } = useProperties()
 
+    // Portfolio summary stats
+    const portfolioSummary = ref(null)
+    const summaryLoading = ref(false)
+    const summaryError = ref(null)
+
+    // Fetch portfolio summary for stats
+    const fetchPortfolioSummary = async () => {
+      summaryLoading.value = true
+      summaryError.value = null
+
+      try {
+        const summaryResponse = await api.getPortfolioSummary()
+        if (summaryResponse.success) {
+          portfolioSummary.value = summaryResponse
+        }
+      } catch (err) {
+        console.error('Error fetching portfolio summary:', err)
+        summaryError.value = 'Failed to load portfolio stats.'
+      } finally {
+        summaryLoading.value = false
+      }
+    }
+
+    // Computed stats from portfolio summary
+    const totalInvested = computed(() => {
+      return portfolioSummary.value?.total_invested || 0
+    })
+
+    const totalReturn = computed(() => {
+      return portfolioSummary.value?.total_projected_return || 0
+    })
+
+    const propertiesCount = computed(() => {
+      return portfolioSummary.value?.properties_count || 0
+    })
+
+    const averageROI = computed(() => {
+      return portfolioSummary.value?.average_roi || 0
+    })
 
     // Get property image with fallback
     const getPropertyImage = (property) => {
@@ -235,9 +275,28 @@ export default {
       event.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Available'
     }
 
-    // Fetch properties on component mount
+    // Format currency for stats
+    const formatCurrencyStats = (value) => {
+      if (!value || isNaN(value)) return '£0.00'
+      const numValue = parseFloat(value)
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(numValue)
+    }
+
+    // Format percentage for stats
+    const formatPercentageStats = (percentage) => {
+      if (!percentage || isNaN(percentage)) return '0.0%'
+      return `${parseFloat(percentage).toFixed(1)}%`
+    }
+
+    // Fetch properties and portfolio summary on component mount
     onMounted(() => {
       fetchProperties()
+      fetchPortfolioSummary()
     })
 
     return {
@@ -250,7 +309,13 @@ export default {
       formatCurrency,
       formatPercentage,
       getPropertyImage,
-      handleImageError
+      handleImageError,
+      totalInvested,
+      totalReturn,
+      propertiesCount,
+      averageROI,
+      formatCurrencyStats,
+      formatPercentageStats
     }
   }
 }
