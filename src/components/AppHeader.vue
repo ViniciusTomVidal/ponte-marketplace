@@ -26,9 +26,9 @@
           <router-link to="/investor/orders" class="text-gray-300 transition-colors hover:text-white">
             <i class="fas fa-shopping-cart mr-2"></i>Orders
           </router-link>
-          <a href="#" class="text-gray-300 transition-colors hover:text-white">
-            <i class="fas fa-bell mr-2"></i>Notifications
-          </a>
+<!--          <a href="#" class="text-gray-300 transition-colors hover:text-white">-->
+<!--            <i class="fas fa-bell mr-2"></i>Notifications-->
+<!--          </a>-->
           <div class="flex items-center space-x-3">
             <div class="text-right hidden md:block">
               <p class="text-sm font-medium text-white">{{ userData.first_name || 'Investor' }}</p>

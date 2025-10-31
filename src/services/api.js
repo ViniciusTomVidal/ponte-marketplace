@@ -178,6 +178,64 @@ export const api = {
             console.error('Error processing order payment:', error)
             throw error
         }
+    },
+
+    // Fetch investor portfolio (grouped by property)
+    async getInvestorPortfolio() {
+        try {
+            const token = localStorage.getItem('jwt_token')
+            const headers = {
+                'Content-Type': 'application/json'
+            }
+
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`
+            }
+
+            const response = await fetch(`${API_BASE_URL}/investor/portfolio`, {
+                method: 'GET',
+                headers: headers
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            const data = await response.json()
+            return data
+        } catch (error) {
+            console.error('Error fetching investor portfolio:', error)
+            throw error
+        }
+    },
+
+    // Fetch portfolio summary statistics
+    async getPortfolioSummary() {
+        try {
+            const token = localStorage.getItem('jwt_token')
+            const headers = {
+                'Content-Type': 'application/json'
+            }
+
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`
+            }
+
+            const response = await fetch(`${API_BASE_URL}/investor/portfolio/summary`, {
+                method: 'GET',
+                headers: headers
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            const data = await response.json()
+            return data
+        } catch (error) {
+            console.error('Error fetching portfolio summary:', error)
+            throw error
+        }
     }
 }
 
