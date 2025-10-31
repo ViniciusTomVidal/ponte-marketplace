@@ -12,9 +12,9 @@
     </div>
 
     <!-- Error State -->
-    <div v-else-if="error" class="min-h-screen flex items-center justify-center">
+    <div v-else-if="error.fetching" class="min-h-screen flex items-center justify-center">
       <div class="text-center">
-        <p class="text-red-600 mb-4">{{ error }}</p>
+        <p class="text-red-600 mb-4">{{ error.fetching }}</p>
         <button @click="fetchProperty" class="px-6 py-3 rounded-lg text-white hover:opacity-90 transition-all" style="background-color: rgb(166, 133, 66);">
           Try Again
         </button>
@@ -270,10 +270,12 @@
                     placeholder="1,000"
                     type="text"
                     v-model="investmentAmount"
+                    @input="validateInvestmentAmount"
                     style="--tw-ring-color: #001242; --tw-border-color: #001242;"
                   >
                 </div>
                 <p class="text-xs text-gray-500 mt-1">Minimum: {{ formatCurrency(property.minimum_investment) }} | Increments of £1,000</p>
+                <p v-if="error.investment_amount" class="text-xs text-red-500 mt-1">{{ error.investment_amount }}</p>
               </div>
               <div v-if="investmentAmount && isValidInvestment" class="bg-gray-50 rounded-lg p-4">
                 <div class="space-y-2">
@@ -292,13 +294,14 @@
                 </div>
               </div>
             </div>
-            <router-link
-              :to="`/investor/checkout/${property.id}`"
-              class="w-full text-white py-3 px-4 rounded-lg transition-colors font-semibold text-lg mb-4 block text-center"
+            <button
+              @click="handleInvestNow"
+              :disabled="!!error.investment_amount || !isValidInvestment"
+              class="w-full text-white py-3 px-4 rounded-lg transition-colors font-semibold text-lg mb-4 block text-center disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer hover:opacity-95"
               style="background-color: rgb(0, 18, 66);"
             >
               <i class="fas fa-paper-plane mr-2"></i>Invest Now
-            </router-link>
+            </button>
             <div class="mt-6 space-y-3">
               <button class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 hover:cursor-pointer transition-colors">
                 <i class="fas fa-download mr-2"></i>Download Prospectus
@@ -336,8 +339,8 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useProperties } from '@/composables/useProperties'
 import { useDocumentTitle } from '@/composables/useDocumentTitle.js'
 import AppHeader from '@/components/AppHeader.vue'
@@ -349,19 +352,43 @@ export default {
   },
   setup() {
     const route = useRoute()
+    const router = useRouter()
     const { getPropertyById, formatCurrency, formatPercentage, fundedPercentage } = useProperties()
     
     const property = ref(null)
     const loading = ref(true)
-    const error = ref(null)
-    const investmentAmount = ref(1000)
+        const error = ref({fetching: '' , investment_amount: ''})
+    
+    // Initialize investment amount from localStorage or default
+    const getInitialInvestmentAmount = () => {
+      const savedAmount = localStorage.getItem(`investment_amount_${route.params.id}`)
+      if (savedAmount) {
+        const amount = parseInt(savedAmount)
+        return amount >= 1000 ? amount : 1000
+      }
+      return 1000
+    }
+    
+    const investmentAmount = ref(getInitialInvestmentAmount())
     const mainImage = ref('')
 
     const { setTitle } = useDocumentTitle()
+    
+    // Watch for changes in investment amount and save to localStorage
+    watch(investmentAmount, (newAmount) => {
+      if (newAmount && property.value) {
+        const numAmount = parseFloat(newAmount.toString().replace(/[£,]/g, ''))
+        const min = parseFloat(property.value.minimum_investment)
+        const max = parseFloat(property.value.funding_required) - parseFloat(property.value.funding_raised)
+        if (numAmount >= min && numAmount <= max) {
+          localStorage.setItem(`investment_amount_${route.params.id}`, numAmount.toString())
+        }
+      }
+    })
 
     const fetchProperty = async () => {
       loading.value = true
-      error.value = null
+      error.value.fetching = null
       
       try {
         // Fetch property By Id
@@ -371,12 +398,14 @@ export default {
           mainImage.value = getPropertyImage(data)
           // Update page title with property name
           setTitle(`${data.title} - Property Details`)
+          // Validate initial investment amount after property is loaded
+          validateInvestmentAmount()
         } else {
-          error.value = `Property with ID ${route.params.id} not found`
+          error.value.fetching = `Property with ID ${route.params.id} not found`
           setTitle('Property Not Found')
         }
       } catch (err) {
-        error.value = 'Failed to load property details'
+        error.value.fetching = 'Failed to load property details'
         console.error('Error fetching property:', err)
         setTitle('Property Details')
       } finally {
@@ -438,9 +467,11 @@ export default {
     const isValidInvestment = computed(() => {
       if (!property.value || !investmentAmount.value) return false
       const amount = parseFloat(investmentAmount.value.toString().replace(/[£,]/g, ''))
+      if (isNaN(amount) || amount <= 0) return false
       const min = parseFloat(property.value.minimum_investment)
       const max = parseFloat(property.value.funding_required) - parseFloat(property.value.funding_raised)
-      return amount >= min && amount <= max
+      const isMultipleOf1000 = amount % 1000 === 0
+      return amount >= min && amount <= max && isMultipleOf1000
     })
 
     const calculateAnnualIncome = () => {
@@ -461,6 +492,54 @@ export default {
       return ((amount / total) * 100).toFixed(2)
     }
 
+    const validateInvestmentAmount = () => {
+      if (!investmentAmount.value || !property.value) {
+        error.value.investment_amount = ''
+        return
+      }
+
+      const numAmount = parseFloat(investmentAmount.value.toString().replace(/[£,]/g, ''))
+      
+      // Check if it's a valid number
+      if (isNaN(numAmount) || numAmount <= 0) {
+        error.value.investment_amount = 'Please enter a valid investment amount'
+        return
+      }
+
+      // Check minimum investment
+      const min = parseFloat(property.value.minimum_investment)
+      if (numAmount < min) {
+        error.value.investment_amount = `Minimum investment is ${formatCurrency(min)}`
+        return
+      }
+
+      // Check maximum investment
+      const max = parseFloat(property.value.funding_required) - parseFloat(property.value.funding_raised)
+      if (numAmount > max) {
+        error.value.investment_amount = `Maximum available investment is ${formatCurrency(max)}`
+        return
+      }
+
+      // Check if it's a multiple of 1000
+      if (numAmount % 1000 !== 0) {
+        error.value.investment_amount = 'Investment amount must be a multiple of £1,000'
+        return
+      }
+
+      // All validations passed
+      error.value.investment_amount = ''
+    }
+
+    const handleInvestNow = () => {
+      // Validate before navigating
+      validateInvestmentAmount()
+      
+      // Only navigate if there are no errors and investment is valid
+      if (!error.value.investment_amount && isValidInvestment.value && property.value) {
+        router.push(`/investor/checkout/${property.value.id}`)
+      }
+    }
+
     return {
       property,
       loading,
@@ -476,10 +555,12 @@ export default {
       formatCurrency,
       formatPercentage,
       fundedPercentage,
+      validateInvestmentAmount,
       isValidInvestment,
       calculateAnnualIncome,
       calculateMonthlyIncome,
-      calculateSharePercentage
+      calculateSharePercentage,
+      handleInvestNow
     }
   }
 }

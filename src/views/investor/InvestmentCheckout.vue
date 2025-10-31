@@ -199,7 +199,7 @@
                 </label>
               </div>
 
-              <button @click="handlePayment" :disabled="!payment.agreeTerms"
+              <button @click="handlePayment" :disabled="!payment.agreeTerms || Object.keys(formErrors).length > 0"
                       :class="[
                         'w-full py-3 px-4 rounded-lg hover:cursor-pointer transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed text-white',
                         paymentMethod === 'bank_transfer' ? 'bg-blue-600 hover:bg-blue-700' :
