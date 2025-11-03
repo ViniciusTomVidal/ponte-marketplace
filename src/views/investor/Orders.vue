@@ -204,43 +204,7 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 py-12 mt-16" style="border-top-color: rgb(166, 133, 66); border-top-width: 1px;">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid md:grid-cols-4 gap-8">
-          <div>
-            <div class="flex items-center mb-4">
-              <i class="fas fa-building text-2xl mr-3" style="color: rgb(166, 133, 66);"></i>
-              <h4 class="text-xl font-bold text-white">Ponte Finance</h4>
-            </div>
-            <p class="text-gray-300 mb-4">Democratizing real estate investment through fractions.</p>
-          </div>
-          <div>
-            <h5 class="text-lg font-semibold text-white mb-4">Invest</h5>
-            <ul class="space-y-2">
-              <li><router-link to="/investor/dashboard" class="text-gray-300 transition-colors hover:opacity-80">Properties</router-link></li>
-              <li><router-link to="/investor/portfolio" class="text-gray-300 transition-colors hover:opacity-80">My Portfolio</router-link></li>
-              <li><router-link to="/investor/orders" class="text-gray-300 transition-colors hover:opacity-80">My Orders</router-link></li>
-            </ul>
-          </div>
-          <div>
-            <h5 class="text-lg font-semibold text-white mb-4">Company</h5>
-            <ul class="space-y-2">
-              <li><a href="#" class="text-gray-300 transition-colors hover:opacity-80">About Us</a></li>
-            </ul>
-          </div>
-          <div>
-            <h5 class="text-lg font-semibold text-white mb-4">Support</h5>
-            <ul class="space-y-2">
-              <li><a href="#" class="text-gray-300 transition-colors hover:opacity-80">Help Center</a></li>
-              <li><a href="#" class="text-gray-300 transition-colors hover:opacity-80">Contact</a></li>
-            </ul>
-          </div>
-        </div>
-        <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400 text-sm">
-          <p>© 2025 Ponte Finance. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
+    <AppFooter variant="orders" />
   </div>
 </template>
 
@@ -248,11 +212,13 @@
 import { ref, onMounted } from 'vue'
 import { api } from '@/services/api'
 import AppHeader from '@/components/AppHeader.vue'
+import AppFooter from '@/components/AppFooter.vue'
 
 export default {
   name: 'InvestorOrders',
   components: {
-    AppHeader
+    AppHeader,
+    AppFooter
   },
   setup() {
     const orders = ref([])

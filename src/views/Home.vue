@@ -114,7 +114,7 @@
                     <div class="w-full bg-gray-200 rounded-full h-2 mr-2">
                       <div 
                         class="h-2 rounded-full" 
-                        style="background-color: rgb(166, 133, 66); width: {{ fundedPercentage(property) }}%;"
+                        :style="{ backgroundColor: 'rgb(166, 133, 66)', width: fundedPercentage(property) + '%' }"
                       ></div>
                     </div>
                     <span class="text-xs text-gray-600">{{ fundedPercentage(property) }}%</span>
@@ -163,7 +163,7 @@
             <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6" style="background-color: rgb(245, 241, 232);">
               <span class="text-2xl font-bold" style="color: rgb(166, 133, 66);">2</span>
             </div>
-            <h4 class="text-xl font-semibold text-gray-900 mb-4">Invest from £100</h4>
+            <h4 class="text-xl font-semibold text-gray-900 mb-4">Invest from £1000</h4>
             <p class="text-gray-600">Buy property fractions with the amount you want, without bureaucracy</p>
           </div>
           <div class="text-center">
@@ -171,57 +171,14 @@
               <span class="text-2xl font-bold" style="color: rgb(166, 133, 66);">3</span>
             </div>
             <h4 class="text-xl font-semibold text-gray-900 mb-4">Receive Returns</h4>
-            <p class="text-gray-600">Receive potential monthly income proportional to your share in the property</p>
+            <p class="text-gray-600">Earn potential monthly returns proportional to your ownership share</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 py-12" style="border-top-color: rgb(166, 133, 66); border-top-width: 1px;">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid md:grid-cols-4 gap-8">
-          <div>
-            <div class="flex items-center mb-4">
-              <i class="fas fa-building text-2xl mr-3" style="color: rgb(166, 133, 66);"></i>
-              <h4 class="text-xl font-bold text-white">Ponte Finance</h4>
-            </div>
-            <p class="text-gray-300 mb-4">Democratizing real estate investment through fractions.</p>
-            <div class="flex space-x-4">
-              <a href="#" class="text-gray-300 transition-colors hover:opacity-80"><i class="fab fa-facebook text-xl"></i></a>
-              <a href="#" class="text-gray-300 transition-colors hover:opacity-80"><i class="fab fa-twitter text-xl"></i></a>
-              <a href="#" class="text-gray-300 transition-colors hover:opacity-80"><i class="fab fa-linkedin text-xl"></i></a>
-            </div>
-          </div>
-          <div>
-            <h5 class="text-lg font-semibold text-white mb-4">Invest</h5>
-            <ul class="space-y-2">
-              <li><a class="text-gray-300 transition-colors hover:opacity-80" href="#how-it-works">How It Works</a></li>
-              <li><a href="#" class="text-gray-300 transition-colors hover:opacity-80">Calculator</a></li>
-              <li><a href="#" class="text-gray-300 transition-colors hover:opacity-80">FAQ</a></li>
-            </ul>
-          </div>
-          <div>
-            <h5 class="text-lg font-semibold text-white mb-4">Company</h5>
-            <ul class="space-y-2">
-              <li><a href="#" class="text-gray-300 transition-colors hover:opacity-80">About Us</a></li>
-            </ul>
-          </div>
-          <div>
-            <h5 class="text-lg font-semibold text-white mb-4">Support</h5>
-            <ul class="space-y-2">
-              <li><a href="#" class="text-gray-300 transition-colors hover:opacity-80">Help Center</a></li>
-              <li><a href="#" class="text-gray-300 transition-colors hover:opacity-80">Contact</a></li>
-              <li><a href="#" class="text-gray-300 transition-colors hover:opacity-80">Terms of Use</a></li>
-              <li><a href="#" class="text-gray-300 transition-colors hover:opacity-80">Privacy Policy</a></li>
-            </ul>
-          </div>
-        </div>
-        <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400 text-sm">
-          <p>© 2025 Ponte Finance. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
+    <AppFooter variant="home" />
   </div>
 </template>
 
@@ -229,10 +186,11 @@
 import { onMounted } from 'vue'
 import { useProperties } from '@/composables/useProperties'
 import AppHeader from "@/components/AppHeader.vue";
+import AppFooter from "@/components/AppFooter.vue";
 
 export default {
   name: 'Home',
-  components: {AppHeader},
+  components: {AppHeader, AppFooter},
   setup() {
     const { 
       properties, 

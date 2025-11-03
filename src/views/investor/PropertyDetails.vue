@@ -64,27 +64,27 @@
                 <div class="space-y-3">
                   <div class="flex justify-between">
                     <span class="text-gray-600">Type</span>
-                    <span class="font-semibold capitalize">{{ property.property_type }}</span>
+                    <span class="font-semibold text-end capitalize">{{ property.property_type }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Bedrooms</span>
-                    <span class="font-semibold">{{ property.bedrooms }}</span>
+                    <span class="font-semibold text-end">{{ property.bedrooms }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Bathrooms</span>
-                    <span class="font-semibold">{{ property.bathrooms }}</span>
+                    <span class="font-semibold text-end">{{ property.bathrooms }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Area</span>
-                    <span class="font-semibold">{{ property.area_sqm }} m²</span>
+                    <span class="font-semibold text-end">{{ Math.trunc(property.area_sqm) }} m²</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Floor</span>
-                    <span class="font-semibold">{{ property.floor || 'N/A'}}</span>
+                    <span class="font-semibold text-end">{{ property.floor || 'N/A'}}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Construction Year</span>
-                    <span class="font-semibold">{{ property.construction_year || 'N/A' }}</span>
+                    <span class="font-semibold text-end">{{ property.construction_year || 'N/A' }}</span>
                   </div>
                 </div>
               </div>
@@ -93,23 +93,23 @@
                 <div class="space-y-3">
                   <div class="flex justify-between">
                     <span class="text-gray-600">Neighbourhood</span>
-                    <span class="font-semibold">{{ property.city }}</span>
+                    <span class="font-semibold text-end">{{ property.city }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">City</span>
-                    <span class="font-semibold">{{ property.city }}</span>
+                    <span class="font-semibold text-end">{{ property.city }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Postcode</span>
-                    <span class="font-semibold">{{ property.postcode }}</span>
+                    <span class="font-semibold text-end">{{ property.postcode }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Nearest Tube</span>
-                    <span class="font-semibold">{{ property.nearest_tube }} ({{ property.nearest_tube_distance }})</span>
+                    <span class="font-semibold text-end">{{ property.nearest_tube }} ({{ property.nearest_tube_distance }})</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Airport</span>
-                    <span class="font-semibold">{{ property.nearest_airport }} ({{ property.airport_distance }})</span>
+                    <span class="font-semibold text-end">{{ property.nearest_airport }} ({{ property.airport_distance }})</span>
                   </div>
                 </div>
               </div>
@@ -121,37 +121,37 @@
                 <div class="space-y-3">
                   <div class="flex justify-between">
                     <span class="text-gray-600">Total Property Value</span>
-                    <span class="font-semibold text-lg">{{ formatCurrency(property.total_value) }}</span>
+                    <span class="font-semibold text-end text-lg">{{ formatCurrency(property.total_value) }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Available Value</span>
-                    <span class="font-semibold text-lg">{{ formatCurrency(property.funding_required) }}</span>
+                    <span class="font-semibold text-end text-lg">{{ formatCurrency(property.funding_required) }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Minimum Investment</span>
-                    <span class="font-semibold text-lg">{{ formatCurrency(property.minimum_investment) }}</span>
+                    <span class="font-semibold text-end text-lg">{{ formatCurrency(property.minimum_investment) }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Investment Term</span>
-                    <span class="font-semibold">{{ property.investment_term_years }} years</span>
+                    <span class="font-semibold text-end">{{ property.investment_term_years }} years</span>
                   </div>
                 </div>
                 <div class="space-y-3">
                   <div class="flex justify-between">
                     <span class="text-gray-600">Projected Annual Return</span>
-                    <span class="font-semibold text-green-600 text-lg">{{ formatPercentage(property.expected_annual_return) }}</span>
+                    <span class="font-semibold text-end text-green-600 text-lg">{{ formatPercentage(property.expected_annual_return) }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Estimated Monthly Income</span>
-                    <span class="font-semibold">{{ formatCurrency(calculateMonthlyIncome()) }}</span>
+                    <span class="font-semibold text-end">{{ formatCurrency(calculateMonthlyIncome()) }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Management Fee</span>
-                    <span class="font-semibold">{{ formatPercentage(property.management_fee_rate) }} per annum</span>
+                    <span class="font-semibold text-end">{{ formatPercentage(property.management_fee_rate) }} p.a.</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Funding Progress</span>
-                    <span class="font-semibold">{{ fundedPercentage(property) }}%</span>
+                    <span class="font-semibold text-end">{{ fundedPercentage(property) }}%</span>
                   </div>
                 </div>
               </div>
@@ -243,7 +243,7 @@
                 <i class="fas fa-exclamation-triangle text-yellow-400 mt-1"></i>
                 <div class="ml-3">
                   <h4 class="text-sm font-medium text-yellow-800">Important Notice</h4>
-                  <p class="text-sm text-yellow-700 mt-1">{{ property.risk_information || 'Real estate investments involve risks. The value of your investment may go up or down and you may receive less than you invested. Past returns are not indicative of future returns.' }}</p>
+                  <p class="text-sm text-yellow-700 mt-1">{{ property.risk_information || 'Investing in property involves risks, and past performance is not a reliable indicator of future results. Investors may not get back the full amount invested.' }}</p>
                 </div>
               </div>
             </div>
@@ -274,7 +274,7 @@
                     style="--tw-ring-color: #001242; --tw-border-color: #001242;"
                   >
                 </div>
-                <p class="text-xs text-gray-500 mt-1">Minimum: {{ formatCurrency(property.minimum_investment) }} | Increments of £1,000</p>
+                <p class="text-xs text-gray-500 mt-1">Minimum: {{ formatCurrency(property.minimum_investment) }} | Invest in multiples of £1,000</p>
                 <p v-if="error.investment_amount" class="text-xs text-red-500 mt-1">{{ error.investment_amount }}</p>
               </div>
               <div v-if="investmentAmount && isValidInvestment" class="bg-gray-50 rounded-lg p-4">
@@ -291,6 +291,7 @@
                     <span class="text-sm text-gray-600">Estimated Annual Return</span>
                     <span class="font-semibold text-green-600">{{ formatCurrency(calculateAnnualIncome()) }}</span>
                   </div>
+                  <p><span class="text-[11px] text-gray-500 text-justify">Based on a 10% projected annual return over 12 months. Figures are illustrative and not guaranteed. Your capital is at risk.</span></p>
                 </div>
               </div>
             </div>
@@ -304,7 +305,7 @@
             </button>
             <div class="mt-6 space-y-3">
               <button class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 hover:cursor-pointer transition-colors">
-                <i class="fas fa-download mr-2"></i>Download Prospectus
+                <i class="fas fa-download mr-2"></i>Download Investment Summary
               </button>
               <button class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 hover:cursor-pointer transition-colors">
                 <i class="fas fa-question-circle mr-2"></i>Ask a Question
@@ -315,7 +316,7 @@
             </div>
             <div class="mt-6 p-4 rounded-lg" style="background-color: rgba(0, 18, 66, 0.1);">
               <h4 class="font-semibold mb-2" style="color: rgb(0, 18, 66);">Need Help?</h4>
-              <p class="text-sm mb-3" style="color: rgb(0, 18, 66);">Our team is available to clarify your questions about this investment.</p>
+              <p class="text-sm mb-3" style="color: rgb(0, 18, 66);">Our team is here to help with any questions regarding this investment.</p>
               <div class="space-y-2 text-sm">
                 <div class="flex items-center" style="color: rgb(0, 18, 66);">
                   <i class="fas fa-envelope mr-2"></i>{{ property.contact_email || 'support@ponte.finance' }}
@@ -451,11 +452,11 @@ export default {
 
     const parseMainRisks = (risks) => {
       if (!risks) return [
-        'Real estate market fluctuations',
-        'Vacancy periods',
-        'Unexpected maintenance costs',
-        'Legislative changes',
-        'Limited liquidity (no secondary market)'
+        'Fluctuations in the real estate market',
+        'Potential vacancy periods',
+        'Unexpected maintenance or repair costs',
+        'Regulatory or legislative changes',
+        'Limited liquidity (no active secondary market)'
       ]
       try {
         return JSON.parse(risks)

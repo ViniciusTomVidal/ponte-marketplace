@@ -250,7 +250,7 @@
               Need Help?
             </h3>
             <p class="text-gray-600 text-sm mb-4">
-              Our investment specialists are here to help you with any questions about your investment.
+              Our team is here to help with any questions regarding this investment.
             </p>
             <div class="space-y-2">
               <p class="text-sm text-gray-600">
