@@ -112,12 +112,20 @@
                   </div>
                 </div>
                 <div>
-                  <p class="text-xs text-gray-500">Projected Annual Return</p>
+                  <p class="text-xs text-gray-500">Projected Annual Return*</p>
                   <p class="font-semibold" style="color: rgb(166, 133, 66);">{{ formatPercentage(property.expected_annual_return) }}</p>
                 </div>
                 <div>
                   <p class="text-xs text-gray-500">Minimum Investment</p>
                   <p class="font-semibold text-gray-900">{{ formatCurrency(property.minimum_investment) }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Loan Term</p>
+                  <p class="font-semibold text-gray-900">{{ property.loan_term ? property.loan_term + ' months' : 'N/A' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">LTV (%)</p>
+                  <p class="font-semibold text-gray-900">{{ property.loan_to_value ? formatPercentage(property.loan_to_value) : 'N/A' }}</p>
                 </div>
               </div>
               <div class="flex space-x-2">
@@ -129,6 +137,7 @@
                   View Details
                 </router-link>
               </div>
+              <i class="text-xs text-gray-500 text-justify">*Figures are illustrative and not guaranteed. Your capital is at risk.</i>
             </div>
           </div>
         </div>

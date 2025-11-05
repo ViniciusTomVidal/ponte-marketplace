@@ -12,6 +12,9 @@ export default {
         'ponte-gold-dark': 'rgb(145, 115, 58)',
         'ponte-gold-light': 'rgb(185, 155, 85)',
       },
+      fontFamily: {
+        montserrat: ['Montserrat', 'sans-serif'],
+      },
     },
   },
 }

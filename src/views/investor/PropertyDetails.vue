@@ -62,27 +62,27 @@
               <div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Property Features</h3>
                 <div class="space-y-3">
-                  <div class="flex justify-between">
+                  <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Type</span>
                     <span class="font-semibold text-end capitalize">{{ property.property_type }}</span>
                   </div>
-                  <div class="flex justify-between">
+                  <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Bedrooms</span>
                     <span class="font-semibold text-end">{{ property.bedrooms }}</span>
                   </div>
-                  <div class="flex justify-between">
+                  <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Bathrooms</span>
                     <span class="font-semibold text-end">{{ property.bathrooms }}</span>
                   </div>
-                  <div class="flex justify-between">
+                  <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Area</span>
                     <span class="font-semibold text-end">{{ Math.trunc(property.area_sqm) }} m²</span>
                   </div>
-                  <div class="flex justify-between">
+                  <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Floor</span>
                     <span class="font-semibold text-end">{{ property.floor || 'N/A'}}</span>
                   </div>
-                  <div class="flex justify-between">
+                  <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Construction Year</span>
                     <span class="font-semibold text-end">{{ property.construction_year || 'N/A' }}</span>
                   </div>
@@ -91,23 +91,23 @@
               <div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Location</h3>
                 <div class="space-y-3">
-                  <div class="flex justify-between">
+                  <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Neighbourhood</span>
                     <span class="font-semibold text-end">{{ property.city }}</span>
                   </div>
-                  <div class="flex justify-between">
+                  <div class="flex justify-between h-auto">
                     <span class="text-gray-600">City</span>
                     <span class="font-semibold text-end">{{ property.city }}</span>
                   </div>
-                  <div class="flex justify-between">
+                  <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Postcode</span>
                     <span class="font-semibold text-end">{{ property.postcode }}</span>
                   </div>
-                  <div class="flex justify-between">
+                  <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Nearest Tube</span>
                     <span class="font-semibold text-end">{{ property.nearest_tube }} ({{ property.nearest_tube_distance }})</span>
                   </div>
-                  <div class="flex justify-between">
+                  <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Airport</span>
                     <span class="font-semibold text-end">{{ property.nearest_airport }} ({{ property.airport_distance }})</span>
                   </div>
@@ -119,39 +119,47 @@
               <h3 class="text-lg font-semibold text-gray-900 mb-4">Investment Details</h3>
               <div class="grid md:grid-cols-2 gap-6">
                 <div class="space-y-3">
-                  <div class="flex justify-between">
+                  <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Total Property Value</span>
                     <span class="font-semibold text-end text-lg">{{ formatCurrency(property.total_value) }}</span>
                   </div>
-                  <div class="flex justify-between">
+                  <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Available Value</span>
                     <span class="font-semibold text-end text-lg">{{ formatCurrency(property.funding_required) }}</span>
                   </div>
-                  <div class="flex justify-between">
+                  <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Minimum Investment</span>
                     <span class="font-semibold text-end text-lg">{{ formatCurrency(property.minimum_investment) }}</span>
                   </div>
-                  <div class="flex justify-between">
+                  <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Investment Term</span>
                     <span class="font-semibold text-end">{{ property.investment_term_years }} years</span>
                   </div>
+                  <div class="flex justify-between h-auto">
+                    <span class="text-gray-600">LTV (%)</span>
+                    <span class="font-semibold text-end">{{ property.loan_to_value ? formatPercentage(property.loan_to_value) : 'N/A' }}</span>
+                  </div>
                 </div>
                 <div class="space-y-3">
-                  <div class="flex justify-between">
+                  <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Projected Annual Return</span>
                     <span class="font-semibold text-end text-green-600 text-lg">{{ formatPercentage(property.expected_annual_return) }}</span>
                   </div>
-                  <div class="flex justify-between">
+                  <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Estimated Monthly Income</span>
                     <span class="font-semibold text-end">{{ formatCurrency(calculateMonthlyIncome()) }}</span>
                   </div>
-                  <div class="flex justify-between">
+                  <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Management Fee</span>
-                    <span class="font-semibold text-end">{{ formatPercentage(property.management_fee_rate) }} p.a.</span>
+                    <span class="font-semibold text-end">{{ property.management_fee_rate ? formatPercentage(property.management_fee_rate) + ' p.a.' : 'N/A' }}</span>
                   </div>
-                  <div class="flex justify-between">
+                  <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Funding Progress</span>
                     <span class="font-semibold text-end">{{ fundedPercentage(property) }}%</span>
+                  </div>
+                  <div class="flex justify-between h-auto">
+                    <span class="text-gray-600">Loan Term</span>
+                    <span class="font-semibold text-end">{{ property.loan_term ? property.loan_term + ' months' : 'N/A' }}</span>
                   </div>
                 </div>
               </div>

@@ -157,7 +157,7 @@
 
                   <!-- Expected Annual Return -->
                   <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-600">Expected Return Rate:</span>
+                    <span class="text-sm text-gray-600">Expected Return Rate*:</span>
                     <span class="text-sm font-semibold" style="color: rgb(166, 133, 66);">
                       {{ formatPercentage(item.property.expected_annual_return) }}
                     </span>
@@ -169,6 +169,18 @@
                     <span class="text-sm font-bold text-gray-900">{{ formatCurrency(item.projectedAnnualReturn) }}</span>
                   </div>
 
+                  <!-- Loan Term -->
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Loan Term:</span>
+                    <span class="text-sm font-semibold text-gray-700">{{ item.property.loan_term ? item.property.loan_term + ' months' : 'N/A' }}</span>
+                  </div>
+
+                  <!-- LTV -->
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">LTV (%):</span>
+                    <span class="text-sm font-semibold text-gray-700">{{ item.property.loan_to_value ? formatPercentage(item.property.loan_to_value) : 'N/A' }}</span>
+                  </div>
+
                   <!-- ROI -->
                   <div class="flex justify-between items-center bg-gray-50 p-2 rounded">
                     <span class="text-sm font-semibold text-gray-700">ROI:</span>
@@ -176,6 +188,11 @@
                       {{ formatPercentage(item.roi) }}
                     </span>
                   </div>
+                </div>
+
+                <!-- Disclaimer -->
+                <div class="mb-4">
+                  <i class="text-xs text-gray-500 text-justify">*Figures are illustrative and not guaranteed. Your capital is at risk.</i>
                 </div>
 
                 <!-- Property Details Link -->
