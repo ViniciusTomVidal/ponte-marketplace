@@ -92,6 +92,27 @@
             <a href="mailto:admin@ponte.finance" class="text-[13px] font-medium text-white hover:underline mb-4">
               admin@ponte.finance
             </a>
+            <!-- Social Media Links -->
+            <div class="flex items-center gap-4 mb-4">
+              <a 
+                href="https://www.facebook.com/people/Pontefinance/61573143484708/#" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="text-white hover:text-[#A68542] transition-colors"
+                aria-label="Facebook"
+              >
+                <i class="fab fa-facebook-f text-xl"></i>
+              </a>
+              <a 
+                href="https://www.linkedin.com/company/ponte-finance-plc/?originalSubdomain=uk" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="text-white hover:text-[#A68542] transition-colors"
+                aria-label="LinkedIn"
+              >
+                <i class="fab fa-linkedin-in text-xl"></i>
+              </a>
+            </div>
             <img width="960" height="638" src="https://ponte.finance/wp-content/uploads/2024/06/QR-codes-1024x681.png"
               class="max-w-full h-auto hidden md:block" alt="QR Codes" />
           </div>
