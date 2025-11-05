@@ -336,14 +336,7 @@
       </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white mt-20">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="text-center">
-          <p class="text-gray-400">© 2024 Ponte Finance. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
+    <AppFooter />
   </div>
 </template>
 
@@ -353,11 +346,13 @@ import { useRoute, useRouter } from 'vue-router'
 import { useProperties } from '@/composables/useProperties'
 import { useDocumentTitle } from '@/composables/useDocumentTitle.js'
 import AppHeader from '@/components/AppHeader.vue'
+import AppFooter from '@/components/AppFooter.vue'
 
 export default {
   name: 'PropertyDetails',
   components: {
-    AppHeader
+    AppHeader,
+    AppFooter
   },
   setup() {
     const route = useRoute()
