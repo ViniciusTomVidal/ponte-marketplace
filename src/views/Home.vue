@@ -32,28 +32,28 @@
             <div class="p-4 rounded-lg inline-block mb-4" style="background-color: rgb(245, 241, 232);">
               <i class="fas fa-home text-2xl" style="color: rgb(166, 133, 66);"></i>
             </div>
-            <p class="text-3xl font-bold text-gray-900 mb-2">150+</p>
+            <p class="text-3xl font-bold text-gray-900 mb-2">{{ formatStatsNumber(dashboardData?.available_properties, 100) }}</p>
             <p class="text-gray-600">Available Properties</p>
           </div>
           <div class="bg-white rounded-lg shadow-lg p-8 text-center border border-gray-200">
             <div class="p-4 rounded-lg inline-block mb-4" style="background-color: rgb(245, 241, 232);">
               <i class="fas fa-users text-2xl" style="color: rgb(166, 133, 66);"></i>
             </div>
-            <p class="text-3xl font-bold text-gray-900 mb-2">5,000+</p>
+            <p class="text-3xl font-bold text-gray-900 mb-2">{{ formatStatsNumber(dashboardData?.registered_investors, 100) }}</p>
             <p class="text-gray-600">Registered Investors</p>
           </div>
           <div class="bg-white rounded-lg shadow-lg p-8 text-center border border-gray-200">
             <div class="p-4 rounded-lg inline-block mb-4" style="background-color: rgb(245, 241, 232);">
               <i class="fas fa-pound-sign text-2xl" style="color: rgb(166, 133, 66);"></i>
             </div>
-            <p class="text-3xl font-bold text-gray-900 mb-2">£50M+</p>
+            <p class="text-3xl font-bold text-gray-900 mb-2">{{ formatInvestmentVolume(dashboardData?.total_investment_value) }}</p>
             <p class="text-gray-600">Total Investment Volume</p>
           </div>
           <div class="bg-white rounded-lg shadow-lg p-8 text-center border border-gray-200">
             <div class="p-4 rounded-lg inline-block mb-4" style="background-color: rgb(245, 241, 232);">
               <i class="fas fa-percentage text-2xl" style="color: rgb(166, 133, 66);"></i>
             </div>
-            <p class="text-3xl font-bold text-gray-900 mb-2">8.5%</p>
+            <p class="text-3xl font-bold text-gray-900 mb-2">{{ formatStatsPercentage(dashboardData?.historical_average_annual_return) }}</p>
             <p class="text-gray-600">Historical Average Annual Return</p>
           </div>
         </div>
@@ -119,6 +119,10 @@
                     </div>
                     <span class="text-xs text-gray-600">{{ fundedPercentage(property) }}%</span>
                   </div>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Funding in Process</p>
+                  <p class="font-semibold text-gray-900">{{ formatCurrency(property.funding_in_process || 0) }}</p>
                 </div>
                 <div>
                   <p class="text-xs text-gray-500">Projected Annual Return*</p>
@@ -187,7 +191,7 @@
     </section>
 
     <!-- Footer -->
-    <AppFooter variant="home" />
+    <AppFooter />
   </div>
 </template>
 
@@ -196,6 +200,10 @@ import { onMounted } from 'vue'
 import { useProperties } from '@/composables/useProperties'
 import AppHeader from "@/components/AppHeader.vue";
 import AppFooter from "@/components/AppFooter.vue";
+import { api } from '@/services/api';
+import { ref } from 'vue';
+
+const dashboardData = ref(null)
 
 export default {
   name: 'Home',
@@ -215,8 +223,18 @@ export default {
     // Fetch properties on component mount
     onMounted(() => {
       fetchProperties()
+      fetchDashboardData()
     })
 
+    const fetchDashboardData = async () => {
+      try {
+        const data = await api.getDashboardData()
+        dashboardData.value = data.data
+      } catch (error) {
+        dashboardData.value = null
+        console.error('Error fetching dashboard data:', error)
+      }
+    }
 
     // Get property image with fallback
     const getPropertyImage = (property) => {
@@ -241,17 +259,54 @@ export default {
       event.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Available'
     }
 
+    // Format stats number with "+" suffix only if value exceeds threshold
+    const formatStatsNumber = (value, threshold = 0) => {
+      if (!value && value !== 0) return '0'
+      const num = parseInt(value)
+      if (isNaN(num)) return '0'
+      const formatted = new Intl.NumberFormat('en-GB').format(num)
+      return num > threshold ? formatted + '+' : formatted
+    }
+
+    // Format investment volume as £XXM+ or £XXK+
+    const formatInvestmentVolume = (value) => {
+      if (!value && value !== 0) return '£0'
+      const num = parseFloat(value)
+      if (isNaN(num)) return '£0'
+      
+      if (num >= 1000000) {
+        const millions = (num / 1000000).toFixed(1)
+        return `£${millions.replace('.0', '')}M+`
+      } else if (num >= 1000) {
+        const thousands = (num / 1000).toFixed(1)
+        return `£${thousands.replace('.0', '')}K+`
+      }
+      return `£${Math.round(num).toLocaleString()}+`
+    }
+
+    // Format percentage for stats
+    const formatStatsPercentage = (value) => {
+      if (!value && value !== 0) return '0.0%'
+      const num = parseFloat(value)
+      if (isNaN(num)) return '0.0%'
+      return `${num.toFixed(1)}%`
+    }
+
     return {
       properties,
       loading,
       error,
       availableProperties,
+      dashboardData,
       fetchProperties,
       fundedPercentage,
       formatCurrency,
       formatPercentage,
       getPropertyImage,
-      handleImageError
+      handleImageError,
+      formatStatsNumber,
+      formatInvestmentVolume,
+      formatStatsPercentage
     }
   }
 }

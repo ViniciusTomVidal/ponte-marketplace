@@ -236,6 +236,43 @@ export const api = {
             console.error('Error fetching portfolio summary:', error)
             throw error
         }
+    },
+
+    async getDashboardData() {
+        try {
+            const token = localStorage.getItem('jwt_token')
+            const headers = {
+                'Content-Type': 'application/json'
+            }
+
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`
+            }
+
+            const response = await fetch(`${API_BASE_URL_PONTE}/investor/dashboard`, {
+                method: 'GET',
+                headers: headers
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            const data = await response.json()
+            return data
+        } catch (error) {
+            console.error('Error fetching dashboard data:', error)
+            return getMockDashboardData()
+        }
+    },
+}
+
+function getMockDashboardData() {
+    return {
+        available_properties: 150,
+        historical_average_annual_return: 50000000,
+        registered_investors: 5000,
+        total_investment_value: 8.5
     }
 }
 

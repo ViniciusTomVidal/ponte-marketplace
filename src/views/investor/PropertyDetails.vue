@@ -128,16 +128,20 @@
                     <span class="font-semibold text-end text-lg">{{ formatCurrency(property.funding_required) }}</span>
                   </div>
                   <div class="flex justify-between h-auto">
+                    <span class="text-gray-600">Funding in Process</span>
+                    <span class="font-semibold text-end text-lg">{{ formatCurrency(property.funding_in_process || 0) }}</span>
+                  </div>
+                  <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Minimum Investment</span>
                     <span class="font-semibold text-end text-lg">{{ formatCurrency(property.minimum_investment) }}</span>
                   </div>
                   <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Investment Term</span>
-                    <span class="font-semibold text-end">{{ property.investment_term_years }} years</span>
+                    <span class="font-semibold text-end text-lg">{{ property.investment_term_years }} years</span>
                   </div>
                   <div class="flex justify-between h-auto">
                     <span class="text-gray-600">LTV (%)</span>
-                    <span class="font-semibold text-end">{{ property.loan_to_value ? formatPercentage(property.loan_to_value) : 'N/A' }}</span>
+                    <span class="font-semibold text-end text-lg">{{ property.loan_to_value ? formatPercentage(property.loan_to_value) : 'N/A' }}</span>
                   </div>
                 </div>
                 <div class="space-y-3">
@@ -147,19 +151,19 @@
                   </div>
                   <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Estimated Monthly Income</span>
-                    <span class="font-semibold text-end">{{ formatCurrency(calculateMonthlyIncome()) }}</span>
+                    <span class="font-semibold text-end text-lg">{{ formatCurrency(calculateMonthlyIncome()) }}</span>
                   </div>
                   <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Management Fee</span>
-                    <span class="font-semibold text-end">{{ property.management_fee_rate ? formatPercentage(property.management_fee_rate) + ' p.a.' : 'N/A' }}</span>
+                    <span class="font-semibold text-end text-lg">{{ property.management_fee_rate ? formatPercentage(property.management_fee_rate) + ' p.a.' : 'N/A' }}</span>
                   </div>
                   <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Funding Progress</span>
-                    <span class="font-semibold text-end">{{ fundedPercentage(property) }}%</span>
+                    <span class="font-semibold text-end text-lg">{{ fundedPercentage(property) }}%</span>
                   </div>
                   <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Loan Term</span>
-                    <span class="font-semibold text-end">{{ property.loan_term ? property.loan_term + ' months' : 'N/A' }}</span>
+                    <span class="font-semibold text-end text-lg">{{ property.loan_term ? property.loan_term + ' months' : 'N/A' }}</span>
                   </div>
                 </div>
               </div>
