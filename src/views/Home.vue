@@ -121,6 +121,10 @@
                   </div>
                 </div>
                 <div>
+                  <p class="text-xs text-gray-500">Funding in Process</p>
+                  <p class="font-semibold text-gray-900">{{ formatCurrency(property.funding_in_process || 0) }}</p>
+                </div>
+                <div>
                   <p class="text-xs text-gray-500">Projected Annual Return*</p>
                   <p class="font-semibold" style="color: rgb(166, 133, 66);">{{ formatPercentage(property.expected_annual_return) }}</p>
                 </div>
