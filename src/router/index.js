@@ -170,7 +170,7 @@ router.beforeEach(async (to, from, next) => {
         '/investor/checkout',
         '/investor/success',
         '/investor/orders',
-        '/investor/portfolio'
+        '/investor/portfolio',
     ]
     
     // Check if route is order detail or callback

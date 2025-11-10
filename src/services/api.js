@@ -42,6 +42,34 @@ export const api = {
         }
     },
 
+    // Fetch broker properties
+    async getBrokerProperties() {
+        const token = localStorage.getItem('jwt_token')
+        const headers = {
+            'Content-Type': 'application/json'
+        }
+
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`
+        }
+
+        try {
+                const response = await fetch(`${API_BASE_URL}/broker/properties`, {
+                method: 'GET',
+                headers: headers
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            const data = await response.json()
+            return data
+        } catch (error) {
+            console.error('Error fetching broker properties:', error)
+        }
+    },
+
     async investProperty(id, amount) {
         try {
             const response = await fetch(`${API_BASE_URL_PONTE}/investor/checkout/${id}`, {
