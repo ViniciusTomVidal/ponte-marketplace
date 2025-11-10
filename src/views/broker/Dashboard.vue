@@ -1,36 +1,7 @@
 <template>
   <div class="bg-gray-50 min-h-screen">
     <!-- Header -->
-    <header class="bg-white shadow-sm border-b">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-6">
-          <div class="flex items-center">
-            <i class="fas fa-building text-blue-600 text-3xl mr-3"></i>
-            <h1 class="text-2xl font-bold text-gray-900">Ponte Finance</h1>
-          </div>
-          <div class="flex items-center space-x-4">
-            <div class="hidden md:flex items-center space-x-4">
-              <a href="#" class="text-gray-500 hover:text-green-600 transition-colors">
-                <i class="fas fa-bell mr-2"></i>
-                Notifications
-              </a>
-            </div>
-            <div class="flex items-center space-x-3">
-              <div class="text-right hidden md:block">
-                <p class="text-sm font-medium text-gray-900">{{ userName }}</p>
-                <p class="text-xs text-gray-500">Verified Broker</p>
-              </div>
-              <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
-                <span class="text-white text-sm font-semibold">{{ getUserInitials }}</span>
-              </div>
-              <button @click="logout" class="text-gray-500 hover:text-red-600 transition-colors">
-                <i class="fas fa-sign-out-alt"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
+    <BrokerHeader :user-name="userName" />
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -154,7 +125,7 @@
 
         <!-- Property Cards Grid -->
         <div v-else class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div v-for="property in properties" :key="property.id" class="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div v-for="property in properties" :key="property.id" class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
             <div class="relative">
               <img :src="getPropertyImage(property)" 
                    :alt="property.title" 
@@ -165,55 +136,68 @@
                 {{ getStatusText(property.status) }}
               </div>
             </div>
-            <div class="p-6">
+            <div class="p-6 flex flex-col h-full">
               <h4 class="text-lg font-semibold text-gray-900 mb-2">{{ property.title }}</h4>
-              <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ property.description || property.full_description || 'No description available' }}</p>
+              <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ property.description || property.full_description || 'No description available' }}</p>
               
-              <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                  <p class="text-xs text-gray-500">Total Value</p>
-                  <p class="font-semibold text-gray-900">{{ formatCurrency(property.total_value) }}</p>
+              <!-- Rejection/Cancellation Reason -->
+              <div v-if="property.status === 'rejected' || property.status === 'cancelled'" 
+                   class="mb-3 p-2.5 bg-red-50 border border-red-200 rounded-lg">
+                <div class="flex items-start">
+                  <i class="fas fa-exclamation-circle text-red-500 mr-2 mt-0.5 flex-shrink-0 text-xs"></i>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-xs font-semibold text-red-700 mb-0.5">
+                      {{ property.status === 'rejected' ? 'Rejection Reason' : 'Cancellation Reason' }}
+                    </p>
+                    <p class="text-xs text-red-600 break-words line-clamp-2">
+                      {{ getRejectionReason(property) }}
+                    </p>
+                  </div>
                 </div>
-                <div v-if="property.status === 'approved' || property.status === 'funding'">
-                  <p class="text-xs text-gray-500">Funded</p>
+              </div>
+              
+              <div class="grid grid-cols-2 gap-3 mb-4">
+                <div>
+                  <p class="text-xs text-gray-500 mb-1">Total Value</p>
+                  <p class="font-semibold text-gray-900 text-sm">{{ formatCurrency(property.total_value) }}</p>
+                </div>
+                <div v-if="property.status === 'approved' || property.status === 'funding' || property.status === 'funded'">
+                  <p class="text-xs text-gray-500 mb-1">Funded</p>
                   <div class="flex items-center">
                     <div class="w-full bg-gray-200 rounded-full h-2 mr-2">
                       <div class="bg-green-600 h-2 rounded-full" 
                            :style="{ width: getFundedPercentage(property) + '%' }"></div>
                     </div>
-                    <span class="text-xs text-gray-600">{{ getFundedPercentage(property) }}%</span>
+                    <span class="text-xs text-gray-600 whitespace-nowrap">{{ getFundedPercentage(property) }}%</span>
                   </div>
                 </div>
                 <div v-else>
-                  <p class="text-xs text-gray-500">Status</p>
-                  <p class="font-semibold" :class="getStatusTextColor(property.status)">
+                  <p class="text-xs text-gray-500 mb-1">Status</p>
+                  <p class="font-semibold text-sm" :class="getStatusTextColor(property.status)">
                     {{ getStatusText(property.status) }}
                   </p>
                 </div>
-                <div v-if="property.city">
-                  <p class="text-xs text-gray-500">Location</p>
-                  <p class="font-semibold text-gray-900">{{ property.city }}, {{ property.country }}</p>
+                <div>
+                  <p class="text-xs text-gray-500 mb-1">Location</p>
+                  <p class="font-semibold text-gray-900 text-sm">
+                    {{ property.city ? `${property.city}, ${property.country || ''}` : 'N/A' }}
+                  </p>
                 </div>
-                <div v-if="property.bedrooms">
-                  <p class="text-xs text-gray-500">Bedrooms</p>
-                  <p class="font-semibold text-gray-900">{{ property.bedrooms }}</p>
+                <div>
+                  <p class="text-xs text-gray-500 mb-1">Bedrooms</p>
+                  <p class="font-semibold text-gray-900 text-sm">{{ property.bedrooms || 'N/A' }}</p>
                 </div>
               </div>
               
-              <div class="flex space-x-2">
+              <div class="flex space-x-2 mt-auto pt-2">
                 <button @click="viewPropertyDetails(property.id)" 
                         class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm hover:cursor-pointer hover:text-white">
                   View Details
                 </button>
-                <button v-if="property.status !== 'approved'" 
+                <button v-if="canEditProperty(property.status)" 
                         @click="editProperty(property.id)" 
                         class="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors text-sm hover:bg-blue-600 hover:cursor-pointer">
                   Edit
-                </button>
-                <button v-if="property.status === 'rejected'" 
-                        @click="viewRejectionDetails(property.id)" 
-                        class="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors text-sm">
-                  View Reason
                 </button>
               </div>
             </div>
@@ -227,16 +211,26 @@
         
         <div class="space-y-4">
           <div v-for="property in recentProperties" :key="property.id" 
-               class="flex items-center p-4 rounded-lg"
+               class="flex items-start p-4 rounded-lg"
                :class="getActivityBgClass(property.status)">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center mr-4"
+            <div class="w-8 h-8 rounded-full flex items-center justify-center mr-4 flex-shrink-0"
                  :class="getActivityIconClass(property.status)">
               <i :class="getActivityIcon(property.status)" class="text-sm"></i>
             </div>
-            <div class="flex-1">
+            <div class="flex-1 min-w-0">
               <p class="font-semibold text-gray-900">{{ getActivityTitle(property.status) }}</p>
               <p class="text-sm text-gray-600">{{ property.title }} - {{ getActivityDescription(property.status) }}</p>
-              <p class="text-xs text-gray-500">{{ formatDate(property.updated_at || property.created_at) }}</p>
+              <!-- Rejection/Cancellation Reason -->
+              <div v-if="property.status === 'rejected' || property.status === 'cancelled'" 
+                   class="mt-2 p-2 bg-white bg-opacity-60 rounded border border-red-200">
+                <p class="text-xs font-semibold mb-1 text-red-700">
+                  {{ property.status === 'rejected' ? 'Rejection Reason:' : 'Cancellation Reason:' }}
+                </p>
+                <p class="text-xs break-words text-red-600">
+                  {{ getRejectionReason(property) }}
+                </p>
+              </div>
+              <p class="text-xs text-gray-500 mt-2">{{ formatDate(property.updated_at || property.created_at) }}</p>
             </div>
           </div>
           
@@ -256,11 +250,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '@/services/api'
 import authService from '@/services/auth'
+import BrokerHeader from '@/components/BrokerHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 
 export default {
   name: 'BrokerDashboard',
   components: {
+    BrokerHeader,
     AppFooter
   },
   setup() {
@@ -305,9 +301,9 @@ export default {
     // Calculate statistics
     const stats = computed(() => {
       const total = properties.value.length
-      const approved = properties.value.filter(p => p.status === 'approved' || p.status === 'funding').length
-      const underReview = properties.value.filter(p => p.status === 'pending' || p.status === 'under_review' || p.status === 'review').length
-      const rejected = properties.value.filter(p => p.status === 'rejected').length
+      const approved = properties.value.filter(p => p.status === 'approved' || p.status === 'funding' || p.status === 'funded' || p.status === 'completed').length
+      const underReview = properties.value.filter(p => p.status === 'pending_approval').length
+      const rejected = properties.value.filter(p => p.status === 'rejected' || p.status === 'cancelled').length
 
       return { total, approved, underReview, rejected }
     })
@@ -328,16 +324,6 @@ export default {
       return userData.value?.name || userData.value?.display_name || 'Broker'
     })
 
-    // Get user initials for avatar
-    const getUserInitials = computed(() => {
-      const name = userData.value?.name || userData.value?.display_name || ''
-      if (!name) return 'B'
-      const parts = name.split(' ')
-      if (parts.length >= 2) {
-        return (parts[0][0] + parts[1][0]).toUpperCase()
-      }
-      return name[0].toUpperCase()
-    })
 
     // Get property image
     const getPropertyImage = (property) => {
@@ -358,27 +344,28 @@ export default {
     // Get status badge class
     const getStatusBadgeClass = (status) => {
       const statusMap = {
+        'draft': 'bg-gray-500 text-white',
+        'pending_approval': 'bg-yellow-500 text-white',
         'approved': 'bg-green-500 text-white',
-        'funding': 'bg-blue-500 text-white',
-        'pending': 'bg-yellow-500 text-white',
-        'under_review': 'bg-yellow-500 text-white',
-        'review': 'bg-yellow-500 text-white',
         'rejected': 'bg-red-500 text-white',
-        'draft': 'bg-gray-500 text-white'
+        'funding': 'bg-blue-500 text-white',
+        'funded': 'bg-blue-600 text-white',
+        'completed': 'bg-green-600 text-white',
+        'cancelled': 'bg-red-600 text-white'
       }
       return statusMap[status] || 'bg-gray-500 text-white'
     }
-
     // Get status text
     const getStatusText = (status) => {
       const statusMap = {
+        'draft': 'Draft',
+        'pending_approval': 'Pending Approval',
         'approved': 'Approved',
-        'funding': 'Funding',
-        'pending': 'Under Review',
-        'under_review': 'Under Review',
-        'review': 'Under Review',
         'rejected': 'Rejected',
-        'draft': 'Draft'
+        'funding': 'Funding',
+        'funded': 'Funded',
+        'completed': 'Completed',
+        'cancelled': 'Cancelled'
       }
       return statusMap[status] || status
     }
@@ -386,15 +373,48 @@ export default {
     // Get status text color
     const getStatusTextColor = (status) => {
       const statusMap = {
+        'draft': 'text-gray-600',
+        'pending_approval': 'text-yellow-600',
         'approved': 'text-green-600',
-        'funding': 'text-blue-600',
-        'pending': 'text-yellow-600',
-        'under_review': 'text-yellow-600',
-        'review': 'text-yellow-600',
         'rejected': 'text-red-600',
-        'draft': 'text-gray-600'
+        'funding': 'text-blue-600',
+        'funded': 'text-blue-700',
+        'completed': 'text-green-700',
+        'cancelled': 'text-red-700'
       }
       return statusMap[status] || 'text-gray-600'
+    }
+
+    // Check if property can be edited
+    const canEditProperty = (status) => {
+      // Can edit draft, pending_approval, or rejected properties
+      return status === 'draft' || status === 'pending_approval' || status === 'rejected'
+    }
+
+    // Get rejection or cancellation reason
+    const getRejectionReason = (property) => {
+      // Try different possible fields for rejection/cancellation reason
+      const reason = property.rejection_reason || 
+                    property.rejection_message || 
+                    property.rejection_notes || 
+                    property.cancellation_reason ||
+                    property.rejection_feedback ||
+                    property.admin_notes ||
+                    property.notes ||
+                    property.reason
+      
+      if (reason) {
+        return reason
+      }
+      
+      // Default message if no reason is provided
+      if (property.status === 'rejected') {
+        return 'No specific reason provided.'
+      } else if (property.status === 'cancelled') {
+        return 'No cancellation reason provided.'
+      }
+      
+      return 'No reason provided.'
     }
 
     // Get funded percentage
@@ -435,86 +455,86 @@ export default {
     // Activity helpers
     const getActivityBgClass = (status) => {
       const statusMap = {
+        'draft': 'bg-gray-50',
+        'pending_approval': 'bg-yellow-50',
         'approved': 'bg-green-50',
+        'rejected': 'bg-red-50',
         'funding': 'bg-blue-50',
-        'pending': 'bg-yellow-50',
-        'under_review': 'bg-yellow-50',
-        'review': 'bg-yellow-50',
-        'rejected': 'bg-red-50'
+        'funded': 'bg-blue-100',
+        'completed': 'bg-green-100',
+        'cancelled': 'bg-red-100'
       }
       return statusMap[status] || 'bg-gray-50'
     }
 
     const getActivityIconClass = (status) => {
       const statusMap = {
+        'draft': 'bg-gray-500 text-white',
+        'pending_approval': 'bg-yellow-500 text-white',
         'approved': 'bg-green-500 text-white',
+        'rejected': 'bg-red-500 text-white',
         'funding': 'bg-blue-500 text-white',
-        'pending': 'bg-yellow-500 text-white',
-        'under_review': 'bg-yellow-500 text-white',
-        'review': 'bg-yellow-500 text-white',
-        'rejected': 'bg-red-500 text-white'
+        'funded': 'bg-blue-600 text-white',
+        'completed': 'bg-green-600 text-white',
+        'cancelled': 'bg-red-600 text-white'
       }
       return statusMap[status] || 'bg-gray-500 text-white'
     }
 
     const getActivityIcon = (status) => {
       const statusMap = {
+        'draft': 'fas fa-edit',
+        'pending_approval': 'fas fa-clock',
         'approved': 'fas fa-check',
+        'rejected': 'fas fa-times',
         'funding': 'fas fa-money-bill-wave',
-        'pending': 'fas fa-clock',
-        'under_review': 'fas fa-clock',
-        'review': 'fas fa-clock',
-        'rejected': 'fas fa-times'
+        'funded': 'fas fa-check-circle',
+        'completed': 'fas fa-check-double',
+        'cancelled': 'fas fa-ban'
       }
       return statusMap[status] || 'fas fa-info-circle'
     }
 
     const getActivityTitle = (status) => {
       const statusMap = {
+        'draft': 'Property Draft',
+        'pending_approval': 'Property Pending Approval',
         'approved': 'Property Approved',
+        'rejected': 'Property Rejected',
         'funding': 'Property Funding',
-        'pending': 'Property Under Review',
-        'under_review': 'Property Under Review',
-        'review': 'Property Under Review',
-        'rejected': 'Property Rejected'
+        'funded': 'Property Funded',
+        'completed': 'Property Completed',
+        'cancelled': 'Property Cancelled'
       }
       return statusMap[status] || 'Property Updated'
     }
 
     const getActivityDescription = (status) => {
       const statusMap = {
+        'draft': 'is in draft status',
+        'pending_approval': 'is pending approval',
         'approved': 'has been approved and is available for investment',
+        'rejected': 'was rejected',
         'funding': 'is now available for investment',
-        'pending': 'has been sent for analysis',
-        'under_review': 'has been sent for analysis',
-        'review': 'has been sent for analysis',
-        'rejected': 'was rejected'
+        'funded': 'has been fully funded',
+        'completed': 'has been completed',
+        'cancelled': 'has been cancelled'
       }
       return statusMap[status] || 'has been updated'
     }
 
     // Methods
-    const logout = () => {
-      if (confirm('Do you really want to log out?')) {
-        authService.clearAuth()
-        router.push('/auth/broker/login')
-      }
-    }
 
     const exportData = () => {
       alert('Data will be exported in CSV format.')
     }
 
     const viewPropertyDetails = (propertyId) => {
-      router.push(`/investor/property/${propertyId}`)
+      router.push(`/broker/property/${propertyId}`)
     }
 
     const editProperty = (propertyId) => {
       router.push(`/broker/add-property?id=${propertyId}`)
-    }
-
-    const viewRejectionDetails = (propertyId) => {
-      alert(`Rejection reason for property will be displayed.`)
     }
 
     const resubmitProperty = (propertyId) => {
@@ -535,13 +555,14 @@ export default {
       userName,
       stats,
       recentProperties,
-      getUserInitials,
       fetchProperties,
       getPropertyImage,
       handleImageError,
       getStatusBadgeClass,
       getStatusText,
       getStatusTextColor,
+      canEditProperty,
+      getRejectionReason,
       getFundedPercentage,
       formatCurrency,
       formatPercentage,
@@ -551,11 +572,9 @@ export default {
       getActivityIcon,
       getActivityTitle,
       getActivityDescription,
-      logout,
       exportData,
       viewPropertyDetails,
       editProperty,
-      viewRejectionDetails,
       resubmitProperty
     }
   }
