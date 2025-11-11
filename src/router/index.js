@@ -16,6 +16,7 @@ import InvestmentCheckout from '@/views/investor/InvestmentCheckout.vue'
 import InvestmentSuccess from '@/views/investor/InvestmentSuccess.vue'
 import BrokerDashboard from '@/views/broker/Dashboard.vue'
 import BrokerAddProperty from '@/views/broker/AddProperty.vue'
+import BrokerEditProperty from '@/views/broker/EditProperty.vue'
 import BrokerPropertyDetails from '@/views/broker/BrokerPropertyDetails.vue'
 import InvestorPortfolio from "@/views/investor/InvestorPortfolio.vue";
 import InvestorOrders from "@/views/investor/Orders.vue";
@@ -147,6 +148,13 @@ const routes = [
         meta: { title: 'Add Property - Ponte Finance' }
     },
     {
+        path: '/broker/edit-property/:id',
+        name: 'BrokerEditProperty',
+        component: BrokerEditProperty,
+        props: true,
+        meta: { title: 'Edit Property - Ponte Finance' }
+    },
+    {
         path: '/broker/property/:id',
         name: 'BrokerPropertyDetails',
         component: BrokerPropertyDetails,
@@ -184,6 +192,7 @@ router.beforeEach(async (to, from, next) => {
     const brokerProtectedRoutes = [
         '/broker/dashboard',
         '/broker/add-property',
+        '/broker/edit-property',
         '/broker/property',
     ]
     

@@ -3,6 +3,25 @@
     <!-- Header -->
     <BrokerHeader :user-name="userName" />
     
+    <!-- Success Notification -->
+    <transition name="slide-fade">
+      <div v-if="showSuccessNotification" 
+           class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50">
+      <div class="bg-green-50 border border-green-200 rounded-lg shadow-lg p-4 flex items-center space-x-3 min-w-[300px] max-w-md">
+        <div class="flex-shrink-0">
+          <i class="fas fa-check-circle text-green-600 text-xl"></i>
+        </div>
+        <div class="flex-1">
+          <p class="text-sm font-semibold text-green-900">Success!</p>
+          <p class="text-xs text-green-700">{{ successMessage }}</p>
+        </div>
+        <button @click="showSuccessNotification = false" class="flex-shrink-0 text-green-600 hover:text-green-800">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+    </transition>
+    
     <!-- Action Bar -->
     <div v-if="property && canEditProperty(property.status)" class="bg-blue-50 border-b border-blue-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
@@ -275,6 +294,36 @@
             </div>
           </div>
 
+          <!-- Property Documents -->
+          <div v-if="parsedDocuments && parsedDocuments.length > 0" class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h3 class="text-xl font-semibold text-gray-900 mb-6">Property Documents</h3>
+            <div class="grid md:grid-cols-3 gap-4">
+              <div v-for="document in parsedDocuments" :key="document.url" class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all">
+                <div class="flex items-start justify-between mb-3">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center mr-3"
+                         :class="getDocumentTypeClass(document.type)">
+                      <i :class="getDocumentTypeIcon(document.type)" class="text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-semibold text-gray-900 truncate">{{ document.name }}</p>
+                      <p class="text-xs text-gray-500 capitalize">{{ document.type }}</p>
+                    </div>
+                  </div>
+                </div>
+                <a
+                  :href="document.url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="w-full flex items-center justify-center px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors group"
+                >
+                  <i class="fas fa-external-link-alt text-gray-600 group-hover:text-blue-600 mr-2 text-sm"></i>
+                  <span class="text-sm font-medium text-gray-700 group-hover:text-blue-600">View Document</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
           <!-- Risk Information -->
           <div v-if="property.risk_information || property.main_risks" class="bg-white rounded-lg shadow-lg p-8">
             <h3 class="text-xl font-semibold text-gray-900 mb-4">Risk Information</h3>
@@ -368,6 +417,8 @@ export default {
     const error = ref(null)
     const mainImage = ref('')
     const userData = ref(authService.getUserData())
+    const showSuccessNotification = ref(false)
+    const successMessage = ref('')
     
     // Get user name
     const userName = computed(() => {
@@ -529,6 +580,53 @@ export default {
       }
     }
 
+    // Get document type class
+    const getDocumentTypeClass = (type) => {
+      const typeMap = {
+        'valuation': 'bg-blue-500',
+        'title': 'bg-green-500',
+        'rental': 'bg-purple-500',
+        'legal': 'bg-red-500',
+        'other': 'bg-gray-500'
+      }
+      return typeMap[type] || 'bg-gray-500'
+    }
+
+    // Get document type icon
+    const getDocumentTypeIcon = (type) => {
+      const iconMap = {
+        'valuation': 'fas fa-file-invoice-dollar',
+        'title': 'fas fa-file-contract',
+        'rental': 'fas fa-file-chart-line',
+        'legal': 'fas fa-gavel',
+        'other': 'fas fa-file'
+      }
+      return iconMap[type] || 'fas fa-file'
+    }
+
+    // Parse documents (handle both array and JSON string)
+    const parsedDocuments = computed(() => {
+      if (!property.value || !property.value.documents) return []
+      
+      let docs = property.value.documents
+      
+      // If documents is a string, try to parse it
+      if (typeof docs === 'string') {
+        try {
+          docs = JSON.parse(docs)
+        } catch {
+          return []
+        }
+      }
+      
+      // Ensure it's an array
+      if (!Array.isArray(docs)) {
+        return []
+      }
+      
+      return docs
+    })
+
     // Fetch property
     const fetchProperty = async () => {
       loading.value = true
@@ -566,7 +664,7 @@ export default {
 
     // Edit property
     const editProperty = () => {
-      router.push(`/broker/add-property?id=${route.params.id}`)
+      router.push(`/broker/edit-property/${route.params.id}`)
     }
 
     // View public page
@@ -582,6 +680,20 @@ export default {
 
     onMounted(() => {
       fetchProperty()
+      
+      // Check for success query parameter
+      if (route.query.success === 'property_updated') {
+        showSuccessNotification.value = true
+        successMessage.value = 'Property updated successfully!'
+        
+        // Remove query parameter from URL
+        router.replace({ query: {} })
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+          showSuccessNotification.value = false
+        }, 5000)
+      }
     })
 
     return {
@@ -589,6 +701,8 @@ export default {
       loading,
       error,
       mainImage,
+      showSuccessNotification,
+      successMessage,
       fetchProperty,
       getPropertyImage,
       getImageUrl,
@@ -596,6 +710,9 @@ export default {
       handleImageError,
       parseKeyFeatures,
       parseMainRisks,
+      getDocumentTypeClass,
+      getDocumentTypeIcon,
+      parsedDocuments,
       formatCurrency,
       formatPercentage,
       formatDate,
@@ -613,4 +730,24 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.3s ease-in;
+}
+
+.slide-fade-enter-from {
+  transform: translateX(-50%) translateY(-20px);
+  opacity: 0;
+}
+
+.slide-fade-leave-to {
+  transform: translateX(-50%) translateY(-20px);
+  opacity: 0;
+}
+</style>
 

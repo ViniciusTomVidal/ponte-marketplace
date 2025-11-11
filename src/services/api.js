@@ -99,6 +99,67 @@ export const api = {
         }
     },
 
+    // Update broker property by ID
+    async updateBrokerProperty(id, propertyData) {
+        const token = localStorage.getItem('jwt_token')
+        const headers = {
+            'Content-Type': 'application/json'
+        }
+
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/broker/properties/${id}`, {
+                method: 'PUT',
+                headers: headers,
+                body: JSON.stringify(propertyData)
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+            }
+
+            const data = await response.json()
+            return data
+        } catch (error) {
+            console.error('Error updating broker property:', error)
+            throw error
+        }
+    },
+
+    async logoutBroker() {
+        try {
+            const token = localStorage.getItem('jwt_token')
+
+            const headers = {
+                'Content-Type': 'application/json'
+            }
+
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`
+            }
+
+            const response = await fetch(`${API_BASE_URL}/broker/logout`, {
+                method: 'POST',
+                headers: headers
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            const data = await response.json()
+            return data
+        }
+        catch (error) {
+            console.error('Error logging out broker:', error)
+            throw error
+        }
+    },
+
     async investProperty(id, amount) {
         try {
             const response = await fetch(`${API_BASE_URL_PONTE}/investor/checkout/${id}`, {

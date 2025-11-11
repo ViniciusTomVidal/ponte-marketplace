@@ -3,6 +3,25 @@
     <!-- Header -->
     <BrokerHeader :user-name="userName" />
 
+    <!-- Success Notification -->
+    <transition name="slide-fade">
+      <div v-if="showSuccessNotification" 
+           class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50">
+      <div class="bg-green-50 border border-green-200 rounded-lg shadow-lg p-4 flex items-center space-x-3 min-w-[300px] max-w-md">
+        <div class="flex-shrink-0">
+          <i class="fas fa-check-circle text-green-600 text-xl"></i>
+        </div>
+        <div class="flex-1">
+          <p class="text-sm font-semibold text-green-900">Success!</p>
+          <p class="text-xs text-green-700">{{ successMessage }}</p>
+        </div>
+        <button @click="showSuccessNotification = false" class="flex-shrink-0 text-green-600 hover:text-green-800">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+    </transition>
+
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Welcome Section -->
@@ -161,17 +180,7 @@
                   <p class="text-xs text-gray-500 mb-1">Total Value</p>
                   <p class="font-semibold text-gray-900 text-sm">{{ formatCurrency(property.total_value) }}</p>
                 </div>
-                <div v-if="property.status === 'approved' || property.status === 'funding' || property.status === 'funded'">
-                  <p class="text-xs text-gray-500 mb-1">Funded</p>
-                  <div class="flex items-center">
-                    <div class="w-full bg-gray-200 rounded-full h-2 mr-2">
-                      <div class="bg-green-600 h-2 rounded-full" 
-                           :style="{ width: getFundedPercentage(property) + '%' }"></div>
-                    </div>
-                    <span class="text-xs text-gray-600 whitespace-nowrap">{{ getFundedPercentage(property) }}%</span>
-                  </div>
-                </div>
-                <div v-else>
+                <div>
                   <p class="text-xs text-gray-500 mb-1">Status</p>
                   <p class="font-semibold text-sm" :class="getStatusTextColor(property.status)">
                     {{ getStatusText(property.status) }}
@@ -183,9 +192,19 @@
                     {{ property.city ? `${property.city}, ${property.country || ''}` : 'N/A' }}
                   </p>
                 </div>
-                <div>
-                  <p class="text-xs text-gray-500 mb-1">Bedrooms</p>
-                  <p class="font-semibold text-gray-900 text-sm">{{ property.bedrooms || 'N/A' }}</p>
+                <div v-if="property.status === 'funding'">
+                  <p class="text-xs text-gray-500 mb-1">Investors</p>
+                  <p class="font-semibold text-gray-900 text-sm">{{ property.investors_count || 0 }}</p>
+                </div>
+                <div v-else-if="property.status === 'approved' || property.status === 'funded'">
+                  <p class="text-xs text-gray-500 mb-1">Funded</p>
+                  <div class="flex items-center">
+                    <div class="w-full bg-gray-200 rounded-full h-2 mr-2">
+                      <div class="bg-green-600 h-2 rounded-full" 
+                           :style="{ width: getFundedPercentage(property) + '%' }"></div>
+                    </div>
+                    <span class="text-xs text-gray-600 whitespace-nowrap">{{ getFundedPercentage(property) }}%</span>
+                  </div>
                 </div>
               </div>
               
@@ -247,7 +266,7 @@
 
 <script>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { api } from '@/services/api'
 import authService from '@/services/auth'
 import BrokerHeader from '@/components/BrokerHeader.vue'
@@ -261,10 +280,13 @@ export default {
   },
   setup() {
     const router = useRouter()
+    const route = useRoute()
     const properties = ref([])
     const loading = ref(false)
     const error = ref(null)
     const userData = ref(authService.getUserData())
+    const showSuccessNotification = ref(false)
+    const successMessage = ref('')
 
     // Fetch broker properties from API
     const fetchProperties = async () => {
@@ -319,8 +341,27 @@ export default {
         .slice(0, 5)
     })
 
-    // Get user name
+    // Get user name (same logic as BrokerHeader)
     const userName = computed(() => {
+      const firstName = userData.value?.firstName || userData.value?.first_name || ''
+      const lastName = userData.value?.lastName || userData.value?.last_name || ''
+      
+      if (firstName && lastName) {
+        // Format: First letter uppercase, rest lowercase
+        const formattedFirst = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase()
+        const formattedLast = lastName.charAt(0).toUpperCase() + lastName.slice(1).toLowerCase()
+        return `${formattedFirst} ${formattedLast}`
+      }
+      
+      if (firstName) {
+        return firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase()
+      }
+      
+      if (lastName) {
+        return lastName.charAt(0).toUpperCase() + lastName.slice(1).toLowerCase()
+      }
+      
+      // Fallback
       return userData.value?.name || userData.value?.display_name || 'Broker'
     })
 
@@ -534,7 +575,7 @@ export default {
     }
 
     const editProperty = (propertyId) => {
-      router.push(`/broker/add-property?id=${propertyId}`)
+      router.push(`/broker/edit-property/${propertyId}`)
     }
 
     const resubmitProperty = (propertyId) => {
@@ -546,6 +587,20 @@ export default {
     // Fetch properties on mount
     onMounted(() => {
       fetchProperties()
+      
+      // Check for success query parameter
+      if (route.query.success === 'property_created') {
+        showSuccessNotification.value = true
+        successMessage.value = 'Property submitted for review successfully!'
+        
+        // Remove query parameter from URL
+        router.replace({ query: {} })
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+          showSuccessNotification.value = false
+        }, 5000)
+      }
     })
 
     return {
@@ -555,6 +610,8 @@ export default {
       userName,
       stats,
       recentProperties,
+      showSuccessNotification,
+      successMessage,
       fetchProperties,
       getPropertyImage,
       handleImageError,
@@ -580,3 +637,23 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.3s ease-in;
+}
+
+.slide-fade-enter-from {
+  transform: translateX(-50%) translateY(-20px);
+  opacity: 0;
+}
+
+.slide-fade-leave-to {
+  transform: translateX(-50%) translateY(-20px);
+  opacity: 0;
+}
+</style>
