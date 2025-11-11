@@ -4,23 +4,11 @@
     <BrokerHeader :user-name="userName" />
     
     <!-- Success Notification -->
-    <transition name="slide-fade">
-      <div v-if="showSuccessNotification" 
-           class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50">
-      <div class="bg-green-50 border border-green-200 rounded-lg shadow-lg p-4 flex items-center space-x-3 min-w-[300px] max-w-md">
-        <div class="flex-shrink-0">
-          <i class="fas fa-check-circle text-green-600 text-xl"></i>
-        </div>
-        <div class="flex-1">
-          <p class="text-sm font-semibold text-green-900">Success!</p>
-          <p class="text-xs text-green-700">{{ successMessage }}</p>
-        </div>
-        <button @click="showSuccessNotification = false" class="flex-shrink-0 text-green-600 hover:text-green-800">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-    </div>
-    </transition>
+    <SuccessNotification 
+      :show="showSuccessNotification"
+      :message="successMessage"
+      @close="showSuccessNotification = false"
+    />
     
     <!-- Action Bar -->
     <div v-if="property && canEditProperty(property.status)" class="bg-blue-50 border-b border-blue-200">
@@ -89,11 +77,10 @@
                 :src="mainImage"
                 :alt="property.title"
                 class="w-full h-96 object-cover"
-                @error="handleImageError"
+                @error="onImageError"
               >
-              <div class="absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-semibold"
-                   :class="getStatusBadgeClass(property.status)">
-                {{ getStatusText(property.status) }}
+              <div class="absolute top-4 right-4">
+                <StatusBadge :status="property.status" size="md" />
               </div>
             </div>
             <div v-if="property.images && property.images.length > 1" class="p-6">
@@ -352,10 +339,7 @@
             <div class="space-y-4 mb-6">
               <div>
                 <p class="text-sm text-gray-600 mb-2">Current Status</p>
-                <div class="px-3 py-2 rounded-lg text-center font-semibold"
-                     :class="getStatusBadgeClass(property.status)">
-                  {{ getStatusText(property.status) }}
-                </div>
+                <StatusBadge :status="property.status" size="md" />
               </div>
               <div v-if="property.created_at">
                 <p class="text-sm text-gray-600 mb-2">Created</p>
@@ -401,12 +385,19 @@ import { api } from '@/services/api'
 import authService from '@/services/auth'
 import BrokerHeader from '@/components/BrokerHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
+import SuccessNotification from '@/components/broker/SuccessNotification.vue'
+import StatusBadge from '@/components/broker/StatusBadge.vue'
+import { usePropertyStatus } from '@/composables/usePropertyStatus'
+import { usePropertyFormatters } from '@/composables/usePropertyFormatters'
+import { usePropertyImages } from '@/composables/usePropertyImages'
 
 export default {
   name: 'BrokerPropertyDetails',
   components: {
     BrokerHeader,
-    AppFooter
+    AppFooter,
+    SuccessNotification,
+    StatusBadge
   },
   setup() {
     const route = useRoute()
@@ -420,15 +411,15 @@ export default {
     const showSuccessNotification = ref(false)
     const successMessage = ref('')
     
+    // Composables
+    const { canEditProperty, getRejectionReason } = usePropertyStatus()
+    const { formatCurrency, formatPercentage, formatDate, getFundedPercentage, getPropertyImage, getImageUrl, parseKeyFeatures, parseMainRisks } = usePropertyFormatters()
+    const { handleImageError } = usePropertyImages()
+
     // Get user name
     const userName = computed(() => {
       return userData.value?.name || userData.value?.display_name || 'Broker'
     })
-    
-    // Check if property can be edited
-    const canEditProperty = (status) => {
-      return status === 'draft' || status === 'pending_approval' || status === 'rejected'
-    }
     
     // Calculate sidebar top position based on header and action bar
     const sidebarTop = computed(() => {
@@ -441,143 +432,14 @@ export default {
       return headerHeight + actionBarHeight + margin
     })
 
-    // Format currency
-    const formatCurrency = (amount) => {
-      if (!amount) return '£0'
-      return new Intl.NumberFormat('en-GB', {
-        style: 'currency',
-        currency: 'GBP',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-      }).format(parseFloat(amount))
-    }
-
-    // Format percentage
-    const formatPercentage = (percentage) => {
-      if (!percentage) return '0%'
-      return `${parseFloat(percentage).toFixed(2)}%`
-    }
-
-    // Format date
-    const formatDate = (dateString) => {
-      if (!dateString) return 'N/A'
-      const date = new Date(dateString)
-      return date.toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      })
-    }
-
-    // Get status badge class
-    const getStatusBadgeClass = (status) => {
-      const statusMap = {
-        'draft': 'bg-gray-500 text-white',
-        'pending_approval': 'bg-yellow-500 text-white',
-        'approved': 'bg-green-500 text-white',
-        'rejected': 'bg-red-500 text-white',
-        'funding': 'bg-blue-500 text-white',
-        'funded': 'bg-blue-600 text-white',
-        'completed': 'bg-green-600 text-white',
-        'cancelled': 'bg-red-600 text-white'
-      }
-      return statusMap[status] || 'bg-gray-500 text-white'
-    }
-
-    // Get status text
-    const getStatusText = (status) => {
-      const statusMap = {
-        'draft': 'Draft',
-        'pending_approval': 'Pending Approval',
-        'approved': 'Approved',
-        'rejected': 'Rejected',
-        'funding': 'Funding',
-        'funded': 'Funded',
-        'completed': 'Completed',
-        'cancelled': 'Cancelled'
-      }
-      return statusMap[status] || status
-    }
-
-    // Get rejection reason
-    const getRejectionReason = (property) => {
-      const reason = property.rejection_reason || 
-                    property.rejection_message || 
-                    property.rejection_notes || 
-                    property.cancellation_reason ||
-                    property.rejection_feedback ||
-                    property.admin_notes ||
-                    property.notes ||
-                    property.reason
-      
-      if (reason) {
-        return reason
-      }
-      
-      if (property.status === 'rejected') {
-        return 'No specific reason provided.'
-      } else if (property.status === 'cancelled') {
-        return 'No cancellation reason provided.'
-      }
-      
-      return 'No reason provided.'
-    }
-
-    // Get funded percentage
-    const getFundedPercentage = (property) => {
-      if (!property) return 0
-      const raised = parseFloat(property.funding_raised || 0)
-      const required = parseFloat(property.funding_required || property.total_value || 1)
-      return Math.round((raised / required) * 100)
-    }
-
-    // Get property image
-    const getPropertyImage = (property) => {
-      if (property.main_image?.url) {
-        return property.main_image.url
-      } else if (property.images && property.images.length > 0) {
-        const firstImage = property.images[0]
-        return getImageUrl(firstImage)
-      }
-      return 'https://via.placeholder.com/800x600?text=No+Image'
-    }
-
-    // Get image URL
-    const getImageUrl = (image) => {
-      if (typeof image === 'string') {
-        return image
-      }
-      return image.url || image
-    }
-
     // Set main image
     const setMainImage = (imageUrl) => {
       mainImage.value = imageUrl
     }
 
-    // Handle image error
-    const handleImageError = (event) => {
-      event.target.src = 'https://via.placeholder.com/800x600?text=Image+Not+Available'
-    }
-
-    // Parse key features
-    const parseKeyFeatures = (features) => {
-      if (!features) return []
-      try {
-        return JSON.parse(features)
-      } catch {
-        return features.split(',').map(f => f.trim())
-      }
-    }
-
-    // Parse main risks
-    const parseMainRisks = (risks) => {
-      if (!risks) return []
-      try {
-        return JSON.parse(risks)
-      } catch {
-        return risks.split(',').map(r => r.trim())
-      }
+    // Handle image error wrapper
+    const onImageError = (event) => {
+      handleImageError(event, 'https://via.placeholder.com/800x600?text=Image+Not+Available')
     }
 
     // Get document type class
@@ -707,7 +569,7 @@ export default {
       getPropertyImage,
       getImageUrl,
       setMainImage,
-      handleImageError,
+      onImageError,
       parseKeyFeatures,
       parseMainRisks,
       getDocumentTypeClass,
@@ -716,8 +578,6 @@ export default {
       formatCurrency,
       formatPercentage,
       formatDate,
-      getStatusBadgeClass,
-      getStatusText,
       canEditProperty,
       getRejectionReason,
       getFundedPercentage,
@@ -731,23 +591,4 @@ export default {
 }
 </script>
 
-<style scoped>
-.slide-fade-enter-active {
-  transition: all 0.3s ease-out;
-}
-
-.slide-fade-leave-active {
-  transition: all 0.3s ease-in;
-}
-
-.slide-fade-enter-from {
-  transform: translateX(-50%) translateY(-20px);
-  opacity: 0;
-}
-
-.slide-fade-leave-to {
-  transform: translateX(-50%) translateY(-20px);
-  opacity: 0;
-}
-</style>
 

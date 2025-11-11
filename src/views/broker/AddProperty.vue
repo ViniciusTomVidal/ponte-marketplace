@@ -4,13 +4,11 @@
     <BrokerHeader :user-name="userName" />
 
     <!-- Loading Overlay -->
-    <div v-if="loading" class="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg shadow-xl p-8 flex flex-col items-center min-w-[300px] border border-gray-200">
-        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-        <p class="text-gray-700 font-medium">Submitting property...</p>
-        <p class="text-gray-500 text-sm mt-2 text-center">Please wait while we process your request</p>
-      </div>
-    </div>
+    <LoadingOverlay 
+      :loading="loading"
+      message="Submitting property..."
+      submessage="Please wait while we process your request"
+    />
 
     <!-- Main Content -->
     <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8" :class="{ 'opacity-50 pointer-events-none': loading }">
@@ -30,7 +28,7 @@
                 Property Title *
               </label>
               <input type="text" id="propertyTitle" v-model="form.title" 
-                     @input="clearFieldError('title')"
+                     @input="onClearFieldError('title')"
                      :class="['w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.title ? 'border-red-500' : 'border-gray-300']"
                      placeholder="e.g., Mayfair Apartment, London">
               <p v-if="formErrors.title" class="text-red-500 text-xs mt-1">{{ formErrors.title }}</p>
@@ -41,7 +39,7 @@
                 Property Type *
               </label>
               <select id="propertyType" v-model="form.property_type"
-                      @change="clearFieldError('property_type')"
+                      @change="onClearFieldError('property_type')"
                       :class="['w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.property_type ? 'border-red-500' : 'border-gray-300']">
                 <option value="">Select property type</option>
                 <option value="apartment">Apartment</option>
@@ -106,7 +104,7 @@
               Property Description *
             </label>
             <textarea id="description" v-model="form.description"
-                      @input="clearFieldError('description')"
+                      @input="onClearFieldError('description')"
                       :class="['w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.description ? 'border-red-500' : 'border-gray-300']"
                       rows="4" placeholder="Describe the property, its features, and what makes it attractive to investors"></textarea>
             <p v-if="formErrors.description" class="text-red-500 text-xs mt-1">{{ formErrors.description }}</p>
@@ -132,7 +130,7 @@
                 Address Line 1 *
               </label>
               <input type="text" id="addressLine1" v-model="form.address_line1"
-                     @input="clearFieldError('address_line1')"
+                     @input="onClearFieldError('address_line1')"
                      :class="['w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.address_line1 ? 'border-red-500' : 'border-gray-300']"
                      placeholder="Street address">
               <p v-if="formErrors.address_line1" class="text-red-500 text-xs mt-1">{{ formErrors.address_line1 }}</p>
@@ -152,7 +150,7 @@
                 City *
               </label>
               <input type="text" id="city" v-model="form.city"
-                     @input="clearFieldError('city')"
+                     @input="onClearFieldError('city')"
                      :class="['w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.city ? 'border-red-500' : 'border-gray-300']"
                      placeholder="City">
               <p v-if="formErrors.city" class="text-red-500 text-xs mt-1">{{ formErrors.city }}</p>
@@ -163,7 +161,7 @@
                 Postcode *
               </label>
               <input type="text" id="postcode" v-model="form.postcode"
-                     @input="clearFieldError('postcode')"
+                     @input="onClearFieldError('postcode')"
                      :class="['w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.postcode ? 'border-red-500' : 'border-gray-300']"
                      placeholder="Postcode">
               <p v-if="formErrors.postcode" class="text-red-500 text-xs mt-1">{{ formErrors.postcode }}</p>
@@ -228,7 +226,7 @@
               <div class="relative">
                 <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
                 <input type="number" id="totalValue" v-model.number="form.total_value" 
-                       @input="clearFieldError('total_value')"
+                       @input="onClearFieldError('total_value')"
                        :class="['w-full pl-8 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.total_value ? 'border-red-500' : 'border-gray-300']"
                        step="0.01" min="0" placeholder="850000">
               </div>
@@ -242,7 +240,7 @@
               <div class="relative">
                 <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
                 <input type="number" id="fundingRequired" v-model.number="form.funding_required"
-                       @input="clearFieldError('funding_required')"
+                       @input="onClearFieldError('funding_required')"
                        :class="['w-full pl-8 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.funding_required ? 'border-red-500' : 'border-gray-300']"
                        step="0.01" min="0" placeholder="500000">
               </div>
@@ -268,7 +266,7 @@
               <div class="relative">
                 <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
                 <input type="number" id="minimumInvestment" v-model.number="form.minimum_investment"
-                       @input="clearFieldError('minimum_investment')"
+                       @input="onClearFieldError('minimum_investment')"
                        :class="['w-full pl-8 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.minimum_investment ? 'border-red-500' : 'border-gray-300']"
                        step="0.01" min="0" placeholder="10000">
               </div>
@@ -281,7 +279,7 @@
               </label>
               <div class="relative">
                 <input type="number" id="expectedAnnualReturn" v-model.number="form.expected_annual_return"
-                       @input="clearFieldError('expected_annual_return')"
+                       @input="onClearFieldError('expected_annual_return')"
                        :class="['w-full pr-12 pl-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.expected_annual_return ? 'border-red-500' : 'border-gray-300']"
                        placeholder="9.2" step="0.01" min="0" max="100">
                 <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
@@ -294,7 +292,7 @@
                 Investment Term (Years) *
               </label>
               <input type="number" id="investmentTermYears" v-model.number="form.investment_term_years"
-                     @input="clearFieldError('investment_term_years')"
+                     @input="onClearFieldError('investment_term_years')"
                      :class="['w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.investment_term_years ? 'border-red-500' : 'border-gray-300']"
                      min="1" placeholder="5">
               <p v-if="formErrors.investment_term_years" class="text-red-500 text-xs mt-1">{{ formErrors.investment_term_years }}</p>
@@ -485,46 +483,30 @@
           
           <div class="space-y-4">
             <div id="mainImageContainer">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Main Property Image *
-              </label>
-              <div :class="['border-2 border-dashed rounded-lg p-6 text-center transition-colors', formErrors.main_image ? 'border-red-500 bg-red-50' : 'border-gray-300']">
-                <i :class="['text-3xl mb-2', formErrors.main_image ? 'fas fa-camera text-red-400' : 'fas fa-camera text-gray-400']"></i>
-                <p :class="['mb-2', formErrors.main_image ? 'text-red-600' : 'text-gray-600']">
-                  Click to upload main property image
-                </p>
-                <input type="file" accept="image/*" @change="handleMainImage" class="hidden" id="mainImage">
-                <label for="mainImage" class="cursor-pointer">
-                  <span :class="['font-medium', formErrors.main_image ? 'text-red-600 hover:text-red-800' : 'text-blue-600 hover:text-blue-800']">
-                    Browse files
-                  </span>
-                </label>
-              </div>
-              <p v-if="formErrors.main_image" class="text-red-500 text-xs mt-1">{{ formErrors.main_image }}</p>
-              <div v-if="form.mainImagePreview" class="mt-2">
-                <img :src="form.mainImagePreview" alt="Main image preview" class="w-32 h-20 object-cover rounded">
-                <p class="text-xs text-gray-500 mt-1">{{ form.mainImageFile?.name }}</p>
-              </div>
+              <ImageUpload
+                label="Main Property Image"
+                :required="true"
+                placeholder="Click to upload main property image"
+                :error="formErrors.main_image"
+                :preview="form.mainImagePreview"
+                :fileName="form.mainImageFile?.name"
+                @change="onMainImageChange"
+              />
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Additional Images (up to 5)
-              </label>
-              <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                <i class="fas fa-images text-gray-400 text-3xl mb-2"></i>
-                <p class="text-gray-600">Click to upload additional property images</p>
-                <input type="file" accept="image/*" multiple @change="handleAdditionalImages" class="hidden" id="additionalImages">
-                <label for="additionalImages" class="cursor-pointer">
-                  <span class="text-blue-600 hover:text-blue-800">Browse files</span>
-                </label>
-              </div>
-              <div v-if="form.additionalImagesPreview.length > 0" class="mt-2">
+              <ImageUpload
+                label="Additional Images (up to 5)"
+                placeholder="Click to upload additional property images"
+                :multiple="true"
+                @change="onAdditionalImagesChange"
+              />
+              <div v-if="form.additionalImagesPreview && form.additionalImagesPreview.length > 0" class="mt-2">
                 <div class="grid grid-cols-5 gap-2">
                   <div v-for="(preview, index) in form.additionalImagesPreview" :key="index" class="relative">
                     <img :src="preview" :alt="`Additional image ${index + 1}`" 
                      class="w-full h-20 object-cover rounded">
-                    <button @click="removeAdditionalImage(index)" 
+                    <button @click="onRemoveAdditionalImage(index)" 
                             class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600">
                       ×
                     </button>
@@ -541,56 +523,32 @@
           <h2 class="text-xl font-semibold text-gray-900 mb-6">Required Documentation</h2>
           
           <div class="space-y-4">
-            <div class="p-4 border border-gray-200 rounded-lg">
-              <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center">
-                <i class="fas fa-file-pdf text-red-500 mr-3"></i>
-                <div>
-                  <p class="font-medium text-gray-900">Property Valuation Report</p>
-                  <p class="text-sm text-gray-600">Professional property valuation from a certified surveyor</p>
-                </div>
-              </div>
-                <input type="file" accept=".pdf" @change="handleDocument('valuation', $event)" class="hidden" :id="'valuation'">
-              <label :for="'valuation'" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 cursor-pointer">
-                  {{ form.documents.valuation ? 'Change' : 'Upload' }}
-              </label>
-              </div>
-              <p v-if="form.documents.valuation" class="text-xs text-gray-500 mt-2">{{ form.documents.valuation.name }}</p>
-            </div>
+            <DocumentUpload
+              title="Property Valuation Report"
+              description="Professional property valuation from a certified surveyor"
+              type="valuation"
+              accept=".pdf"
+              :file="form.documents.valuation"
+              @change="handleDocumentChange('valuation', $event)"
+            />
 
-            <div class="p-4 border border-gray-200 rounded-lg">
-              <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center">
-                <i class="fas fa-file-contract text-blue-500 mr-3"></i>
-                <div>
-                  <p class="font-medium text-gray-900">Title Deed</p>
-                  <p class="text-sm text-gray-600">Official property ownership documentation</p>
-                </div>
-              </div>
-                <input type="file" accept=".pdf" @change="handleDocument('title', $event)" class="hidden" :id="'title'">
-              <label :for="'title'" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 cursor-pointer">
-                  {{ form.documents.title ? 'Change' : 'Upload' }}
-              </label>
-              </div>
-              <p v-if="form.documents.title" class="text-xs text-gray-500 mt-2">{{ form.documents.title.name }}</p>
-            </div>
+            <DocumentUpload
+              title="Title Deed"
+              description="Official property ownership documentation"
+              type="title"
+              accept=".pdf"
+              :file="form.documents.title"
+              @change="handleDocumentChange('title', $event)"
+            />
 
-            <div class="p-4 border border-gray-200 rounded-lg">
-              <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center">
-                <i class="fas fa-file-alt text-green-500 mr-3"></i>
-                <div>
-                  <p class="font-medium text-gray-900">Rental History</p>
-                  <p class="text-sm text-gray-600">Documentation of rental income history (if applicable)</p>
-                </div>
-              </div>
-                <input type="file" accept=".pdf,.xlsx,.xls" @change="handleDocument('rental', $event)" class="hidden" :id="'rental'">
-              <label :for="'rental'" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 cursor-pointer">
-                  {{ form.documents.rental ? 'Change' : 'Upload' }}
-              </label>
-              </div>
-              <p v-if="form.documents.rental" class="text-xs text-gray-500 mt-2">{{ form.documents.rental.name }}</p>
-            </div>
+            <DocumentUpload
+              title="Rental History"
+              description="Documentation of rental income history (if applicable)"
+              type="rental"
+              accept=".pdf,.xlsx,.xls"
+              :file="form.documents.rental"
+              @change="handleDocumentChange('rental', $event)"
+            />
           </div>
         </div>
 
@@ -618,15 +576,27 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import authService from '@/services/auth'
 import BrokerHeader from '@/components/BrokerHeader.vue'
+import LoadingOverlay from '@/components/broker/LoadingOverlay.vue'
+import ImageUpload from '@/components/broker/ImageUpload.vue'
+import DocumentUpload from '@/components/broker/DocumentUpload.vue'
+import { usePropertyValidation } from '@/composables/usePropertyValidation'
+import { usePropertyImages } from '@/composables/usePropertyImages'
 
 export default {
   name: 'AddProperty',
   components: {
-    BrokerHeader
+    BrokerHeader,
+    LoadingOverlay,
+    ImageUpload,
+    DocumentUpload
   },
   setup() {
     const router = useRouter()
     const userData = ref(authService.getUserData())
+    
+    // Composables
+    const { clearFieldError, validatePropertyForm, validateMainImage, scrollToFirstError } = usePropertyValidation()
+    const { handleMainImage, handleAdditionalImages, removeAdditionalImage } = usePropertyImages()
     
     const userName = computed(() => {
       return userData.value?.name || userData.value?.display_name || 'Broker'
@@ -634,7 +604,14 @@ export default {
     
     return {
       userName,
-      router
+      router,
+      clearFieldError,
+      validatePropertyForm,
+      validateMainImage,
+      scrollToFirstError,
+      handleMainImage,
+      handleAdditionalImages,
+      removeAdditionalImage
     }
   },
   data() {
@@ -707,201 +684,76 @@ export default {
     }
   },
   methods: {
-    handleMainImage(event) {
-      const file = event.target.files[0]
+    onMainImageChange(file) {
+      if (!file) return
       
       // Clear error when user selects a file
-      if (this.formErrors.main_image) {
-        delete this.formErrors.main_image
+      this.clearFieldError(this.formErrors, 'main_image')
+      
+      // Create a mock event object for the handler
+      const mockEvent = {
+        target: {
+          files: [file],
+          value: ''
+        }
       }
       
-      if (file) {
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-          this.formErrors.main_image = 'Please select a valid image file'
-          event.target.value = ''
-          return
-        }
-        
-        // Validate file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          this.formErrors.main_image = 'Image size must be less than 5MB'
-          event.target.value = ''
-          return
-        }
-        
-        this.form.mainImageFile = file
-        
-        // Create preview
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          this.form.mainImagePreview = e.target.result
-        }
-        reader.readAsDataURL(file)
-      }
+      this.handleMainImage(mockEvent, this.form, this.formErrors)
     },
-    handleAdditionalImages(event) {
-      const files = Array.from(event.target.files)
+    onAdditionalImagesChange(files) {
+      if (!files || files.length === 0) return
       
-      // Validate files
-      const validFiles = []
-      for (const file of files) {
-        if (!file.type.startsWith('image/')) {
-          alert(`${file.name} is not a valid image file`)
-          continue
+      // Create a mock event object for the handler
+      const mockEvent = {
+        target: {
+          files: Array.isArray(files) ? files : [files],
+          value: ''
         }
-        if (file.size > 5 * 1024 * 1024) {
-          alert(`${file.name} is too large. Maximum size is 5MB`)
-          continue
-        }
-        validFiles.push(file)
       }
       
-      // Limit to 5 additional images
-      const filesToProcess = validFiles.slice(0, 5)
-      this.form.additionalImageFiles = filesToProcess
-      this.form.additionalImagesPreview = []
-      
-      // Create previews
-      filesToProcess.forEach((file, index) => {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          this.form.additionalImagesPreview[index] = e.target.result
-        }
-        reader.readAsDataURL(file)
-      })
-      
-      // Reset input if we filtered files
-      if (filesToProcess.length < files.length) {
-        event.target.value = ''
-      }
+      this.handleAdditionalImages(mockEvent, this.form, 5)
     },
-    handleDocument(type, event) {
-      const file = event.target.files[0]
-      if (file) {
-        // Validate file type
-        const allowedTypes = ['.pdf', '.xlsx', '.xls']
-        const fileExtension = '.' + file.name.split('.').pop().toLowerCase()
-        if (!allowedTypes.includes(fileExtension)) {
-          alert('Please select a PDF or Excel file')
-          event.target.value = ''
-          return
-        }
-        
-        // Validate file size (max 10MB)
-        if (file.size > 10 * 1024 * 1024) {
-          alert('File size must be less than 10MB')
-          event.target.value = ''
-          return
-        }
-        
-        this.form.documents[type] = file
-      }
+    onRemoveAdditionalImage(index) {
+      this.removeAdditionalImage(index, this.form)
     },
-    
-    removeAdditionalImage(index) {
-      this.form.additionalImageFiles.splice(index, 1)
-      this.form.additionalImagesPreview.splice(index, 1)
+    handleDocumentChange(type, file) {
+      if (!file) return
+      this.form.documents[type] = file
     },
-    
     // Clear error for a specific field
-    clearFieldError(fieldName) {
-      if (this.formErrors[fieldName]) {
-        delete this.formErrors[fieldName]
-      }
+    onClearFieldError(fieldName) {
+      this.clearFieldError(this.formErrors, fieldName)
     },
     
     // Validate form fields
     validateForm() {
-      this.formErrors = {}
-      let isValid = true
+      const { errors, isValid } = this.validatePropertyForm(this.form)
+      this.formErrors = errors
       
-      // Required fields validation
-      if (!this.form.title || this.form.title.trim() === '') {
-        this.formErrors.title = 'Property title is required'
-        isValid = false
+      // Validate main image
+      const imageValidation = this.validateMainImage(this.form.mainImageFile)
+      if (!imageValidation.isValid) {
+        this.formErrors.main_image = imageValidation.error
+        return false
       }
       
-      if (!this.form.property_type || this.form.property_type === '') {
-        this.formErrors.property_type = 'Property type is required'
-        isValid = false
-      }
-      
-      if (!this.form.description || this.form.description.trim() === '') {
-        this.formErrors.description = 'Property description is required'
-        isValid = false
-      }
-      
-      if (!this.form.address_line1 || this.form.address_line1.trim() === '') {
-        this.formErrors.address_line1 = 'Address line 1 is required'
-        isValid = false
-      }
-      
-      if (!this.form.city || this.form.city.trim() === '') {
-        this.formErrors.city = 'City is required'
-        isValid = false
-      }
-      
-      if (!this.form.postcode || this.form.postcode.trim() === '') {
-        this.formErrors.postcode = 'Postcode is required'
-        isValid = false
-      }
-      
-      if (!this.form.total_value || this.form.total_value === null || this.form.total_value === '') {
-        this.formErrors.total_value = 'Total property value is required'
-        isValid = false
-      } else if (parseFloat(this.form.total_value) <= 0) {
-        this.formErrors.total_value = 'Total property value must be greater than 0'
-        isValid = false
-      }
-      
-      if (!this.form.funding_required || this.form.funding_required === null || this.form.funding_required === '') {
-        this.formErrors.funding_required = 'Funding required is required'
-        isValid = false
-      } else if (parseFloat(this.form.funding_required) <= 0) {
-        this.formErrors.funding_required = 'Funding required must be greater than 0'
-        isValid = false
-      }
-      
-      if (!this.form.minimum_investment || this.form.minimum_investment === null || this.form.minimum_investment === '') {
-        this.formErrors.minimum_investment = 'Minimum investment is required'
-        isValid = false
-      } else if (parseFloat(this.form.minimum_investment) <= 0) {
-        this.formErrors.minimum_investment = 'Minimum investment must be greater than 0'
-        isValid = false
-      }
-      
-      if (!this.form.expected_annual_return || this.form.expected_annual_return === null || this.form.expected_annual_return === '') {
-        this.formErrors.expected_annual_return = 'Expected annual return is required'
-        isValid = false
-      } else if (parseFloat(this.form.expected_annual_return) < 0 || parseFloat(this.form.expected_annual_return) > 100) {
-        this.formErrors.expected_annual_return = 'Expected annual return must be between 0 and 100%'
-        isValid = false
-      }
-      
-      if (!this.form.investment_term_years || this.form.investment_term_years === null || this.form.investment_term_years === '') {
-        this.formErrors.investment_term_years = 'Investment term is required'
-        isValid = false
-      } else if (parseInt(this.form.investment_term_years) < 1) {
-        this.formErrors.investment_term_years = 'Investment term must be at least 1 year'
-        isValid = false
-      }
-      
-      // Validate funding_required doesn't exceed total_value
-      if (this.form.total_value && this.form.funding_required) {
-        if (parseFloat(this.form.funding_required) > parseFloat(this.form.total_value)) {
-          this.formErrors.funding_required = 'Funding required cannot exceed total property value'
-          isValid = false
+      if (!isValid) {
+        // Scroll to first error
+        const fieldMap = {
+          'property_type': 'propertyType',
+          'address_line1': 'addressLine1',
+          'investment_term_years': 'investmentTermYears',
+          'expected_annual_return': 'expectedAnnualReturn',
+          'minimum_investment': 'minimumInvestment',
+          'funding_required': 'fundingRequired',
+          'total_value': 'totalValue',
+          'main_image': 'mainImageContainer'
         }
+        this.scrollToFirstError(this.formErrors, fieldMap)
+        return false
       }
       
-      // Validate main image is required
-      if (!this.form.mainImageFile) {
-        this.formErrors.main_image = 'Main property image is required'
-        isValid = false
-      }
-      
-      return isValid
+      return true
     },
     
     async handleSubmit() {
