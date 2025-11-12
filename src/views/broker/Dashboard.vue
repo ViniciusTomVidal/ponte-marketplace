@@ -40,18 +40,40 @@
       <!-- Properties Section -->
       <div class="mb-8">
         <div class="flex justify-between items-center mb-6">
-          <h3 class="text-2xl font-bold text-gray-900">My Properties</h3>
+          <div>
+            <h3 class="text-2xl font-bold text-gray-900">My Properties</h3>
+            <p v-if="!loading && properties.length > 0 && hasActiveFilters" class="text-sm text-gray-600 mt-1">
+              Showing {{ filteredCount }} of {{ properties.length }} properties
+            </p>
+          </div>
           <div class="flex space-x-2">
-            <button class="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            <button 
+              @click="showFilters = !showFilters"
+              :class="[
+                'px-4 py-2 text-sm border rounded-lg transition-colors flex items-center',
+                showFilters || hasActiveFilters ? 'bg-blue-50 border-blue-300 text-blue-700' : 'border-gray-300 hover:bg-gray-50'
+              ]"
+            >
               <i class="fas fa-filter mr-2"></i>
               Filter
+              <span v-if="hasActiveFilters" class="ml-2 bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                {{ activeFiltersCount }}
+              </span>
             </button>
-            <button class="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              <i class="fas fa-sort mr-2"></i>
-              Sort
-            </button>
+            <PropertySort 
+              v-model="currentSort"
+              @sort="handleSort"
+            />
           </div>
         </div>
+
+        <!-- Filters Panel -->
+        <PropertyFilters
+          v-model="filters"
+          :show="showFilters"
+          @close="showFilters = false"
+          @filter="handleFilter"
+        />
 
         <!-- Loading State -->
         <div v-if="loading" class="flex justify-center items-center py-12">
@@ -70,8 +92,8 @@
           </button>
         </div>
 
-        <!-- Empty State -->
-        <div v-else-if="properties.length === 0" class="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
+        <!-- Empty State (no properties at all) -->
+        <div v-else-if="!loading && properties.length === 0" class="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
           <i class="fas fa-home text-gray-400 text-5xl mb-4"></i>
           <p class="text-gray-600 text-lg mb-2">No properties yet</p>
           <p class="text-gray-500 mb-6">Get started by registering your first property</p>
@@ -82,10 +104,23 @@
           </router-link>
         </div>
 
+        <!-- No Results State (filters applied but no matches) -->
+        <div v-else-if="!loading && properties.length > 0 && sortedProperties.length === 0" class="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
+          <i class="fas fa-search text-gray-400 text-5xl mb-4"></i>
+          <p class="text-gray-600 text-lg mb-2">No properties found</p>
+          <p class="text-gray-500 mb-6">Try adjusting your filters</p>
+          <button 
+            @click="clearAllFilters"
+            class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+          >
+            Clear Filters
+          </button>
+        </div>
+
         <!-- Property Cards Grid -->
-        <div v-else class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div v-else-if="!loading && sortedProperties.length > 0" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           <PropertyCard
-            v-for="property in properties"
+            v-for="property in sortedProperties"
             :key="property.id"
             :property="property"
             @view="viewPropertyDetails"
@@ -117,6 +152,9 @@ import SuccessNotification from '@/components/broker/SuccessNotification.vue'
 import PropertyStats from '@/components/broker/PropertyStats.vue'
 import PropertyCard from '@/components/broker/PropertyCard.vue'
 import PropertyActivity from '@/components/broker/PropertyActivity.vue'
+import PropertyFilters from '@/components/broker/PropertyFilters.vue'
+import PropertySort from '@/components/broker/PropertySort.vue'
+import { usePropertyFilters } from '@/composables/usePropertyFilters'
 
 export default {
   name: 'BrokerDashboard',
@@ -126,7 +164,9 @@ export default {
     SuccessNotification,
     PropertyStats,
     PropertyCard,
-    PropertyActivity
+    PropertyActivity,
+    PropertyFilters,
+    PropertySort
   },
   setup() {
     const router = useRouter()
@@ -137,6 +177,15 @@ export default {
     const userData = ref(authService.getUserData())
     const showSuccessNotification = ref(false)
     const successMessage = ref('')
+    
+    // Filters and Sort
+    const showFilters = ref(false)
+    const filters = ref({
+      status: '',
+      property_type: '',
+      city: ''
+    })
+    const currentSort = ref('date_desc')
 
     // Fetch broker properties from API
     const fetchProperties = async () => {
@@ -195,7 +244,21 @@ export default {
       return userData.value?.name || userData.value?.display_name || 'Broker'
     })
 
+    // Property filtering and sorting
+    const { sortedProperties, filteredCount } = usePropertyFilters(properties, filters, currentSort)
 
+    // Active filters count
+    const hasActiveFilters = computed(() => {
+      return filters.value.status || filters.value.property_type || filters.value.city
+    })
+
+    const activeFiltersCount = computed(() => {
+      let count = 0
+      if (filters.value.status) count++
+      if (filters.value.property_type) count++
+      if (filters.value.city) count++
+      return count
+    })
 
     // Methods
 
@@ -215,6 +278,26 @@ export default {
       if (confirm(`Do you want to resubmit this property for review?`)) {
         alert('Property resubmitted successfully!')
       }
+    }
+
+    const handleFilter = (filterValues) => {
+      // Filters are already applied through computed property
+      // This is just for any additional logic if needed
+    }
+
+    const handleSort = (sortValue) => {
+      // Sort is already applied through computed property
+      // This is just for any additional logic if needed
+    }
+
+    const clearAllFilters = () => {
+      filters.value = {
+        status: '',
+        property_type: '',
+        city: ''
+      }
+      // Close filters panel after clearing
+      showFilters.value = false
     }
 
     // Fetch properties on mount
@@ -243,11 +326,21 @@ export default {
       userName,
       showSuccessNotification,
       successMessage,
+      showFilters,
+      filters,
+      currentSort,
+      sortedProperties,
+      filteredCount,
+      hasActiveFilters,
+      activeFiltersCount,
       fetchProperties,
       exportData,
       viewPropertyDetails,
       editProperty,
-      resubmitProperty
+      resubmitProperty,
+      handleFilter,
+      handleSort,
+      clearAllFilters
     }
   }
 }
