@@ -68,20 +68,32 @@
         </div>
       </div>
       
-      <div class="flex space-x-2 mt-auto pt-2">
-        <button 
-          @click="$emit('view', property.id)" 
-          class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm hover:cursor-pointer hover:text-white"
-        >
-          View Details
-        </button>
-        <button 
-          v-if="canEdit" 
-          @click="$emit('edit', property.id)" 
-          class="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors text-sm hover:bg-blue-600 hover:cursor-pointer"
-        >
-          Edit
-        </button>
+      <div class="mt-auto pt-2">
+        <div class="flex space-x-2 mb-2">
+          <button 
+            @click="$emit('view', property.id)" 
+            class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm hover:cursor-pointer hover:text-white"
+          >
+            View Details
+          </button>
+          <button 
+            v-if="canEdit" 
+            @click="$emit('edit', property.id)" 
+            class="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors text-sm hover:bg-blue-600 hover:cursor-pointer"
+          >
+            Edit
+          </button>
+        </div>
+        
+        <!-- Commission Status -->
+        <p class="text-xs text-center">
+          <span v-if="isCommissionPaid" class="text-green-600">
+            Broker's commission of {{ commissionValue }} paid
+          </span>
+          <span v-else class="text-amber-600">
+            Broker's commission of {{ commissionValue }} pending payment
+          </span>
+        </p>
       </div>
     </div>
   </div>
@@ -124,6 +136,16 @@ export default {
       return 'N/A'
     })
 
+    const commissionValue = computed(() => {
+      const totalValue = parseFloat(props.property.total_value || 0)
+      const commission = totalValue * 0.01 // 1% commission
+      return formatCurrency(commission)
+    })
+
+    const isCommissionPaid = computed(() => {
+      return props.property.commission_paid === true || props.property.commission_paid === 1
+    })
+
     const onImageError = (event) => {
       handleImageError(event)
     }
@@ -136,6 +158,8 @@ export default {
       fundedPercentage,
       imageUrl,
       location,
+      commissionValue,
+      isCommissionPaid,
       formatCurrency,
       onImageError
     }
