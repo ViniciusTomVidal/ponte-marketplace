@@ -7,8 +7,19 @@ export const api = {
     // Fetch all properties
     async getProperties() {
         try {
+            const token = localStorage.getItem('jwt_token')
+
+            const headers = {
+                'Content-Type': 'application/json'
+            }
+    
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`
+            }
+
             const response = await fetch(`${API_BASE_URL}/properties`, {
                 method: 'GET',
+                headers: headers
             })
 
             if (!response.ok) {
@@ -126,6 +137,35 @@ export const api = {
             return data
         } catch (error) {
             console.error('Error updating broker property:', error)
+            throw error
+        }
+    },
+
+    // Fetch broker commissions with pagination
+    async getBrokerCommissions(page = 1, perPage = 10) {
+        const token = localStorage.getItem('jwt_token')
+        const headers = {
+            'Content-Type': 'application/json'
+        }
+
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/broker/commissions?page=${page}&per_page=${perPage}`, {
+                method: 'GET',
+                headers: headers
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            const data = await response.json()
+            return data
+        } catch (error) {
+            console.error('Error fetching broker commissions:', error)
             throw error
         }
     },

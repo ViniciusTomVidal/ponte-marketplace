@@ -26,6 +26,9 @@
           <router-link to="/investor/orders" class="text-gray-300 transition-colors hover:text-white">
             <i class="fas fa-shopping-cart mr-2"></i>Orders
           </router-link>
+          <router-link to="/investor/my-properties" class="text-gray-300 transition-colors hover:text-white">
+            <i class="fas fa-building mr-2"></i>My Properties
+          </router-link>
 <!--          <a href="#" class="text-gray-300 transition-colors hover:text-white">-->
 <!--            <i class="fas fa-bell mr-2"></i>Notifications-->
 <!--          </a>-->

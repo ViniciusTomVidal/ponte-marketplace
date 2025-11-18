@@ -27,6 +27,16 @@
 
         <!-- Right Side - User Info and Actions -->
         <div class="flex items-center space-x-3">
+          <!-- Commissions Link -->
+          <div class="hidden md:flex items-center">
+            <router-link 
+              to="/broker/commissions"
+              class="text-gray-600 hover:text-purple-600 transition-colors p-2.5 rounded-lg hover:bg-purple-50 group hover:cursor-pointer"
+              title="Commissions"
+            >
+              <i class="fas fa-pound-sign text-lg"></i>
+            </router-link>
+          </div>
           <!-- Notifications -->
           <div class="hidden md:flex items-center">
             <button 

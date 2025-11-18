@@ -91,6 +91,11 @@ export function usePropertyValidation() {
       isValid = false
     }
 
+    if (!form.companies_house_id || form.companies_house_id.trim() === '') {
+      errors.companies_house_id = 'Companies House ID is required'
+      isValid = false
+    }
+
     // Validate funding_required doesn't exceed total_value
     if (form.total_value && form.funding_required) {
       if (parseFloat(form.funding_required) > parseFloat(form.total_value)) {
