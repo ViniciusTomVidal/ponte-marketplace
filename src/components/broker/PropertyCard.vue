@@ -86,7 +86,7 @@
         </div>
         
         <!-- Commission Status -->
-        <p class="text-xs text-center">
+        <p v-if="!hideCommission" class="text-xs text-center">
           <span v-if="isCommissionPaid" class="text-green-600">
             Broker's commission of {{ commissionValue }} paid
           </span>
@@ -115,6 +115,10 @@ export default {
     property: {
       type: Object,
       required: true
+    },
+    hideCommission: {
+      type: Boolean,
+      default: false
     }
   },
   emits: ['view', 'edit'],

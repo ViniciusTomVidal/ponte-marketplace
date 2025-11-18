@@ -97,6 +97,18 @@
                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                      placeholder="Year of construction">
             </div>
+
+            <div>
+              <label for="companiesHouseId" class="block text-sm font-medium text-gray-700 mb-2">
+                Companies House ID *
+              </label>
+              <input type="text" id="companiesHouseId" v-model="form.companies_house_id"
+                     @input="onClearFieldError('companies_house_id')"
+                     @blur="validateCompaniesHouseId"
+                     :class="['w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.companies_house_id ? 'border-red-500' : 'border-gray-300']"
+                     placeholder="e.g., 15859004">
+              <p v-if="formErrors.companies_house_id" class="text-red-500 text-xs mt-1">{{ formErrors.companies_house_id }}</p>
+            </div>
           </div>
 
           <div class="mt-6">
@@ -575,6 +587,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import authService from '@/services/auth'
+import { validateCompaniesHouseId } from '@/services/companies'
 import BrokerHeader from '@/components/BrokerHeader.vue'
 import LoadingOverlay from '@/components/broker/LoadingOverlay.vue'
 import ImageUpload from '@/components/broker/ImageUpload.vue'
@@ -660,6 +673,9 @@ export default {
         risk_information: '',
         main_risks: '',
         
+        // Companies House
+        companies_house_id: '',
+        
         // Contact
         contact_phone: '',
         contact_email: '',
@@ -724,6 +740,24 @@ export default {
     onClearFieldError(fieldName) {
       this.clearFieldError(this.formErrors, fieldName)
     },
+    // Validate Companies House ID via API
+    async validateCompaniesHouseId() {
+      const companiesHouseId = this.form.companies_house_id?.trim()
+      
+      if (!companiesHouseId) {
+        return // Don't validate if empty, let required validation handle it
+      }
+      
+      const result = await validateCompaniesHouseId(companiesHouseId)
+      
+      if (!result.success) {
+        alert(result.error || 'Companies House ID não encontrado. Por favor, verifique o ID informado.')
+        this.formErrors.companies_house_id = result.error || 'Companies House ID não encontrado'
+      } else {
+        // Clear error if validation passes
+        this.clearFieldError(this.formErrors, 'companies_house_id')
+      }
+    },
     
     // Validate form fields
     validateForm() {
@@ -747,6 +781,7 @@ export default {
           'minimum_investment': 'minimumInvestment',
           'funding_required': 'fundingRequired',
           'total_value': 'totalValue',
+          'companies_house_id': 'companiesHouseId',
           'main_image': 'mainImageContainer'
         }
         this.scrollToFirstError(this.formErrors, fieldMap)
@@ -780,7 +815,8 @@ export default {
               firstErrorField === 'expected_annual_return' ? 'expectedAnnualReturn' :
               firstErrorField === 'minimum_investment' ? 'minimumInvestment' :
               firstErrorField === 'funding_required' ? 'fundingRequired' :
-              firstErrorField === 'total_value' ? 'totalValue' : firstErrorField
+              firstErrorField === 'total_value' ? 'totalValue' :
+              firstErrorField === 'companies_house_id' ? 'companiesHouseId' : firstErrorField
             )
             if (errorElement) {
               errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -888,6 +924,9 @@ export default {
         }
         if (this.form.risk_information && this.form.risk_information.trim() !== '') {
           propertyData.risk_information = this.form.risk_information.trim()
+        }
+        if (this.form.companies_house_id && this.form.companies_house_id.trim() !== '') {
+          propertyData.companies_house_id = this.form.companies_house_id.trim()
         }
         
         // Process key_features and main_risks (comma separated strings to arrays)
@@ -1004,7 +1043,8 @@ export default {
                 'funding_required': 'funding_required',
                 'minimum_investment': 'minimum_investment',
                 'expected_annual_return': 'expected_annual_return',
-                'investment_term_years': 'investment_term_years'
+                'investment_term_years': 'investment_term_years',
+                'companies_house_id': 'companiesHouseId'
               }
               
               const formField = fieldMap[field] || field
@@ -1022,7 +1062,8 @@ export default {
                                                            firstErrorField === 'expected_annual_return' ? 'expectedAnnualReturn' :
                                                            firstErrorField === 'minimum_investment' ? 'minimumInvestment' :
                                                            firstErrorField === 'funding_required' ? 'fundingRequired' :
-                                                           firstErrorField === 'total_value' ? 'totalValue' : firstErrorField)
+                                                           firstErrorField === 'total_value' ? 'totalValue' :
+                                                           firstErrorField === 'companies_house_id' ? 'companiesHouseId' : firstErrorField)
               if (errorElement) {
                 errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
                 errorElement.focus()

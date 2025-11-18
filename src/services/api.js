@@ -7,8 +7,19 @@ export const api = {
     // Fetch all properties
     async getProperties() {
         try {
+            const token = localStorage.getItem('jwt_token')
+
+            const headers = {
+                'Content-Type': 'application/json'
+            }
+    
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`
+            }
+
             const response = await fetch(`${API_BASE_URL}/properties`, {
                 method: 'GET',
+                headers: headers
             })
 
             if (!response.ok) {

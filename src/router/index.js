@@ -23,6 +23,10 @@ import InvestorOrders from "@/views/investor/Orders.vue";
 import OrderDetails from "@/views/investor/OrderDetails.vue";
 import PaymentConfirmed from "@/views/investor/PaymentConfirmed.vue";
 import PaymentCancelled from "@/views/investor/PaymentCancelled.vue";
+import InvestorAddProperty from "@/views/investor/AddProperty.vue";
+import InvestorEditProperty from "@/views/investor/EditProperty.vue";
+import InvestorMyProperties from "@/views/investor/MyProperties.vue";
+import InvestorPropertyDetails from "@/views/investor/InvestorPropertyDetails.vue";
 
 const routes = [
     {
@@ -134,6 +138,32 @@ const routes = [
         component: InvestmentSuccess,
         meta: { title: 'Investment Successful - Ponte Finance' }
     },
+    {
+        path: '/investor/add-property',
+        name: 'InvestorAddProperty',
+        component: InvestorAddProperty,
+        meta: { title: 'Add Property - Ponte Finance' }
+    },
+    {
+        path: '/investor/edit-property/:id',
+        name: 'InvestorEditProperty',
+        component: InvestorEditProperty,
+        props: true,
+        meta: { title: 'Edit Property - Ponte Finance' }
+    },
+    {
+        path: '/investor/my-properties',
+        name: 'InvestorMyProperties',
+        component: InvestorMyProperties,
+        meta: { title: 'My Properties - Ponte Finance' }
+    },
+    {
+        path: '/investor/my-property/:id',
+        name: 'InvestorPropertyDetails',
+        component: InvestorPropertyDetails,
+        props: true,
+        meta: { title: 'Property Details - Ponte Finance' }
+    },
     // Broker routes
     {
         path: '/broker/dashboard',
@@ -187,6 +217,10 @@ router.beforeEach(async (to, from, next) => {
         '/investor/success',
         '/investor/orders',
         '/investor/portfolio',
+        '/investor/add-property',
+        '/investor/edit-property',
+        '/investor/my-properties',
+        '/investor/my-property',
     ]
     
     const brokerProtectedRoutes = [
