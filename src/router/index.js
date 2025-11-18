@@ -18,6 +18,7 @@ import BrokerDashboard from '@/views/broker/Dashboard.vue'
 import BrokerAddProperty from '@/views/broker/AddProperty.vue'
 import BrokerEditProperty from '@/views/broker/EditProperty.vue'
 import BrokerPropertyDetails from '@/views/broker/BrokerPropertyDetails.vue'
+import BrokerCommissions from '@/views/broker/Commissions.vue'
 import InvestorPortfolio from "@/views/investor/InvestorPortfolio.vue";
 import InvestorOrders from "@/views/investor/Orders.vue";
 import OrderDetails from "@/views/investor/OrderDetails.vue";
@@ -190,6 +191,12 @@ const routes = [
         component: BrokerPropertyDetails,
         props: true,
         meta: { title: 'Property Details - Ponte Finance' }
+    },
+    {
+        path: '/broker/commissions',
+        name: 'BrokerCommissions',
+        component: BrokerCommissions,
+        meta: { title: 'Commissions - Ponte Finance' }
     }
 ]
 
@@ -228,6 +235,7 @@ router.beforeEach(async (to, from, next) => {
         '/broker/add-property',
         '/broker/edit-property',
         '/broker/property',
+        '/broker/commissions',
     ]
     
     // Routes that are part of the onboarding flow (should not be protected)
