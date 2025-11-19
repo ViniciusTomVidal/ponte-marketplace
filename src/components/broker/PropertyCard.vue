@@ -84,16 +84,6 @@
             Edit
           </button>
         </div>
-        
-        <!-- Commission Status -->
-        <p v-if="!hideCommission" class="text-xs text-center">
-          <span v-if="isCommissionPaid" class="text-green-600">
-            Broker's commission of {{ commissionValue }} paid
-          </span>
-          <span v-else class="text-amber-600">
-            Broker's commission of {{ commissionValue }} pending payment
-          </span>
-        </p>
       </div>
     </div>
   </div>
@@ -116,10 +106,6 @@ export default {
       type: Object,
       required: true
     },
-    hideCommission: {
-      type: Boolean,
-      default: false
-    }
   },
   emits: ['view', 'edit'],
   setup(props) {
@@ -140,16 +126,6 @@ export default {
       return 'N/A'
     })
 
-    const commissionValue = computed(() => {
-      const totalValue = parseFloat(props.property.total_value || 0)
-      const commission = totalValue * 0.01 // 1% commission
-      return formatCurrency(commission)
-    })
-
-    const isCommissionPaid = computed(() => {
-      return props.property.commission_paid === true || props.property.commission_paid === 1
-    })
-
     const onImageError = (event) => {
       handleImageError(event)
     }
@@ -162,8 +138,6 @@ export default {
       fundedPercentage,
       imageUrl,
       location,
-      commissionValue,
-      isCommissionPaid,
       formatCurrency,
       onImageError
     }
