@@ -8,7 +8,30 @@
       <!-- Page Header -->
       <div class="mb-8">
         <h2 class="text-3xl font-bold text-gray-900 mb-2">Commissions</h2>
-        <p class="text-gray-600">View and track your commissions from investors properties</p>
+        <p class="text-gray-600">View and track your commissions from properties</p>
+      </div>
+
+      <!-- Filter -->
+      <div v-if="!loading && commissions.length > 0" class="mb-6">
+        <div class="bg-white rounded-lg shadow-lg p-4 border border-gray-200">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <label class="text-sm font-medium text-gray-700">Filter by:</label>
+              <select
+                v-model="commissionFilter"
+                @change="handleFilterChange"
+                class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="all">All Commissions</option>
+                <option value="my_properties">My Properties (Approval)</option>
+                <option value="investor_properties">Investor Properties</option>
+              </select>
+            </div>
+            <div class="text-sm text-gray-600">
+              Showing {{ filteredCommissions.length }} of {{ commissions.length }} commissions
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Summary Cards -->
@@ -81,7 +104,7 @@
         <i class="fas fa-pound-sign text-gray-400 text-5xl mb-4"></i>
         <p class="text-gray-600 text-lg mb-2">No commissions yet</p>
         <p class="text-gray-500 max-w-2xl mx-auto">
-          Commissions will appear here when an investor creates a property using a Companies House ID that you have already registered.
+          Commissions will appear here when an investor creates a property using a Companies House ID that you have already registered or a property that you have already is approved.
         </p>
       </div>
 
@@ -98,7 +121,7 @@
                   Total Value
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Commission (0.5%)
+                  Commission
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
@@ -109,7 +132,14 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="commission in commissions" :key="commission.id || commission.property_id" class="hover:bg-gray-50">
+              <tr 
+                v-for="commission in filteredCommissions" 
+                :key="commission.id || commission.property_id" 
+                :class="[
+                  'hover:bg-gray-50',
+                  isInvestorCommission(commission) ? 'bg-blue-50' : ''
+                ]"
+              >
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
                     <div class="flex-shrink-0 h-10 w-10">
@@ -121,8 +151,17 @@
                       >
                     </div>
                     <div class="ml-4">
-                      <div class="text-sm font-medium text-gray-900">
-                        {{ commission.property_title || (commission.property && commission.property.title) || commission.title || 'N/A' }}
+                      <div class="flex items-center">
+                        <div class="text-sm font-medium text-gray-900">
+                          {{ commission.property_title || (commission.property && commission.property.title) || commission.title || 'N/A' }}
+                        </div>
+                        <span 
+                          v-if="isInvestorCommission(commission)"
+                          class="ml-2 px-2 py-0.5 text-xs font-semibold rounded bg-blue-100 text-blue-800"
+                          title="Commission from investor property"
+                        >
+                          Investor
+                        </span>
                       </div>
                       <div class="text-sm text-gray-500">
                         ID: {{ commission.property_id || (commission.property && commission.property.id) || commission.id }}
@@ -296,6 +335,7 @@ export default {
     const pagination = ref(null)
     const currentPage = ref(1)
     const perPage = ref(10)
+    const commissionFilter = ref('all')
 
     // Composables
     const { formatCurrency, formatDate, getPropertyImage } = usePropertyFormatters()
@@ -319,7 +359,52 @@ export default {
       return userData.value?.name || userData.value?.display_name || 'Broker'
     })
 
-    // Calculate commission (0.5% of total value) - fallback if value not provided
+    // Get broker ID from user data
+    const brokerId = computed(() => {
+      return userData.value?.id || userData.value?.broker_id || userData.value?.user_id || null
+    })
+
+    // Check if commission is from investor property
+    const isInvestorCommission = (commission) => {
+      if (!brokerId.value) return false
+      
+      const propertyBrokerId = commission.property?.broker_id || 
+                               commission.broker_id || 
+                               commission.property_broker_id
+      
+      // If property has no broker_id or broker_id is different from current user, it's from investor
+      return !propertyBrokerId || propertyBrokerId.toString() !== brokerId.value.toString()
+    }
+
+    // Filter commissions based on source
+    const filteredCommissions = computed(() => {
+      if (commissionFilter.value === 'all') {
+        return commissions.value
+      }
+
+      return commissions.value.filter(commission => {
+        const propertyBrokerId = commission.property?.broker_id || 
+                                 commission.broker_id || 
+                                 commission.property_broker_id
+
+        if (commissionFilter.value === 'my_properties') {
+          // Comissões de propriedades do próprio broker (aprovação)
+          return propertyBrokerId && propertyBrokerId.toString() === brokerId.value?.toString()
+        } else if (commissionFilter.value === 'investor_properties') {
+          // Comissões de propriedades de investidores (diferente do broker)
+          return !propertyBrokerId || propertyBrokerId.toString() !== brokerId.value?.toString()
+        }
+
+        return true
+      })
+    })
+
+    // Handle filter change
+    const handleFilterChange = () => {
+      // Filter is reactive, no need for additional logic
+    }
+
+    // Calculate commission (0.5% of total value if from investor, 1% if from broker) - fallback if value not provided
     const calculateCommission = (commission) => {
       const totalValue = parseFloat(
         commission.total_value || 
@@ -501,7 +586,11 @@ export default {
       handleImageError,
       calculateCommission,
       fetchCommissions,
-      goToPage
+      goToPage,
+      commissionFilter,
+      filteredCommissions,
+      isInvestorCommission,
+      handleFilterChange
     }
   }
 }
