@@ -96,6 +96,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import authService from '@/services/auth';
+import { getFCMToken } from '@/services/fcm';
 
 export default {
   name: 'LoginInvestor',
@@ -151,8 +152,20 @@ export default {
       loading.value = true;
 
       try {
-        // Fazer login usando o serviço de autenticação
-        const data = await authService.login(form.value.email.trim(), form.value.password);
+        // Obter FCM token antes de fazer login
+        let fcmToken = null;
+        try {
+          fcmToken = await getFCMToken();
+          if (fcmToken) {
+            console.log('FCM token obtido para login:', fcmToken);
+          }
+        } catch (fcmError) {
+          console.warn('Não foi possível obter FCM token:', fcmError);
+          // Continuar com o login mesmo sem FCM token
+        }
+
+        // Fazer login usando o serviço de autenticação com FCM token
+        const data = await authService.login(form.value.email.trim(), form.value.password, fcmToken);
 
         console.log('Login successful:', data);
         
