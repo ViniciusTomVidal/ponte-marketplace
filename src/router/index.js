@@ -16,11 +16,18 @@ import InvestmentCheckout from '@/views/investor/InvestmentCheckout.vue'
 import InvestmentSuccess from '@/views/investor/InvestmentSuccess.vue'
 import BrokerDashboard from '@/views/broker/Dashboard.vue'
 import BrokerAddProperty from '@/views/broker/AddProperty.vue'
+import BrokerEditProperty from '@/views/broker/EditProperty.vue'
+import BrokerPropertyDetails from '@/views/broker/BrokerPropertyDetails.vue'
+import BrokerCommissions from '@/views/broker/Commissions.vue'
 import InvestorPortfolio from "@/views/investor/InvestorPortfolio.vue";
 import InvestorOrders from "@/views/investor/Orders.vue";
 import OrderDetails from "@/views/investor/OrderDetails.vue";
 import PaymentConfirmed from "@/views/investor/PaymentConfirmed.vue";
 import PaymentCancelled from "@/views/investor/PaymentCancelled.vue";
+import InvestorAddProperty from "@/views/investor/AddProperty.vue";
+import InvestorEditProperty from "@/views/investor/EditProperty.vue";
+import InvestorMyProperties from "@/views/investor/MyProperties.vue";
+import InvestorPropertyDetails from "@/views/investor/InvestorPropertyDetails.vue";
 
 const routes = [
     {
@@ -132,6 +139,32 @@ const routes = [
         component: InvestmentSuccess,
         meta: { title: 'Investment Successful - Ponte Finance' }
     },
+    {
+        path: '/investor/add-property',
+        name: 'InvestorAddProperty',
+        component: InvestorAddProperty,
+        meta: { title: 'Add Property - Ponte Finance' }
+    },
+    {
+        path: '/investor/edit-property/:id',
+        name: 'InvestorEditProperty',
+        component: InvestorEditProperty,
+        props: true,
+        meta: { title: 'Edit Property - Ponte Finance' }
+    },
+    {
+        path: '/investor/my-properties',
+        name: 'InvestorMyProperties',
+        component: InvestorMyProperties,
+        meta: { title: 'My Properties - Ponte Finance' }
+    },
+    {
+        path: '/investor/my-property/:id',
+        name: 'InvestorPropertyDetails',
+        component: InvestorPropertyDetails,
+        props: true,
+        meta: { title: 'Property Details - Ponte Finance' }
+    },
     // Broker routes
     {
         path: '/broker/dashboard',
@@ -144,6 +177,26 @@ const routes = [
         name: 'BrokerAddProperty',
         component: BrokerAddProperty,
         meta: { title: 'Add Property - Ponte Finance' }
+    },
+    {
+        path: '/broker/edit-property/:id',
+        name: 'BrokerEditProperty',
+        component: BrokerEditProperty,
+        props: true,
+        meta: { title: 'Edit Property - Ponte Finance' }
+    },
+    {
+        path: '/broker/property/:id',
+        name: 'BrokerPropertyDetails',
+        component: BrokerPropertyDetails,
+        props: true,
+        meta: { title: 'Property Details - Ponte Finance' }
+    },
+    {
+        path: '/broker/commissions',
+        name: 'BrokerCommissions',
+        component: BrokerCommissions,
+        meta: { title: 'Commissions - Ponte Finance' }
     }
 ]
 
@@ -165,26 +218,26 @@ router.beforeEach(async (to, from, next) => {
     const API_BASE_URL = 'https://ponte.finance'
 
     // Routes that require authentication and completion checks
-    const protectedRoutes = [
+    const investorProtectedRoutes = [
         '/investor/dashboard',
         '/investor/checkout',
         '/investor/success',
         '/investor/orders',
-        '/investor/portfolio'
+        '/investor/portfolio',
+        '/investor/add-property',
+        '/investor/edit-property',
+        '/investor/my-properties',
+        '/investor/my-property',
     ]
     
-    // Check if route is order detail or callback
-    if (to.path.startsWith('/investor/orders/')) {
-        // Allow order details and callbacks - they will handle their own auth
-        const isOrderDetailOrCallback = /^\/investor\/orders\/\d+(\/(payment-(confirmed|cancelled)))?$/.test(to.path)
-        if (isOrderDetailOrCallback) {
-            // These routes are protected but will be handled by the component
-            if (protectedRoutes.some(route => to.path.startsWith(route))) {
-                // Use same auth check logic
-            }
-        }
-    }
-
+    const brokerProtectedRoutes = [
+        '/broker/dashboard',
+        '/broker/add-property',
+        '/broker/edit-property',
+        '/broker/property',
+        '/broker/commissions',
+    ]
+    
     // Routes that are part of the onboarding flow (should not be protected)
     const onboardingRoutes = [
         '/auth/questionnaire',
@@ -193,7 +246,10 @@ router.beforeEach(async (to, from, next) => {
     ]
 
     // Check if route is protected
-    if (protectedRoutes.some(route => to.path.startsWith(route))) {
+    const isInvestorProtected = investorProtectedRoutes.some(route => to.path.startsWith(route))
+    const isBrokerProtected = brokerProtectedRoutes.some(route => to.path.startsWith(route))
+    
+    if (isInvestorProtected) {
         try {
             // Check user status with backend
             const jwt_token = localStorage.getItem('jwt_token');
@@ -264,6 +320,40 @@ router.beforeEach(async (to, from, next) => {
             }
 
             next()
+        }
+    } else if (isBrokerProtected) {
+        try {
+            const jwt_token = localStorage.getItem('jwt_token');
+
+            if (!jwt_token) {
+                setRouteLoading(false)
+                return next('/auth/broker/login')
+            }
+
+            const response = await fetch(`${API_BASE_URL}/wp-json/ponte/v1/broker/check-status`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${jwt_token}`
+                }
+            })
+
+            if (!response.ok) {
+                throw new Error('Broker status check failed')
+            }
+
+            const data = await response.json()
+
+            if (!data.logged_in) {
+                setRouteLoading(false)
+                return next('/auth/broker/login')
+            }
+
+            next()
+        } catch (error) {
+            console.error('Error checking broker status:', error)
+            setRouteLoading(false)
+            return next('/auth/broker/login')
         }
     } else {
         next()

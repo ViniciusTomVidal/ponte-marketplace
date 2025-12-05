@@ -6,15 +6,23 @@
     <!-- Loading Overlay -->
     <LoadingOverlay 
       :loading="loading"
-      message="Submitting property..."
+      message="Updating property..."
       submessage="Please wait while we process your request"
     />
 
+    <!-- Loading Property Data -->
+    <div v-if="loadingProperty" class="min-h-screen flex items-center justify-center">
+      <div class="text-center">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+        <p class="text-gray-600">Loading property data...</p>
+      </div>
+    </div>
+
     <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8" :class="{ 'opacity-50 pointer-events-none': loading }">
+    <main v-if="!loadingProperty" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8" :class="{ 'opacity-50 pointer-events-none': loading }">
       <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Register New Property</h1>
-        <p class="text-gray-600">Add a new property to your portfolio for investor consideration</p>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Edit Property</h1>
+        <p class="text-gray-600">Update property information and submit for review</p>
       </div>
 
       <form @submit.prevent="handleSubmit" class="space-y-8">
@@ -489,50 +497,12 @@
           </div>
         </div>
 
-        <!-- Property Images -->
-        <div class="bg-white rounded-lg shadow p-6" id="propertyImagesSection">
-          <h2 class="text-xl font-semibold text-gray-900 mb-6">Property Images</h2>
-          
-          <div class="space-y-4">
-            <div id="mainImageContainer">
-              <ImageUpload
-                label="Main Property Image"
-                :required="true"
-                placeholder="Click to upload main property image"
-                :error="formErrors.main_image"
-                :preview="form.mainImagePreview"
-                :fileName="form.mainImageFile?.name"
-                @change="onMainImageChange"
-              />
-            </div>
-
-            <div>
-              <ImageUpload
-                label="Additional Images (up to 5)"
-                placeholder="Click to upload additional property images"
-                :multiple="true"
-                @change="onAdditionalImagesChange"
-              />
-              <div v-if="form.additionalImagesPreview && form.additionalImagesPreview.length > 0" class="mt-2">
-                <div class="grid grid-cols-5 gap-2">
-                  <div v-for="(preview, index) in form.additionalImagesPreview" :key="index" class="relative">
-                    <img :src="preview" :alt="`Additional image ${index + 1}`" 
-                     class="w-full h-20 object-cover rounded">
-                    <button @click="onRemoveAdditionalImage(index)" 
-                            class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600">
-                      ×
-                    </button>
-                  </div>
-                </div>
-                <p class="text-xs text-gray-500 mt-2">{{ form.additionalImagesPreview.length }} image(s) selected</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Documentation -->
+        <!-- Required Documentation -->
         <div class="bg-white rounded-lg shadow p-6">
-          <h2 class="text-xl font-semibold text-gray-900 mb-6">Required Documentation</h2>
+          <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+            <i class="fas fa-file-alt text-blue-600 mr-3"></i>
+            Required Documentation
+          </h2>
           
           <div class="space-y-4">
             <DocumentUpload
@@ -564,9 +534,49 @@
           </div>
         </div>
 
+        <!-- Property Images -->
+        <div class="bg-white rounded-lg shadow p-6" id="propertyImagesSection">
+          <h2 class="text-xl font-semibold text-gray-900 mb-6">Property Images</h2>
+          
+          <div class="space-y-4">
+            <div id="mainImageContainer">
+              <ImageUpload
+                label="Main Property Image"
+                placeholder="Click to upload main property image"
+                :error="formErrors.main_image"
+                :preview="form.mainImagePreview"
+                :fileName="form.mainImageFile?.name || 'Current image'"
+                @change="onMainImageChange"
+              />
+            </div>
+
+            <div>
+              <ImageUpload
+                label="Additional Images (up to 5)"
+                placeholder="Click to upload additional property images"
+                :multiple="true"
+                @change="onAdditionalImagesChange"
+              />
+              <div v-if="form.additionalImagesPreview && form.additionalImagesPreview.length > 0" class="mt-2">
+                <div class="grid grid-cols-5 gap-2">
+                  <div v-for="(preview, index) in form.additionalImagesPreview" :key="index" class="relative">
+                    <img :src="preview" :alt="`Additional image ${index + 1}`" 
+                     class="w-full h-20 object-cover rounded">
+                    <button @click="onRemoveAdditionalImage(index)" 
+                            class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600">
+                      ×
+                    </button>
+                  </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">{{ form.additionalImagesPreview.length }} image(s) selected</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Submit -->
         <div class="flex justify-between">
-          <router-link to="/broker/dashboard" 
+          <router-link :to="`/broker/property/${propertyId}`" 
                       :class="['bg-gray-600 text-white px-8 py-3 rounded-lg transition-colors hover:cursor-pointer', loading ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-gray-700']">
             Cancel
           </router-link>
@@ -574,8 +584,8 @@
                   :disabled="loading"
                   :class="['bg-blue-600 text-white px-8 py-3 rounded-lg transition-colors font-semibold flex items-center hover:cursor-pointer', loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700']">
             <div v-if="loading" class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-            <i v-else class="fas fa-paper-plane mr-2"></i>
-            {{ loading ? 'Submitting...' : 'Submit for Review' }}
+            <i v-else class="fas fa-save mr-2"></i>
+            {{ loading ? 'Updating...' : 'Update Property' }}
           </button>
         </div>
       </form>
@@ -584,9 +594,10 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import authService from '@/services/auth'
+import { api } from '@/services/api'
 import { validateCompaniesHouseId } from '@/services/companies'
 import BrokerHeader from '@/components/BrokerHeader.vue'
 import LoadingOverlay from '@/components/broker/LoadingOverlay.vue'
@@ -596,7 +607,7 @@ import { usePropertyValidation } from '@/composables/usePropertyValidation'
 import { usePropertyImages } from '@/composables/usePropertyImages'
 
 export default {
-  name: 'AddProperty',
+  name: 'EditProperty',
   components: {
     BrokerHeader,
     LoadingOverlay,
@@ -604,32 +615,40 @@ export default {
     DocumentUpload
   },
   setup() {
+    const route = useRoute()
     const router = useRouter()
     const userData = ref(authService.getUserData())
     
     // Composables
-    const { clearFieldError, validatePropertyForm, validateMainImage, scrollToFirstError } = usePropertyValidation()
-    const { handleMainImage, handleAdditionalImages, removeAdditionalImage } = usePropertyImages()
+    const { clearFieldError, validatePropertyForm, scrollToFirstError } = usePropertyValidation()
+    const { handleMainImage, handleAdditionalImages, removeAdditionalImage, fileToBase64 } = usePropertyImages()
     
     const userName = computed(() => {
       return userData.value?.name || userData.value?.display_name || 'Broker'
     })
     
+    const propertyId = computed(() => {
+      return route.params.id || null
+    })
+    
     return {
       userName,
+      propertyId,
+      route,
       router,
       clearFieldError,
       validatePropertyForm,
-      validateMainImage,
       scrollToFirstError,
       handleMainImage,
       handleAdditionalImages,
-      removeAdditionalImage
+      removeAdditionalImage,
+      fileToBase64
     }
   },
   data() {
     return {
       loading: false,
+      loadingProperty: false,
       formErrors: {},
       form: {
         // Basic Information
@@ -686,17 +705,33 @@ export default {
         development_plan_url: '',
         exit_strategy_url: '',
         
-        // Images (store both file objects and preview URLs)
-        mainImageFile: null,
-        mainImagePreview: '',
-        additionalImageFiles: [],
-        additionalImagesPreview: [],
+        // Status
+        status_badge_text: 'Available for Investment',
+        
+        // Documents
         documents: {
           valuation: null,
           title: null,
           rental: null
-        }
+        },
+        
+        // Images (store both file objects and preview URLs)
+        mainImageFile: null,
+        mainImagePreview: '',
+        mainImageUrl: null, // URL da imagem principal existente (se houver)
+        additionalImageFiles: [],
+        additionalImagesPreview: [],
+        existingAdditionalImageUrls: [] // URLs das imagens adicionais existentes que devem ser mantidas
       }
+    }
+  },
+  mounted() {
+    // Load property data when component mounts
+    if (this.propertyId) {
+      this.loadProperty()
+    } else {
+      alert('Property ID is required')
+      this.router.push('/broker/dashboard')
     }
   },
   methods: {
@@ -758,18 +793,10 @@ export default {
         this.clearFieldError(this.formErrors, 'companies_house_id')
       }
     },
-    
     // Validate form fields
     validateForm() {
       const { errors, isValid } = this.validatePropertyForm(this.form)
       this.formErrors = errors
-      
-      // Validate main image
-      const imageValidation = this.validateMainImage(this.form.mainImageFile)
-      if (!imageValidation.isValid) {
-        this.formErrors.main_image = imageValidation.error
-        return false
-      }
       
       if (!isValid) {
         // Scroll to first error
@@ -781,14 +808,168 @@ export default {
           'minimum_investment': 'minimumInvestment',
           'funding_required': 'fundingRequired',
           'total_value': 'totalValue',
-          'companies_house_id': 'companiesHouseId',
-          'main_image': 'mainImageContainer'
+          'companies_house_id': 'companiesHouseId'
         }
         this.scrollToFirstError(this.formErrors, fieldMap)
         return false
       }
       
       return true
+    },
+    
+    // Load property data for editing
+    async loadProperty() {
+      if (!this.propertyId) return
+      
+      this.loadingProperty = true
+      try {
+        const response = await api.getBrokerProperty(this.propertyId)
+        
+        // Handle different response structures
+        let propertyData = null
+        if (response && response.data) {
+          propertyData = response.data
+        } else if (response && response.property) {
+          propertyData = response.property
+        } else if (response && !response.data && !response.property) {
+          propertyData = response
+        }
+        
+        if (propertyData) {
+          // Populate form with property data
+          this.form.title = propertyData.title || ''
+          this.form.property_type = propertyData.property_type || ''
+          this.form.description = propertyData.description || ''
+          this.form.full_description = propertyData.full_description || ''
+          this.form.bedrooms = propertyData.bedrooms || null
+          this.form.bathrooms = propertyData.bathrooms || null
+          this.form.area_sqm = propertyData.area_sqm || null
+          this.form.floor = propertyData.floor || null
+          this.form.construction_year = propertyData.construction_year || null
+          
+          // Location
+          this.form.address_line1 = propertyData.address_line1 || ''
+          this.form.address_line2 = propertyData.address_line2 || ''
+          this.form.city = propertyData.city || ''
+          this.form.postcode = propertyData.postcode || ''
+          this.form.country = propertyData.country || 'UK'
+          this.form.nearest_tube = propertyData.nearest_tube || ''
+          this.form.nearest_tube_distance = propertyData.nearest_tube_distance || ''
+          this.form.nearest_airport = propertyData.nearest_airport || ''
+          this.form.airport_distance = propertyData.airport_distance || ''
+          
+          // Financial Information
+          this.form.total_value = propertyData.total_value || null
+          this.form.funding_required = propertyData.funding_required || null
+          this.form.funding_raised = propertyData.funding_raised || 0
+          this.form.minimum_investment = propertyData.minimum_investment || null
+          this.form.expected_annual_return = propertyData.expected_annual_return || null
+          this.form.investment_term_years = propertyData.investment_term_years || null
+          this.form.management_fee_rate = propertyData.management_fee_rate || 1.50
+          this.form.loan_to_value = propertyData.loan_to_value || null
+          this.form.loan_term = propertyData.loan_term || null
+          this.form.gdv_value = propertyData.gdv_value || null
+          this.form.construction_costs = propertyData.construction_costs || null
+          
+          // Additional Information
+          if (propertyData.key_features) {
+            if (Array.isArray(propertyData.key_features)) {
+              this.form.key_features = propertyData.key_features.join(', ')
+            } else if (typeof propertyData.key_features === 'string') {
+              try {
+                const parsed = JSON.parse(propertyData.key_features)
+                this.form.key_features = Array.isArray(parsed) ? parsed.join(', ') : propertyData.key_features
+              } catch {
+                this.form.key_features = propertyData.key_features
+              }
+            } else {
+              this.form.key_features = ''
+            }
+          }
+          
+          this.form.investment_potential = propertyData.investment_potential || ''
+          this.form.risk_information = propertyData.risk_information || ''
+          
+          // Companies House ID
+          this.form.companies_house_id = propertyData.companies_house_id || ''
+          
+          if (propertyData.main_risks) {
+            if (Array.isArray(propertyData.main_risks)) {
+              this.form.main_risks = propertyData.main_risks.join(', ')
+            } else if (typeof propertyData.main_risks === 'string') {
+              try {
+                const parsed = JSON.parse(propertyData.main_risks)
+                this.form.main_risks = Array.isArray(parsed) ? parsed.join(', ') : propertyData.main_risks
+              } catch {
+                this.form.main_risks = propertyData.main_risks
+              }
+            } else {
+              this.form.main_risks = ''
+            }
+          }
+          
+          // Contact
+          this.form.contact_phone = propertyData.contact_phone || ''
+          this.form.contact_email = propertyData.contact_email || ''
+          
+          // Document URLs
+          this.form.prospectus_url = propertyData.prospectus_url || ''
+          this.form.schedule_of_works_url = propertyData.schedule_of_works_url || ''
+          this.form.development_plan_url = propertyData.development_plan_url || ''
+          this.form.exit_strategy_url = propertyData.exit_strategy_url || ''
+          
+          // Load main image
+          let mainImageUrl = null
+          if (propertyData.main_image) {
+            if (propertyData.main_image.url) {
+              mainImageUrl = propertyData.main_image.url
+              this.form.mainImagePreview = mainImageUrl
+              this.form.mainImageUrl = mainImageUrl // Rastrear a URL da imagem existente
+            } else if (typeof propertyData.main_image === 'string') {
+              mainImageUrl = propertyData.main_image
+              this.form.mainImagePreview = mainImageUrl
+              this.form.mainImageUrl = mainImageUrl // Rastrear a URL da imagem existente
+            }
+          }
+          
+          // Load all images array
+          if (propertyData.images && Array.isArray(propertyData.images) && propertyData.images.length > 0) {
+            // If no main_image was found, use first image as main
+            if (!mainImageUrl) {
+              const firstImage = propertyData.images[0]
+              mainImageUrl = firstImage.url || firstImage
+              this.form.mainImagePreview = mainImageUrl
+              this.form.mainImageUrl = mainImageUrl // Rastrear a URL da imagem existente
+            }
+            
+            // Load additional images (all except main)
+            // Images are objects with url property or can be strings
+            const additionalImages = propertyData.images
+              .map(img => {
+                if (typeof img === 'object' && img.url) {
+                  return img.url
+                } else if (typeof img === 'string') {
+                  return img
+                }
+                return null
+              })
+              .filter(url => url !== null && url !== mainImageUrl)
+            
+            this.form.additionalImagesPreview = additionalImages
+            // Inicializar a lista de URLs existentes que devem ser mantidas
+            this.form.existingAdditionalImageUrls = [...additionalImages]
+          } else {
+            // Se não há imagens, inicializar arrays vazios
+            this.form.existingAdditionalImageUrls = []
+          }
+        }
+      } catch (error) {
+        console.error('Error loading property:', error)
+        alert('Failed to load property data. Please try again.')
+        this.router.push('/broker/dashboard')
+      } finally {
+        this.loadingProperty = false
+      }
     },
     
     async handleSubmit() {
@@ -799,29 +980,19 @@ export default {
         // Scroll to first error
         const firstErrorField = Object.keys(this.formErrors)[0]
         if (firstErrorField) {
-          let errorElement = null
-          
-          if (firstErrorField === 'main_image') {
-            // For main image, scroll to the image upload container
-            errorElement = document.getElementById('mainImageContainer')
-            if (errorElement) {
-              errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
-            }
-          } else {
-            errorElement = document.getElementById(
-              firstErrorField === 'property_type' ? 'propertyType' : 
-              firstErrorField === 'address_line1' ? 'addressLine1' :
-              firstErrorField === 'investment_term_years' ? 'investmentTermYears' :
-              firstErrorField === 'expected_annual_return' ? 'expectedAnnualReturn' :
-              firstErrorField === 'minimum_investment' ? 'minimumInvestment' :
-              firstErrorField === 'funding_required' ? 'fundingRequired' :
-              firstErrorField === 'total_value' ? 'totalValue' :
-              firstErrorField === 'companies_house_id' ? 'companiesHouseId' : firstErrorField
-            )
-            if (errorElement) {
-              errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
-              errorElement.focus()
-            }
+          const errorElement = document.getElementById(
+            firstErrorField === 'property_type' ? 'property_type' : 
+            firstErrorField === 'address_line1' ? 'address_line1' :
+            firstErrorField === 'investment_term_years' ? 'investment_term_years' :
+            firstErrorField === 'expected_annual_return' ? 'expected_annual_return' :
+            firstErrorField === 'minimum_investment' ? 'minimum_investment' :
+            firstErrorField === 'funding_required' ? 'funding_required' :
+            firstErrorField === 'total_value' ? 'total_value' :
+            firstErrorField === 'companies_house_id' ? 'companiesHouseId' : firstErrorField
+          )
+          if (errorElement) {
+            errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            errorElement.focus()
           }
         }
         return
@@ -868,8 +1039,6 @@ export default {
         }
         if (this.form.country && this.form.country.trim() !== '') {
           propertyData.country = this.form.country.trim()
-        } else {
-          propertyData.country = 'UK' // Default value
         }
         if (this.form.nearest_tube && this.form.nearest_tube.trim() !== '') {
           propertyData.nearest_tube = this.form.nearest_tube.trim()
@@ -925,6 +1094,9 @@ export default {
         if (this.form.risk_information && this.form.risk_information.trim() !== '') {
           propertyData.risk_information = this.form.risk_information.trim()
         }
+        if (this.form.status_badge_text && this.form.status_badge_text.trim() !== '') {
+          propertyData.status_badge_text = this.form.status_badge_text.trim()
+        }
         if (this.form.companies_house_id && this.form.companies_house_id.trim() !== '') {
           propertyData.companies_house_id = this.form.companies_house_id.trim()
         }
@@ -943,90 +1115,135 @@ export default {
           }
         }
 
-        // Create FormData to send files
-        const formData = new FormData()
+        // Prepare images array for JSON
+        const propertyImages = []
         
-        // Add all property data fields individually to FormData
-        // This allows backend to access them via $request->get_param() or $_POST
-        Object.keys(propertyData).forEach(key => {
-          const value = propertyData[key]
-          if (value !== null && value !== undefined) {
-            if (Array.isArray(value)) {
-              // For arrays (like key_features, main_risks), send as JSON string
-              formData.append(key, JSON.stringify(value))
-            } else if (typeof value === 'object') {
-              // For objects, send as JSON string
-              formData.append(key, JSON.stringify(value))
-            } else {
-              // For primitives, send as string
-              formData.append(key, String(value))
-            }
-          }
-        })
-        
-        // Add all images to property_images[] array
-        // First image (main) goes first, then additional images
-        // Backend will treat the first image as primary (sort_order = 0)
-        if (this.form.mainImageFile) {
-          formData.append('property_images[]', this.form.mainImageFile)
-        }
-        
-        // Add additional images to the same property_images[] array
-        if (this.form.additionalImageFiles.length > 0) {
-          this.form.additionalImageFiles.forEach((file) => {
-            formData.append('property_images[]', file)
+        // Add existing main image URL if not replaced
+        if (!this.form.mainImageFile && this.form.mainImageUrl) {
+          propertyImages.push({
+            url: this.form.mainImageUrl,
+            is_primary: true
           })
         }
         
-        // Add documents as files
+        // Add new main image as base64 if provided
+        if (this.form.mainImageFile) {
+          const mainImageBase64 = await this.fileToBase64(this.form.mainImageFile)
+          propertyImages.push({
+            data: mainImageBase64,
+            name: this.form.mainImageFile.name,
+            is_primary: true
+          })
+        }
+        
+        // Add existing additional image URLs
+        if (this.form.existingAdditionalImageUrls && this.form.existingAdditionalImageUrls.length > 0) {
+          this.form.existingAdditionalImageUrls.forEach((url) => {
+            propertyImages.push({
+              url: url,
+              is_primary: false
+            })
+          })
+        }
+        
+        // Add new additional images as base64
+        if (this.form.additionalImageFiles && this.form.additionalImageFiles.length > 0) {
+          for (const file of this.form.additionalImageFiles) {
+            const imageBase64 = await this.fileToBase64(file)
+            propertyImages.push({
+              data: imageBase64,
+              name: file.name,
+              is_primary: false
+            })
+          }
+        }
+        
+        // Add images array to property data
+        if (propertyImages.length > 0) {
+          propertyData.property_images = propertyImages
+        }
+
+        // Prepare documents array for JSON (convert to base64)
+        const documents = {}
         if (this.form.documents.valuation) {
-          formData.append('documents_file[valuation]', this.form.documents.valuation)
+          const valuationBase64 = await this.fileToBase64(this.form.documents.valuation)
+          documents.valuation = {
+            data: valuationBase64,
+            name: this.form.documents.valuation.name,
+            type: this.form.documents.valuation.type
+          }
         }
         if (this.form.documents.title) {
-          formData.append('documents_file[title]', this.form.documents.title)
+          const titleBase64 = await this.fileToBase64(this.form.documents.title)
+          documents.title = {
+            data: titleBase64,
+            name: this.form.documents.title.name,
+            type: this.form.documents.title.type
+          }
         }
         if (this.form.documents.rental) {
-          formData.append('documents_file[rental]', this.form.documents.rental)
+          const rentalBase64 = await this.fileToBase64(this.form.documents.rental)
+          documents.rental = {
+            data: rentalBase64,
+            name: this.form.documents.rental.name,
+            type: this.form.documents.rental.type
+          }
+        }
+        
+        // Add documents to property data if any
+        if (Object.keys(documents).length > 0) {
+          propertyData.documents_file = documents
         }
 
         // Log payload for debugging
-        console.log('Sending property data:', propertyData)
-        console.log('Main image file:', this.form.mainImageFile?.name)
-        console.log('Additional images:', this.form.additionalImageFiles.length)
+        console.log('=== Form Submission Debug ===')
+        console.log('Property data:', propertyData)
+        console.log('Main image - New file:', this.form.mainImageFile ? {
+          name: this.form.mainImageFile.name,
+          size: this.form.mainImageFile.size,
+          type: this.form.mainImageFile.type
+        } : 'null')
+        console.log('Main image - Existing URL:', this.form.mainImageUrl || 'null')
+        console.log('Additional images - New files count:', this.form.additionalImageFiles.length)
+        console.log('Additional images - Existing URLs to keep:', this.form.existingAdditionalImageUrls.length)
+        console.log('Total images in property_images array:', propertyImages.length)
         console.log('Documents:', {
           valuation: this.form.documents.valuation?.name,
           title: this.form.documents.title?.name,
           rental: this.form.documents.rental?.name
         })
+        console.log('=== End Form Submission Debug ===')
 
-        // Call API to create property
+        // Call API to update property using JSON
         const token = localStorage.getItem('jwt_token')
         if (!token) {
-          alert('You must be logged in to submit a property')
+          alert('You must be logged in to update a property')
           this.loading = false
           return
         }
 
-        const response = await fetch('https://ponte.finance/wp-json/marketplace/v1/broker/create-property', {
-          method: 'POST',
+        const response = await fetch(`https://ponte.finance/wp-json/marketplace/v1/broker/properties/${this.propertyId}`, {
+          method: 'PUT',
           headers: {
-            'Authorization': `Bearer ${token}`
-            // Don't set Content-Type - browser will set it automatically with boundary for FormData
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           },
-          body: formData
+          body: JSON.stringify(propertyData)
         })
 
         const result = await response.json()
 
         if (response.ok && result.success) {
-          // Redirect to dashboard with success state
+          // Redirect to property details with success state
           this.router.push({
-            path: '/broker/dashboard',
-            query: { success: 'property_created' }
+            path: `/broker/property/${this.propertyId}`,
+            query: { success: 'property_updated' }
           })
         } else {
           // Handle API validation errors
-          const errorMessage = result.message || result.error || 'Failed to submit property. Please try again.'
+          const errorMessage = result.message || result.error || 'Failed to update property. Please try again.'
+          console.error('API Error:', errorMessage)
+          console.error('Full error response:', result)
           
           // If API returns field-specific errors, map them to formErrors
           if (result.data && result.data.fields && Array.isArray(result.data.fields)) {
@@ -1056,13 +1273,13 @@ export default {
             // Scroll to first error field
             const firstErrorField = Object.keys(this.formErrors)[0]
             if (firstErrorField) {
-              const errorElement = document.getElementById(firstErrorField === 'property_type' ? 'propertyType' : 
-                                                           firstErrorField === 'address_line1' ? 'addressLine1' :
-                                                           firstErrorField === 'investment_term_years' ? 'investmentTermYears' :
-                                                           firstErrorField === 'expected_annual_return' ? 'expectedAnnualReturn' :
-                                                           firstErrorField === 'minimum_investment' ? 'minimumInvestment' :
-                                                           firstErrorField === 'funding_required' ? 'fundingRequired' :
-                                                           firstErrorField === 'total_value' ? 'totalValue' :
+              const errorElement = document.getElementById(firstErrorField === 'property_type' ? 'property_type' : 
+                                                           firstErrorField === 'address_line1' ? 'address_line1' :
+                                                           firstErrorField === 'investment_term_years' ? 'investment_term_years' :
+                                                           firstErrorField === 'expected_annual_return' ? 'expected_annual_return' :
+                                                           firstErrorField === 'minimum_investment' ? 'minimum_investment' :
+                                                           firstErrorField === 'funding_required' ? 'funding_required' :
+                                                           firstErrorField === 'total_value' ? 'total_value' :
                                                            firstErrorField === 'companies_house_id' ? 'companiesHouseId' : firstErrorField)
               if (errorElement) {
                 errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -1080,8 +1297,8 @@ export default {
           console.error('API Error Response:', result)
         }
       } catch (error) {
-        console.error('Error submitting property:', error)
-        alert('An error occurred while submitting the property. Please try again.')
+        console.error('Error updating property:', error)
+        alert('An error occurred while updating the property. Please try again.')
       } finally {
         this.loading = false
       }
@@ -1089,3 +1306,4 @@ export default {
   }
 }
 </script>
+

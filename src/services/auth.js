@@ -76,6 +76,23 @@ export const authService = {
     }
   },
 
+  // Fazer login broker
+  async loginBroker(email, password) {
+    try {
+      const data = await http.post(`/wp-json/marketplace/v1/broker/login`, { email, password });
+
+      // Salvar token e dados do usuário
+      if (data.token) {
+        this.saveAuth(data. token, data.user); 
+      }
+
+      return data;
+    } catch (err) {
+      console.error('Login broker error:', err);
+      throw err;
+    }
+  },
+
   // Registrar usuário
   async register(userData) {
     try {

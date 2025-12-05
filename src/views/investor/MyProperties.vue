@@ -1,7 +1,7 @@
 <template>
   <div class="bg-gray-50 min-h-screen">
     <!-- Header -->
-    <BrokerHeader :user-name="userName" />
+    <AppHeader />
 
     <!-- Success Notification -->
     <SuccessNotification 
@@ -14,8 +14,8 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Welcome Section -->
       <div class="mb-8">
-        <h2 class="text-3xl font-bold text-gray-900 mb-2">Welcome, {{ userName }}!</h2>
-        <p class="text-gray-600">Manage your properties and track approval status</p>
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">My Properties</h2>
+        <p class="text-gray-600">Manage and track your registered properties</p>
       </div>
 
       <!-- Stats Cards -->
@@ -24,21 +24,11 @@
       <!-- Action Buttons -->
       <div class="mb-8">
         <div class="flex flex-col sm:flex-row gap-4">
-          <router-link to="/broker/add-property" 
+          <router-link to="/investor/add-property" 
                       class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold">
             <i class="fas fa-plus mr-2"></i>
             Register New Property
           </router-link>
-          <router-link to="/broker/commissions" 
-                      class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-semibold">
-            <i class="fas fa-pound-sign mr-2"></i>
-            Commissions
-          </router-link>
-          <button @click="exportData" 
-                  class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
-            <i class="fas fa-download mr-2"></i>
-            Export Data
-          </button>
         </div>
       </div>
 
@@ -102,7 +92,7 @@
           <i class="fas fa-home text-gray-400 text-5xl mb-4"></i>
           <p class="text-gray-600 text-lg mb-2">No properties yet</p>
           <p class="text-gray-500 mb-6">Get started by registering your first property</p>
-          <router-link to="/broker/add-property" 
+          <router-link to="/investor/add-property" 
                       class="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold">
             <i class="fas fa-plus mr-2"></i>
             Register New Property
@@ -128,6 +118,7 @@
             v-for="property in sortedProperties"
             :key="property.id"
             :property="property"
+            :hideCommission="true"
             @view="viewPropertyDetails"
             @edit="editProperty"
           />
@@ -151,7 +142,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { api } from '@/services/api'
 import authService from '@/services/auth'
-import BrokerHeader from '@/components/BrokerHeader.vue'
+import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import SuccessNotification from '@/components/broker/SuccessNotification.vue'
 import PropertyStats from '@/components/broker/PropertyStats.vue'
@@ -162,9 +153,9 @@ import PropertySort from '@/components/broker/PropertySort.vue'
 import { usePropertyFilters } from '@/composables/usePropertyFilters'
 
 export default {
-  name: 'BrokerDashboard',
+  name: 'InvestorMyProperties',
   components: {
-    BrokerHeader,
+    AppHeader,
     AppFooter,
     SuccessNotification,
     PropertyStats,
@@ -179,7 +170,6 @@ export default {
     const properties = ref([])
     const loading = ref(false)
     const error = ref(null)
-    const userData = ref(authService.getUserData())
     const showSuccessNotification = ref(false)
     const successMessage = ref('')
     
@@ -192,7 +182,7 @@ export default {
     })
     const currentSort = ref('date_desc')
 
-    // Fetch broker properties from API
+    // Fetch investor properties from API (using broker endpoint for now)
     const fetchProperties = async () => {
       loading.value = true
       error.value = null
@@ -216,38 +206,13 @@ export default {
           error.value = data?.message || 'Failed to load properties'
         }
       } catch (err) {
-        console.error('Error fetching broker properties:', err)
+        console.error('Error fetching investor properties:', err)
         error.value = err.message || 'Failed to load properties. Please try again.'
         properties.value = []
       } finally {
         loading.value = false
       }
     }
-
-
-    // Get user name (same logic as BrokerHeader)
-    const userName = computed(() => {
-      const firstName = userData.value?.firstName || userData.value?.first_name || ''
-      const lastName = userData.value?.lastName || userData.value?.last_name || ''
-      
-      if (firstName && lastName) {
-        // Format: First letter uppercase, rest lowercase
-        const formattedFirst = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase()
-        const formattedLast = lastName.charAt(0).toUpperCase() + lastName.slice(1).toLowerCase()
-        return `${formattedFirst} ${formattedLast}`
-      }
-      
-      if (firstName) {
-        return firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase()
-      }
-      
-      if (lastName) {
-        return lastName.charAt(0).toUpperCase() + lastName.slice(1).toLowerCase()
-      }
-      
-      // Fallback
-      return userData.value?.name || userData.value?.display_name || 'Broker'
-    })
 
     // Property filtering and sorting
     const { sortedProperties, filteredCount } = usePropertyFilters(properties, filters, currentSort)
@@ -266,23 +231,12 @@ export default {
     })
 
     // Methods
-
-    const exportData = () => {
-      alert('Data will be exported in CSV format.')
-    }
-
     const viewPropertyDetails = (propertyId) => {
-      router.push(`/broker/property/${propertyId}`)
+      router.push(`/investor/my-property/${propertyId}`)
     }
 
     const editProperty = (propertyId) => {
-      router.push(`/broker/edit-property/${propertyId}`)
-    }
-
-    const resubmitProperty = (propertyId) => {
-      if (confirm(`Do you want to resubmit this property for review?`)) {
-        alert('Property resubmitted successfully!')
-      }
+      router.push(`/investor/edit-property/${propertyId}`)
     }
 
     const handleFilter = (filterValues) => {
@@ -321,6 +275,17 @@ export default {
         setTimeout(() => {
           showSuccessNotification.value = false
         }, 5000)
+      } else if (route.query.success === 'property_updated') {
+        showSuccessNotification.value = true
+        successMessage.value = 'Property updated successfully!'
+        
+        // Remove query parameter from URL
+        router.replace({ query: {} })
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+          showSuccessNotification.value = false
+        }, 5000)
       }
     })
 
@@ -328,7 +293,6 @@ export default {
       properties,
       loading,
       error,
-      userName,
       showSuccessNotification,
       successMessage,
       showFilters,
@@ -339,10 +303,8 @@ export default {
       hasActiveFilters,
       activeFiltersCount,
       fetchProperties,
-      exportData,
       viewPropertyDetails,
       editProperty,
-      resubmitProperty,
       handleFilter,
       handleSort,
       clearAllFilters

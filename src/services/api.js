@@ -7,8 +7,19 @@ export const api = {
     // Fetch all properties
     async getProperties() {
         try {
+            const token = localStorage.getItem('jwt_token')
+
+            const headers = {
+                'Content-Type': 'application/json'
+            }
+    
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`
+            }
+
             const response = await fetch(`${API_BASE_URL}/properties`, {
                 method: 'GET',
+                headers: headers
             })
 
             if (!response.ok) {
@@ -39,6 +50,153 @@ export const api = {
             return data.data
         } catch (error) {
             console.error('Error fetching properties:', error)
+        }
+    },
+
+    // Fetch broker properties
+    async getBrokerProperties() {
+        const token = localStorage.getItem('jwt_token')
+        const headers = {
+            'Content-Type': 'application/json'
+        }
+
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`
+        }
+
+        try {
+                const response = await fetch(`${API_BASE_URL}/broker/properties`, {
+                method: 'GET',
+                headers: headers
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            const data = await response.json()
+            return data
+        } catch (error) {
+            console.error('Error fetching broker properties:', error)
+        }
+    },
+
+    // Fetch single broker property by ID
+    async getBrokerProperty(id) {
+        const token = localStorage.getItem('jwt_token')
+        const headers = {
+            'Content-Type': 'application/json'
+        }
+
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/broker/properties/${id}`, {
+                method: 'GET',
+                headers: headers
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            const data = await response.json()
+            return data
+        } catch (error) {
+            console.error('Error fetching broker property:', error)
+            throw error
+        }
+    },
+
+    // Update broker property by ID
+    async updateBrokerProperty(id, propertyData) {
+        const token = localStorage.getItem('jwt_token')
+        const headers = {
+            'Content-Type': 'application/json'
+        }
+
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/broker/properties/${id}`, {
+                method: 'PUT',
+                headers: headers,
+                body: JSON.stringify(propertyData)
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+            }
+
+            const data = await response.json()
+            return data
+        } catch (error) {
+            console.error('Error updating broker property:', error)
+            throw error
+        }
+    },
+
+    // Fetch broker commissions with pagination
+    async getBrokerCommissions(page = 1, perPage = 10) {
+        const token = localStorage.getItem('jwt_token')
+        const headers = {
+            'Content-Type': 'application/json'
+        }
+
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/broker/commissions?page=${page}&per_page=${perPage}`, {
+                method: 'GET',
+                headers: headers
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            const data = await response.json()
+            return data
+        } catch (error) {
+            console.error('Error fetching broker commissions:', error)
+            throw error
+        }
+    },
+
+    async logoutBroker() {
+        try {
+            const token = localStorage.getItem('jwt_token')
+
+            const headers = {
+                'Content-Type': 'application/json'
+            }
+
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`
+            }
+
+            const response = await fetch(`${API_BASE_URL}/broker/logout`, {
+                method: 'POST',
+                headers: headers
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            const data = await response.json()
+            return data
+        }
+        catch (error) {
+            console.error('Error logging out broker:', error)
+            throw error
         }
     },
 

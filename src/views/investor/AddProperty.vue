@@ -1,7 +1,7 @@
 <template>
   <div class="bg-gray-50 min-h-screen">
     <!-- Header -->
-    <BrokerHeader :user-name="userName" />
+    <AppHeader />
 
     <!-- Loading Overlay -->
     <LoadingOverlay 
@@ -14,7 +14,7 @@
     <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8" :class="{ 'opacity-50 pointer-events-none': loading }">
       <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Register New Property</h1>
-        <p class="text-gray-600">Add a new property to your portfolio for investor consideration</p>
+        <p class="text-gray-600">Add a new property to the marketplace for investment opportunities</p>
       </div>
 
       <form @submit.prevent="handleSubmit" class="space-y-8">
@@ -566,7 +566,7 @@
 
         <!-- Submit -->
         <div class="flex justify-between">
-          <router-link to="/broker/dashboard" 
+          <router-link to="/investor/dashboard" 
                       :class="['bg-gray-600 text-white px-8 py-3 rounded-lg transition-colors hover:cursor-pointer', loading ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-gray-700']">
             Cancel
           </router-link>
@@ -588,7 +588,7 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import authService from '@/services/auth'
 import { validateCompaniesHouseId } from '@/services/companies'
-import BrokerHeader from '@/components/BrokerHeader.vue'
+import AppHeader from '@/components/AppHeader.vue'
 import LoadingOverlay from '@/components/broker/LoadingOverlay.vue'
 import ImageUpload from '@/components/broker/ImageUpload.vue'
 import DocumentUpload from '@/components/broker/DocumentUpload.vue'
@@ -596,27 +596,21 @@ import { usePropertyValidation } from '@/composables/usePropertyValidation'
 import { usePropertyImages } from '@/composables/usePropertyImages'
 
 export default {
-  name: 'AddProperty',
+  name: 'InvestorAddProperty',
   components: {
-    BrokerHeader,
+    AppHeader,
     LoadingOverlay,
     ImageUpload,
     DocumentUpload
   },
   setup() {
     const router = useRouter()
-    const userData = ref(authService.getUserData())
     
     // Composables
     const { clearFieldError, validatePropertyForm, validateMainImage, scrollToFirstError } = usePropertyValidation()
     const { handleMainImage, handleAdditionalImages, removeAdditionalImage } = usePropertyImages()
     
-    const userName = computed(() => {
-      return userData.value?.name || userData.value?.display_name || 'Broker'
-    })
-    
     return {
-      userName,
       router,
       clearFieldError,
       validatePropertyForm,
@@ -1021,7 +1015,7 @@ export default {
         if (response.ok && result.success) {
           // Redirect to dashboard with success state
           this.router.push({
-            path: '/broker/dashboard',
+            path: '/investor/dashboard',
             query: { success: 'property_created' }
           })
         } else {
