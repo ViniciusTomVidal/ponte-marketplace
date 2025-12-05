@@ -90,7 +90,6 @@ export async function getFCMToken() {
     }
 
     console.warn('Nenhum método para obter FCM token encontrado no webtonative');
-    console.log('webtonative disponível:', webtonative);
     return null;
   } catch (error) {
     console.error('Erro ao obter FCM token:', error);
