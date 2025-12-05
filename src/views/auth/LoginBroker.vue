@@ -22,6 +22,11 @@
             <p class="text-white mt-2">Access your property management dashboard</p>
           </div>
 
+          <!-- Exibir mensagens de erro -->
+          <div v-if="error" class="mb-4 p-3 rounded-lg text-sm" style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5;">
+            {{ error }}
+          </div>
+
           <form @submit.prevent="handleLogin" class="space-y-6">
             <div>
               <label for="email" class="block text-sm font-medium text-white mb-2">Email Address</label>
@@ -62,10 +67,17 @@
 
             <button
               type="submit"
-              class="w-full bg-[#A68542] text-[#001242] py-3 px-4 rounded-lg font-semibold hover:bg-[#8B7355] transition-colors flex items-center justify-center"
+              class="w-full bg-[#A68542] text-[#001242] py-3 px-4 rounded-lg font-semibold hover:bg-[#8B7355] transition-colors flex items-center justify-center disabled:opacity-50"
+              :disabled="loading"
             >
-              <i class="fas fa-sign-in-alt mr-2"></i>
-              Sign In
+              <span v-if="loading" class="flex items-center justify-center">
+                <i class="fas fa-spinner fa-spin mr-2"></i>
+                Signing In...
+              </span>
+              <span v-else class="flex items-center justify-center">
+                <i class="fas fa-sign-in-alt mr-2"></i>
+                Sign In
+              </span>
             </button>
           </form>
 
@@ -94,6 +106,7 @@
 import authService from '@/services/auth';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { getFCMToken } from '@/services/fcm';
 
 export default {
   name: 'LoginBroker',
@@ -104,21 +117,51 @@ export default {
     });
 
     const router = useRouter();
+    const loading = ref(false);
+    const error = ref('');
 
     const handleLogin = async () => {
-      try { 
-      authService.loginBroker(form.value.email, form.value.password).then(data => {
-        if(data.success) {
+      // Reset error
+      error.value = '';
+
+      // Validações básicas
+      if (!form.value.email.trim()) {
+        error.value = 'Email is required';
+        return;
+      }
+
+      if (!form.value.password.trim()) {
+        error.value = 'Password is required';
+        return;
+      }
+
+      loading.value = true;
+
+      try {
+        // Obter FCM token antes de fazer login
+        let fcmToken = null;
+        try {
+          fcmToken = await getFCMToken();
+          if (fcmToken) {
+            console.log('FCM token obtido para login broker:', fcmToken);
+          }
+        } catch (fcmError) {
+          console.warn('Não foi possível obter FCM token:', fcmError);
+          // Continuar com o login mesmo sem FCM token
+        }
+
+        // Fazer login usando o serviço de autenticação com FCM token
+        const data = await authService.loginBroker(form.value.email.trim(), form.value.password, fcmToken);
+        
+        if (data.success) {
           router.push('/broker/dashboard');
         } else {
+          error.value = data.message || 'Login failed. Please try again.';
           console.error(data.message);
         }
-      }).catch(error => {
-        error.value = error.message || 'Login failed. Please try again.';
-        console.error('Login error:', error);
-      });
-      } catch (error) {
-        console.error(error);
+      } catch (err) {
+        error.value = err.message || 'Login failed. Please try again.';
+        console.error('Login error:', err);
       } finally {
         loading.value = false;
       }
@@ -126,6 +169,8 @@ export default {
 
     return {
       form,
+      loading,
+      error,
       handleLogin
     };
   }

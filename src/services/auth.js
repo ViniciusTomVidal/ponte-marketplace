@@ -53,9 +53,16 @@ export const authService = {
   },
 
   // Fazer login
-  async login(email, password) {
+  async login(email, password, fcmToken = null) {
     try {
-      const data = await http.post('/wp-json/ponte/v1/investor/login', { email, password });
+      const loginData = { email, password };
+      
+      // Adicionar FCM token se disponível
+      if (fcmToken) {
+        loginData.fcm_token = fcmToken;
+      }
+
+      const data = await http.post('/wp-json/ponte/v1/investor/login', loginData);
 
       // Salvar token e dados do usuário
       if (data.token) {
@@ -70,13 +77,20 @@ export const authService = {
   },
 
   // Fazer login broker
-  async loginBroker(email, password) {
+  async loginBroker(email, password, fcmToken = null) {
     try {
-      const data = await http.post(`/wp-json/marketplace/v1/broker/login`, { email, password });
+      const loginData = { email, password };
+      
+      // Adicionar FCM token se disponível
+      if (fcmToken) {
+        loginData.fcm_token = fcmToken;
+      }
+
+      const data = await http.post(`/wp-json/marketplace/v1/broker/login`, loginData);
 
       // Salvar token e dados do usuário
       if (data.token) {
-        this.saveAuth(data. token, data.user); 
+        this.saveAuth(data.token, data.user); 
       }
 
       return data;
