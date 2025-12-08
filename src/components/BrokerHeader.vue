@@ -3,32 +3,32 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center py-3">
         <!-- Logo and Brand -->
-        <div class="flex items-center">
+        <div class="flex items-center flex-1 min-w-0">
           <!-- Back Button -->
           <button 
             v-if="shouldShowBackButton"
             @click="handleBack"
-            class="mr-3 p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors hover:cursor-pointer"
+            class="mr-2 md:mr-3 p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors hover:cursor-pointer"
             title="Go back"
           >
             <i class="fas fa-arrow-left text-lg"></i>
           </button>
           
-          <router-link to="/broker/dashboard" class="flex items-center group">
-            <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg p-2.5 mr-3 shadow-sm group-hover:shadow-md transition-shadow">
-              <i class="fas fa-building text-white text-xl"></i>
+          <router-link to="/broker/dashboard" class="flex items-center group" @click="closeMobileMenu">
+            <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg p-2 md:p-2.5 mr-2 md:mr-3 shadow-sm group-hover:shadow-md transition-shadow">
+              <i class="fas fa-building text-white text-lg md:text-xl"></i>
             </div>
-            <div>
-              <h1 class="text-lg font-bold text-gray-900 leading-tight">Ponte Finance</h1>
-              <p class="text-xs text-gray-500 font-medium">Broker Portal</p>
+            <div class="min-w-0">
+              <h1 class="text-base md:text-lg font-bold text-gray-900 leading-tight truncate">Ponte Finance</h1>
+              <p class="text-xs text-gray-500 font-medium hidden sm:block">Broker Portal</p>
             </div>
           </router-link>
         </div>
 
-        <!-- Right Side - User Info and Actions -->
-        <div class="flex items-center space-x-3">
+        <!-- Desktop Right Side - User Info and Actions -->
+        <div class="hidden md:flex items-center space-x-3">
           <!-- Commissions Link -->
-          <div class="hidden md:flex items-center">
+          <div class="flex items-center">
             <router-link 
               to="/broker/commissions"
               class="text-gray-600 hover:text-purple-600 transition-colors p-2.5 rounded-lg hover:bg-purple-50 group hover:cursor-pointer"
@@ -38,7 +38,7 @@
             </router-link>
           </div>
           <!-- Notifications -->
-          <div class="hidden md:flex items-center">
+          <div class="flex items-center">
             <button 
               class="relative text-gray-600 hover:text-blue-600 transition-colors p-2.5 rounded-lg hover:bg-blue-50 group hover:cursor-pointer"
               title="Notifications"
@@ -52,7 +52,7 @@
           </div>
 
           <!-- User Profile -->
-          <div class="flex items-center space-x-3 pl-3 md:pl-4 border-l border-gray-200">
+          <div class="flex items-center space-x-3 pl-3 lg:pl-4 border-l border-gray-200">
             <div class="text-right hidden lg:block">
               <p class="text-sm font-semibold text-gray-900 leading-tight">{{ displayName }}</p>
               <p class="text-xs text-gray-500 font-medium">Verified Broker</p>
@@ -69,7 +69,74 @@
             </button>
           </div>
         </div>
+
+        <!-- Mobile Menu Button -->
+        <button 
+          @click="toggleMobileMenu" 
+          class="md:hidden text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          aria-label="Toggle menu"
+        >
+          <i :class="mobileMenuOpen ? 'fas fa-times' : 'fas fa-bars'" class="text-xl"></i>
+        </button>
       </div>
+
+      <!-- Mobile Menu -->
+      <transition
+        enter-active-class="transition ease-out duration-200"
+        enter-from-class="opacity-0 -translate-y-2"
+        enter-to-class="opacity-100 translate-y-0"
+        leave-active-class="transition ease-in duration-150"
+        leave-from-class="opacity-100 translate-y-0"
+        leave-to-class="opacity-0 -translate-y-2"
+      >
+        <div v-if="mobileMenuOpen" class="md:hidden pb-4 border-t border-gray-200 mt-3 pt-4">
+          <nav class="flex flex-col space-y-3">
+            <router-link 
+              to="/broker/dashboard" 
+              @click="closeMobileMenu"
+              class="text-gray-700 hover:text-blue-600 transition-colors py-2 px-4 rounded-lg hover:bg-blue-50 flex items-center"
+            >
+              <i class="fas fa-home mr-3 w-5"></i>Dashboard
+            </router-link>
+            <router-link 
+              to="/broker/commissions" 
+              @click="closeMobileMenu"
+              class="text-gray-700 hover:text-purple-600 transition-colors py-2 px-4 rounded-lg hover:bg-purple-50 flex items-center"
+            >
+              <i class="fas fa-pound-sign mr-3 w-5"></i>Commissions
+            </router-link>
+            <button 
+              class="relative text-gray-700 hover:text-blue-600 transition-colors py-2 px-4 rounded-lg hover:bg-blue-50 flex items-center text-left w-full"
+              title="Notifications"
+            >
+              <i class="fas fa-bell mr-3 w-5"></i>Notifications
+              <span v-if="unreadCount > 0" 
+                    class="ml-auto bg-red-500 text-white text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5 font-semibold">
+                {{ unreadCount > 9 ? '9+' : unreadCount }}
+              </span>
+            </button>
+            
+            <!-- User Info Mobile -->
+            <div class="pt-3 border-t border-gray-200 mt-2">
+              <div class="flex items-center space-x-3 px-4 py-2">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center shadow-md ring-2 ring-blue-100">
+                  <span class="text-white text-sm font-bold">{{ userInitials }}</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-semibold text-gray-900 truncate">{{ displayName }}</p>
+                  <p class="text-xs text-gray-500">Verified Broker</p>
+                </div>
+              </div>
+              <button 
+                @click="handleMobileLogout" 
+                class="w-full text-gray-700 hover:text-red-600 py-2 px-4 rounded-lg hover:bg-red-50 transition-colors text-left flex items-center mt-2"
+              >
+                <i class="fas fa-sign-out-alt mr-3 w-5"></i>Logout
+              </button>
+            </div>
+          </nav>
+        </div>
+      </transition>
     </div>
   </header>
 
@@ -138,6 +205,7 @@ export default {
     const route = useRoute()
     const userData = ref({})
     const showLogoutModal = ref(false)
+    const mobileMenuOpen = ref(false)
     
     // Load user data from localStorage (same logic as investor header)
     const loadUserData = () => {
@@ -218,8 +286,19 @@ export default {
       showLogoutModal.value = true
     }
 
+    // Toggle mobile menu
+    const toggleMobileMenu = () => {
+      mobileMenuOpen.value = !mobileMenuOpen.value
+    }
+
+    // Close mobile menu
+    const closeMobileMenu = () => {
+      mobileMenuOpen.value = false
+    }
+
     const confirmLogout = async () => {
       showLogoutModal.value = false
+      closeMobileMenu()
       
       try {
         // Call broker logout API endpoint
@@ -235,9 +314,20 @@ export default {
       }
     }
 
+    // Handle mobile logout
+    const handleMobileLogout = () => {
+      closeMobileMenu()
+      handleLogout()
+    }
+
     // Load user data on mount
     onMounted(() => {
       loadUserData()
+      
+      // Close menu on route change
+      router.afterEach(() => {
+        closeMobileMenu()
+      })
     })
 
     return {
@@ -246,9 +336,13 @@ export default {
       userInitials,
       shouldShowBackButton,
       showLogoutModal,
+      mobileMenuOpen,
+      toggleMobileMenu,
+      closeMobileMenu,
       handleBack,
       handleLogout,
-      confirmLogout
+      confirmLogout,
+      handleMobileLogout
     }
   }
 }

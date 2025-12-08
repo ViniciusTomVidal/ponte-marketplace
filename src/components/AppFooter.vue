@@ -1,11 +1,11 @@
 <template>
   <footer class="bg-ponte-blue">
     <!-- Partners Carousel Section -->
-    <div class="bg-white py-12 border-b-2" style="border-bottom-color: rgb(166, 133, 66);">
-      <div class="max-w-7xl mx-[132px] px-[20px]">
-        <div class="flex flex-col md:flex-row items-center justify-between gap-8">
-          <div class="w-[23%] pr-[40px]">
-            <p class="w-full text-[13px] font-medium">
+    <div class="bg-white py-8 md:py-12 border-b-2" style="border-bottom-color: rgb(166, 133, 66);">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
+          <div class="w-full md:w-[23%] md:pr-10 text-center md:text-left">
+            <p class="w-full text-xs md:text-[13px] font-medium">
               Turning possibilities into financial realities. Let's build your future together!
             </p>
           </div>
@@ -38,62 +38,62 @@
         </div>
       </div>
     </div>
-    <div class="pt-[80px] pb-[25px]">
-      <div class="max-w-7xl mx-auto">
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-6 px-[20px]">
-          <div class="flex flex-col">
+    <div class="pt-12 md:pt-20 pb-6 md:pb-[25px]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-6">
+          <div class="flex flex-col col-span-2 md:col-span-1 items-center md:items-start">
             <img width="244" height="165"
               src="https://ponte.finance/wp-content/uploads/2024/06/web-app-manifest-512x512-1-300x300-1.png"
-              class="w-[65%] mx-auto" alt="Ponte Finance Logo" />
+              class="w-32 md:w-[65%] max-w-[200px] mx-auto md:mx-0" alt="Ponte Finance Logo" />
           </div>
 
           <div class="flex flex-col">
             <a href="https://ponte.finance/terms-of-use-ponte-finance-plc/"
-              class="text-[13px] font-medium text-white hover:underline mb-4">
+              class="text-xs md:text-[13px] font-medium text-white hover:underline mb-3 md:mb-4">
               Terms of Use
             </a>
             <a href="https://ponte.finance/privacy-policy-ponte-finance-plc/"
-              class="text-[13px] font-medium text-white hover:underline">
+              class="text-xs md:text-[13px] font-medium text-white hover:underline">
               Privacy Policy
             </a>
           </div>
 
           <div class="flex flex-col">
-            <a href="https://ponte.finance/" class="text-[13px] font-medium text-white hover:underline mb-4">
+            <a href="https://ponte.finance/" class="text-xs md:text-[13px] font-medium text-white hover:underline mb-3 md:mb-4">
               Home
             </a>
-            <a href="https://ponte.finance/contact/" class="text-[13px] font-medium text-white hover:underline">
+            <a href="https://ponte.finance/contact/" class="text-xs md:text-[13px] font-medium text-white hover:underline">
               Contact
             </a>
           </div>
 
-          <div class="flex flex-col">
-            <a href="https://ponte.finance/dashboard/" class="text-[13px] font-medium text-white hover:underline mb-4">
+          <div class="flex flex-col col-span-2 md:col-span-1">
+            <a href="https://ponte.finance/dashboard/" class="text-xs md:text-[13px] font-medium text-white hover:underline mb-3 md:mb-4">
               Investor Area
             </a>
             <a href="https://ponte.finance/investments/"
-              class="text-[13px] font-medium text-white hover:underline mb-4">
+              class="text-xs md:text-[13px] font-medium text-white hover:underline mb-3 md:mb-4">
               Why invest in Equity
             </a>
             <a href="https://ponte.finance/investment-solicitation-letter-2/"
-              class="text-[13px] font-medium text-white hover:underline mb-4">
+              class="text-xs md:text-[13px] font-medium text-white hover:underline mb-3 md:mb-4">
               invest in ponte
             </a>
             <a href="https://ponte.finance/understanding-ponte-finances-bridge-loan-business/"
-              class="text-[13px] font-medium text-white hover:underline">
+              class="text-xs md:text-[13px] font-medium text-white hover:underline">
               Ponte Loan Solutions
             </a>
           </div>
 
-          <div class="flex flex-col">
-            <p class="text-[13px] font-medium text-white mb-4">
+          <div class="flex flex-col col-span-2 md:col-span-1">
+            <p class="text-xs md:text-[13px] font-medium text-white mb-3 md:mb-4">
               225 Clapham Road London SW9 9BE
             </p>
-            <a href="mailto:admin@ponte.finance" class="text-[13px] font-medium text-white hover:underline mb-4">
+            <a href="mailto:admin@ponte.finance" class="text-xs md:text-[13px] font-medium text-white hover:underline mb-3 md:mb-4 break-all">
               admin@ponte.finance
             </a>
             <!-- Social Media Links -->
-            <div class="flex items-center gap-4 mb-4">
+            <div class="flex items-center gap-4 mb-3 md:mb-4">
               <a 
                 href="https://www.facebook.com/people/Pontefinance/61573143484708/#" 
                 target="_blank" 
@@ -101,7 +101,7 @@
                 class="text-white hover:text-[#A68542] transition-colors"
                 aria-label="Facebook"
               >
-                <i class="fab fa-facebook-f text-xl"></i>
+                <i class="fab fa-facebook-f text-lg md:text-xl"></i>
               </a>
               <a 
                 href="https://www.linkedin.com/company/ponte-finance-plc/?originalSubdomain=uk" 
@@ -110,29 +110,42 @@
                 class="text-white hover:text-[#A68542] transition-colors"
                 aria-label="LinkedIn"
               >
-                <i class="fab fa-linkedin-in text-xl"></i>
+                <i class="fab fa-linkedin-in text-lg md:text-xl"></i>
               </a>
             </div>
             <img width="960" height="638" src="https://ponte.finance/wp-content/uploads/2024/06/QR-codes-1024x681.png"
-              class="max-w-full h-auto hidden md:block" alt="QR Codes" />
+              class="max-w-full h-auto hidden md:block w-full" alt="QR Codes" />
           </div>
         </div>
       </div>
     </div>
-    <div class="pt-[70px] pb-[15px] flex flex-col items-center justify-center gap-[20px]">
-      <p class="text-[16px] font-medium text-white">Ponte Finance promotes sustainability as a core value. <a
+    <div class="pt-12 md:pt-[70px] pb-6 md:pb-[15px] flex flex-col items-center justify-center gap-4 md:gap-[20px] px-4 sm:px-6">
+      <p class="text-sm md:text-[16px] font-medium text-white text-center px-4">
+        Ponte Finance promotes sustainability as a core value. 
+        <a
           href="https://ponte.finance/investing-responsibly-with-100-loan/"
-          class="text-[16px] font-medium text-[#A68542] hover:underline">Click here to learn more</a>
+          class="text-sm md:text-[16px] font-medium text-[#A68542] hover:underline"
+        >
+          Click here to learn more
+        </a>
       </p>
-      <img width="300" height="100" src="https://ponte.finance/wp-content/uploads/2024/06/Ponte-Sustainable-Loan-Commitment2.png" class="aspect-[300/100]" alt="Ponte Sustainable Loan Commitment" />
+      <img 
+        width="300" 
+        height="100" 
+        src="https://ponte.finance/wp-content/uploads/2024/06/Ponte-Sustainable-Loan-Commitment2.png" 
+        class="w-full max-w-[300px] h-auto aspect-[300/100]" 
+        alt="Ponte Sustainable Loan Commitment" 
+      />
       
-      <div class="w-full max-w-7xl px-[20px]">
+      <div class="w-full max-w-7xl">
         <div class="flex flex-col items-center">
           <div class="w-full mb-4">
             <div class="border-t border-gray-400"></div>
           </div>
-          <div class="py-[10px]">
-            <p class="text-[13px] text-center text-[#A68542]">Copyright © 2025 By Ponte Finance. All Rights Reserved.</p>
+          <div class="py-2 md:py-[10px]">
+            <p class="text-xs md:text-[13px] text-center text-[#A68542] px-4">
+              Copyright © 2025 By Ponte Finance. All Rights Reserved.
+            </p>
           </div>
         </div>
       </div>
@@ -184,10 +197,12 @@ export default {
     ])
 
     const updateSlidesPerView = () => {
-      if (window.innerWidth < 768) {
+      if (window.innerWidth < 640) {
         slidesPerView.value = 2
-      } else {
+      } else if (window.innerWidth < 768) {
         slidesPerView.value = 3
+      } else {
+        slidesPerView.value = 4
       }
     }
 
