@@ -50,7 +50,7 @@
             </div>
           </div>
 
-          <div class="bg-[#001242] border border-[#A68542] rounded-lg p-6 mb-6 max-h-96 overflow-y-auto">
+          <div ref="scrollContainer" @scroll="handleScroll" class="bg-[#001242] border border-[#A68542] rounded-lg p-6 mb-6 max-h-96 overflow-y-auto">
             <h3 class="text-lg font-semibold text-[#A68542] mb-4">Investment Risk Warning</h3>
             
             <div class="space-y-4 text-[#ffffff] text-sm">
@@ -89,32 +89,32 @@
           <form @submit.prevent="handleSubmit" class="space-y-6">
             <div class="space-y-4">
               <label class="flex items-start">
-                <input type="checkbox" v-model="form.acknowledgeRisks" required
-                       class="h-4 w-4 text-[#A68542] focus:ring-[#A68542] border-gray-300 rounded mt-1">
+                <input type="checkbox" v-model="form.acknowledgeRisks" required :disabled="!canAccept"
+                       class="h-4 w-4 text-[#A68542] focus:ring-[#A68542] border-gray-300 rounded mt-1 disabled:opacity-50 disabled:cursor-not-allowed">
                 <span class="ml-3 text-[#ffffff] text-sm">
                   I acknowledge that I have read and understood the investment risks outlined above.
                 </span>
               </label>
               
               <label class="flex items-start">
-                <input type="checkbox" v-model="form.understandIlliquidity" required
-                       class="h-4 w-4 text-[#A68542] focus:ring-[#A68542] border-gray-300 rounded mt-1">
+                <input type="checkbox" v-model="form.understandIlliquidity" required :disabled="!canAccept"
+                       class="h-4 w-4 text-[#A68542] focus:ring-[#A68542] border-gray-300 rounded mt-1 disabled:opacity-50 disabled:cursor-not-allowed">
                 <span class="ml-3 text-[#ffffff] text-sm">
                   I understand that property investments are illiquid and I may not be able to withdraw my investment quickly.
                 </span>
               </label>
               
               <label class="flex items-start">
-                <input type="checkbox" v-model="form.canAffordLoss" required
-                       class="h-4 w-4 text-[#A68542] focus:ring-[#A68542] border-gray-300 rounded mt-1">
+                <input type="checkbox" v-model="form.canAffordLoss" required :disabled="!canAccept"
+                       class="h-4 w-4 text-[#A68542] focus:ring-[#A68542] border-gray-300 rounded mt-1 disabled:opacity-50 disabled:cursor-not-allowed">
                 <span class="ml-3 text-[#ffffff] text-sm">
                   I confirm that I can afford to lose the money I plan to invest and that this investment is suitable for my circumstances.
                 </span>
               </label>
               
               <label class="flex items-start">
-                <input type="checkbox" v-model="form.seekAdvice" required
-                       class="h-4 w-4 text-[#A68542] focus:ring-[#A68542] border-gray-300 rounded mt-1">
+                <input type="checkbox" v-model="form.seekAdvice" required :disabled="!canAccept"
+                       class="h-4 w-4 text-[#A68542] focus:ring-[#A68542] border-gray-300 rounded mt-1 disabled:opacity-50 disabled:cursor-not-allowed">
                 <span class="ml-3 text-[#ffffff] text-sm">
                   I understand that I should seek independent financial advice if I am unsure about this investment.
                 </span>
@@ -150,6 +150,9 @@ export default {
   name: 'RiskDeclaration',
   setup() {
     const router = useRouter();
+    const scrollContainer = ref(null);
+    const canAccept = ref(false);
+    
     const form = ref({
       acknowledgeRisks: false,
       understandIlliquidity: false,
@@ -160,6 +163,20 @@ export default {
     const allChecked = computed(() => {
       return Object.values(form.value).every(checked => checked);
     });
+
+    const handleScroll = () => {
+      if (!scrollContainer.value) return;
+      
+      const container = scrollContainer.value;
+      const scrollTop = container.scrollTop;
+      const scrollHeight = container.scrollHeight;
+      const clientHeight = container.clientHeight;
+      
+      // Verifica se chegou ao final (com uma pequena margem de tolerância de 5px)
+      if (scrollTop + clientHeight >= scrollHeight - 5) {
+        canAccept.value = true;
+      }
+    };
 
     // Check if user is authenticated, if not redirect to login
     const checkAuthentication = async () => {
@@ -196,7 +213,10 @@ export default {
     return {
       form,
       allChecked,
-      handleSubmit
+      handleSubmit,
+      scrollContainer,
+      canAccept,
+      handleScroll
     };
   }
 }
