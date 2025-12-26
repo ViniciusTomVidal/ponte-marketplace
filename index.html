@@ -21,67 +21,107 @@
           var propertyId = propertyMatch[1];
           var baseUrl = window.location.origin;
           
-          // Fetch property data synchronously for WhatsApp scraping
-          var xhr = new XMLHttpRequest();
-          xhr.open('GET', 'https://ponte.finance/wp-json/ponte/v1/properties/' + propertyId, false);
-          xhr.send();
+          // Helper function to clean text (remove special characters and encoding issues)
+          function cleanText(text) {
+            if (!text) return '';
+            return String(text)
+              .replace(/[^\x20-\x7E\u00A0-\uFFFF]/g, '') // Remove non-printable characters
+              .replace(/\s+/g, ' ') // Normalize whitespace
+              .trim();
+          }
           
-          if (xhr.status === 200) {
-            try {
+          // Helper function to get image URL from property
+          function getPropertyImage(property) {
+            // Try images array first
+            if (property.images && Array.isArray(property.images) && property.images.length > 0) {
+              var firstImage = property.images[0];
+              if (typeof firstImage === 'string') {
+                return firstImage;
+              } else if (firstImage && firstImage.url) {
+                return firstImage.url;
+              }
+            }
+            
+            // Try primary_image
+            if (property.primary_image) {
+              if (typeof property.primary_image === 'string') {
+                return property.primary_image;
+              } else if (property.primary_image.url) {
+                return property.primary_image.url;
+              }
+            }
+            
+            // Fallback to mock images based on property ID
+            var mockImages = {
+              '1': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel01.jpg',
+              '2': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel02.jpg',
+              '3': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel03.jpg',
+              '4': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel04.jpg',
+              '14': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel01.jpg'
+            };
+            
+            return mockImages[property.id] || mockImages[propertyId] || 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel01.jpg';
+          }
+          
+          // Fetch property data synchronously for WhatsApp scraping
+          try {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'https://ponte.finance/wp-json/ponte/v1/properties/' + propertyId, false);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send();
+            
+            if (xhr.status === 200) {
               var response = JSON.parse(xhr.responseText);
-              var property = response.data || response;
+              // Handle different response structures
+              var property = response.data || response.property || response;
               
               if (property) {
-                var title = property.title || 'Property Investment Opportunity';
-                var description = (property.description || property.full_description || 'Check out this property investment opportunity on Ponte Finance').substring(0, 200);
-                var image = '';
+                var title = cleanText(property.title || 'Property Investment Opportunity');
+                var rawDescription = property.description || property.full_description || 'Check out this property investment opportunity on Ponte Finance';
+                var description = cleanText(rawDescription).substring(0, 200);
                 
                 // Get image URL
-                if (property.images && property.images.length > 0) {
-                  image = property.images[0].url || property.images[0];
-                } else if (property.primary_image) {
-                  image = typeof property.primary_image === 'string' ? property.primary_image : property.primary_image.url;
-                } else {
-                  // Fallback to mock images
-                  var mockImages = {
-                    '1': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel01.jpg',
-                    '2': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel02.jpg',
-                    '3': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel03.jpg',
-                    '4': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel04.jpg'
-                  };
-                  image = mockImages[property.id] || 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel01.jpg';
-                }
+                var image = getPropertyImage(property);
                 
-                // Ensure image URL is absolute
-                if (image && !image.startsWith('http')) {
-                  if (image.startsWith('/')) {
-                    image = baseUrl + image;
-                  } else {
-                    image = baseUrl + '/' + image;
+                // Ensure image URL is absolute and valid
+                if (image) {
+                  if (!image.startsWith('http://') && !image.startsWith('https://')) {
+                    if (image.startsWith('//')) {
+                      image = 'https:' + image;
+                    } else if (image.startsWith('/')) {
+                      image = 'https://ponte.finance' + image;
+                    } else {
+                      image = 'https://ponte.finance/' + image;
+                    }
                   }
+                } else {
+                  // Final fallback
+                  image = 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel01.jpg';
                 }
                 
                 var propertyUrl = baseUrl + '/investor/property/' + propertyId;
                 
                 // Update or create meta tags
                 function setMetaTag(property, content) {
+                  if (!content) return;
                   var element = document.querySelector('meta[property="' + property + '"]');
                   if (!element) {
                     element = document.createElement('meta');
                     element.setAttribute('property', property);
                     document.head.appendChild(element);
                   }
-                  element.setAttribute('content', content);
+                  element.setAttribute('content', String(content));
                 }
                 
                 function setTwitterMetaTag(name, content) {
+                  if (!content) return;
                   var element = document.querySelector('meta[name="' + name + '"]');
                   if (!element) {
                     element = document.createElement('meta');
                     element.setAttribute('name', name);
                     document.head.appendChild(element);
                   }
-                  element.setAttribute('content', content);
+                  element.setAttribute('content', String(content));
                 }
                 
                 // Set Open Graph tags
@@ -90,8 +130,12 @@
                 setMetaTag('og:image', image);
                 setMetaTag('og:image:url', image);
                 setMetaTag('og:image:secure_url', image);
+                setMetaTag('og:image:type', 'image/jpeg');
+                setMetaTag('og:image:width', '1200');
+                setMetaTag('og:image:height', '630');
                 setMetaTag('og:url', propertyUrl);
                 setMetaTag('og:type', 'website');
+                setMetaTag('og:site_name', 'Ponte Finance');
                 
                 // Set Twitter Card tags
                 setTwitterMetaTag('twitter:card', 'summary_large_image');
@@ -108,9 +152,10 @@
                   descMeta.setAttribute('content', description);
                 }
               }
-            } catch (e) {
-              console.error('Error parsing property data:', e);
             }
+          } catch (e) {
+            // Silent fail - will use default meta tags
+            console.error('Error loading property meta tags:', e);
           }
         }
       })();
