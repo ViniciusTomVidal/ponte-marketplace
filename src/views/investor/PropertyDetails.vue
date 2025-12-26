@@ -326,7 +326,7 @@
                 <i class="fas fa-heart mr-2"></i>Add to Favorites
               </button>
               <a 
-                :href="getShareLink()" 
+                :href="`https://wa.me/?text=${encodeURIComponent(getShareLink())}`" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 class="w-full flex items-center justify-center px-4 py-2 border rounded-lg transition-colors border-gray-300 hover:cursor-pointer hover:bg-gray-50"
@@ -402,75 +402,10 @@ export default {
       }
     })
 
+    // Removido: updateMetaTags é inútil porque o WhatsApp não faz scraping de SPAs
+    // As meta tags devem estar no servidor (class-property-api.php)
     const updateMetaTags = (propertyData) => {
-      const baseUrl = window.location.origin
-      const propertyUrl = `${baseUrl}/investor/property/${propertyData.id}`
-      const propertyTitle = propertyData.title || 'Property Investment Opportunity'
-      const propertyDescription = propertyData.description || propertyData.full_description || 'Check out this property investment opportunity on Ponte Finance'
-      let propertyImage = mainImage.value || getPropertyImage(propertyData)
-      
-      // Ensure image URL is absolute
-      if (propertyImage && !propertyImage.startsWith('http')) {
-        // If relative URL, make it absolute
-        if (propertyImage.startsWith('/')) {
-          propertyImage = `${baseUrl}${propertyImage}`
-        } else {
-          propertyImage = `${baseUrl}/${propertyImage}`
-        }
-      }
-      
-      // Update or create Open Graph meta tags
-      const updateMetaTag = (property, content) => {
-        let element = document.querySelector(`meta[property="${property}"]`)
-        if (!element) {
-          element = document.createElement('meta')
-          element.setAttribute('property', property)
-          document.head.appendChild(element)
-        }
-        element.setAttribute('content', content)
-      }
-      
-      // Update or create standard meta tags
-      const updateStandardMetaTag = (name, content) => {
-        let element = document.querySelector(`meta[name="${name}"]`)
-        if (!element) {
-          element = document.createElement('meta')
-          element.setAttribute('name', name)
-          document.head.appendChild(element)
-        }
-        element.setAttribute('content', content)
-      }
-      
-      // Update or create Twitter Card meta tags
-      const updateTwitterMetaTag = (name, content) => {
-        let element = document.querySelector(`meta[name="${name}"]`)
-        if (!element) {
-          element = document.createElement('meta')
-          element.setAttribute('name', name)
-          document.head.appendChild(element)
-        }
-        element.setAttribute('content', content)
-      }
-      
-      // Open Graph tags for WhatsApp preview
-      updateMetaTag('og:title', propertyTitle)
-      updateMetaTag('og:description', propertyDescription.substring(0, 200))
-      updateMetaTag('og:image', propertyImage)
-      updateMetaTag('og:image:url', propertyImage)
-      updateMetaTag('og:image:secure_url', propertyImage)
-      updateMetaTag('og:image:type', 'image/jpeg')
-      updateMetaTag('og:url', propertyUrl)
-      updateMetaTag('og:type', 'website')
-      updateMetaTag('og:site_name', 'Ponte Finance')
-      
-      // Twitter Card tags (WhatsApp also uses these)
-      updateTwitterMetaTag('twitter:card', 'summary_large_image')
-      updateTwitterMetaTag('twitter:title', propertyTitle)
-      updateTwitterMetaTag('twitter:description', propertyDescription.substring(0, 200))
-      updateTwitterMetaTag('twitter:image', propertyImage)
-      
-      // Standard meta tags
-      updateStandardMetaTag('description', propertyDescription.substring(0, 200))
+      // Não fazer nada - meta tags devem estar no servidor
     }
 
     const fetchProperty = async () => {
@@ -636,13 +571,9 @@ export default {
       // Esta URL será usada pelo WhatsApp para fazer scraping e mostrar preview
       const shareUrl = `https://ponte.finance/share/property/${property.value.id}`
       
-      // Codificar a URL para o WhatsApp
-      const encodedUrl = encodeURIComponent(shareUrl)
-      
-      // Retornar link do WhatsApp com a URL de compartilhamento
-      // O WhatsApp fará scraping dessa URL, encontrará as meta tags com a imagem
-      // e ao clicar, redirecionará para a página da propriedade no marketplace
-      return `https://wa.me/?text=${encodedUrl}`
+      // Retornar diretamente a URL de share (sem wa.me)
+      // O usuário pode copiar e colar no WhatsApp ou usar o compartilhamento nativo do navegador
+      return shareUrl
     }
 
     return {
