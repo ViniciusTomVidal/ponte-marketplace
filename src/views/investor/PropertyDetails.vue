@@ -326,7 +326,7 @@
                 <i class="fas fa-heart mr-2"></i>Add to Favorites
               </button>
               <a 
-                :href="getWhatsAppShareLink()" 
+                :href="getShareLink()" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 class="w-full flex items-center justify-center px-4 py-2 border rounded-lg transition-colors border-gray-300 hover:cursor-pointer hover:bg-gray-50"
@@ -629,16 +629,11 @@ export default {
       }
     }
 
-    const getWhatsAppShareLink = () => {
+    const getShareLink = () => {
       if (!property.value) return ''
       
-      // Usar a rota limpa de compartilhamento que retorna HTML com OG tags
-      const shareUrl = `https://ponte.finance/share/property/${property.value.id}`
-      
-      // WhatsApp Web link com a URL de compartilhamento
-      const encodedUrl = encodeURIComponent(shareUrl)
-      
-      return `https://wa.me/?text=${encodedUrl}`
+      // Retornar diretamente a rota limpa de compartilhamento que retorna HTML com OG tags
+      return `https://ponte.finance/share/property/${property.value.id}`
     }
 
     return {
@@ -662,7 +657,7 @@ export default {
       calculateMonthlyIncome,
       calculateSharePercentage,
       handleInvestNow,
-      getWhatsAppShareLink,
+      getShareLink,
       updateMetaTags
     }
   }
