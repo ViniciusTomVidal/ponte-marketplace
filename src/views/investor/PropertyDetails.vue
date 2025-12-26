@@ -567,13 +567,13 @@ export default {
         description = description.substring(0, 147) + '...'
       }
       
-      // Texto para compartilhar
+      // Texto para compartilhar (sem emojis para compatibilidade)
       const shareText = encodeURIComponent(
-        `🏠 ${property.value.title}\n\n` +
+        `${property.value.title}\n\n` +
         `${description}\n\n` +
-        `💰 Investimento mínimo: ${formatCurrency(property.value.minimum_investment)}\n` +
-        `📈 Retorno anual projetado: ${formatPercentage(property.value.expected_annual_return)}\n\n` +
-        `🔗 ${shareUrl}`
+        `Investimento mínimo: ${formatCurrency(property.value.minimum_investment)}\n` +
+        `Retorno anual projetado: ${formatPercentage(property.value.expected_annual_return)}\n\n` +
+        shareUrl
       )
       
       // Abrir WhatsApp
