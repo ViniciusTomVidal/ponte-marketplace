@@ -639,7 +639,7 @@ export default {
       const propertyImage = mainImage.value || getPropertyImage(property.value)
       
       // Create message with property details
-      const message = `🏠 ${propertyTitle}\n\n${propertyDescription.substring(0, 200)}${propertyDescription.length > 200 ? '...' : ''}\n\n${propertyUrl}`
+      const message = `${propertyTitle}\n\n${propertyDescription.substring(0, 200)}${propertyDescription.length > 200 ? '...' : ''}\n\n${propertyUrl}`
       
       // Encode the message for WhatsApp
       const encodedMessage = encodeURIComponent(message)
