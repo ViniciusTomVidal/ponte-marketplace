@@ -632,8 +632,8 @@ export default {
     const getWhatsAppShareLink = () => {
       if (!property.value) return ''
       
-      // Usar a rota da API que retorna HTML com OG tags
-      const shareUrl = `https://ponte.finance/wp-json/ponte/v1/properties/${property.value.id}/share`
+      // Usar a rota limpa de compartilhamento que retorna HTML com OG tags
+      const shareUrl = `https://ponte.finance/share/property/${property.value.id}`
       
       // WhatsApp Web link com a URL de compartilhamento
       const encodedUrl = encodeURIComponent(shareUrl)
