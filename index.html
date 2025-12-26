@@ -39,6 +39,8 @@
                 return firstImage;
               } else if (firstImage && firstImage.url) {
                 return firstImage.url;
+              } else if (firstImage && typeof firstImage === 'object' && firstImage.src) {
+                return firstImage.src;
               }
             }
             
@@ -48,6 +50,17 @@
                 return property.primary_image;
               } else if (property.primary_image.url) {
                 return property.primary_image.url;
+              } else if (property.primary_image.src) {
+                return property.primary_image.src;
+              }
+            }
+            
+            // Try image field directly
+            if (property.image) {
+              if (typeof property.image === 'string') {
+                return property.image;
+              } else if (property.image.url) {
+                return property.image.url;
               }
             }
             
@@ -60,7 +73,8 @@
               '14': 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel01.jpg'
             };
             
-            return mockImages[property.id] || mockImages[propertyId] || 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel01.jpg';
+            var propId = String(property.id || propertyId || '');
+            return mockImages[propId] || mockImages[propertyId] || 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel01.jpg';
           }
           
           // Fetch property data synchronously for WhatsApp scraping
@@ -85,6 +99,9 @@
                 
                 // Ensure image URL is absolute and valid
                 if (image) {
+                  // Remove any query parameters that might cause issues
+                  image = image.split('?')[0];
+                  
                   if (!image.startsWith('http://') && !image.startsWith('https://')) {
                     if (image.startsWith('//')) {
                       image = 'https:' + image;
@@ -92,6 +109,14 @@
                       image = 'https://ponte.finance' + image;
                     } else {
                       image = 'https://ponte.finance/' + image;
+                    }
+                  }
+                  
+                  // Ensure it's a valid image URL
+                  if (!image.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+                    // If no extension, assume it's a WordPress media URL
+                    if (image.indexOf('/wp-content/') === -1) {
+                      image = 'https://ponte.finance/wp-content/uploads/marketplace/exemplos/imovel01.jpg';
                     }
                   }
                 } else {
