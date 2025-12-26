@@ -325,14 +325,6 @@
               <button class="w-full flex items-center justify-center px-4 py-2 border rounded-lg transition-colors border-gray-300 hover:cursor-pointer hover:bg-gray-50">
                 <i class="fas fa-heart mr-2"></i>Add to Favorites
               </button>
-              <a 
-                :href="`https://wa.me/?text=${encodeURIComponent(getShareLink())}`" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                class="w-full flex items-center justify-center px-4 py-2 border rounded-lg transition-colors border-gray-300 hover:cursor-pointer hover:bg-gray-50"
-              >
-                <i class="fab fa-whatsapp mr-2 text-green-600"></i>Share on WhatsApp
-              </a>
             </div>
             <div class="mt-6 p-4 rounded-lg" style="background-color: rgba(0, 18, 66, 0.1);">
               <h4 class="font-semibold mb-2" style="color: rgb(0, 18, 66);">Need Help?</h4>
@@ -402,11 +394,6 @@ export default {
       }
     })
 
-    // Removido: updateMetaTags é inútil porque o WhatsApp não faz scraping de SPAs
-    // As meta tags devem estar no servidor (class-property-api.php)
-    const updateMetaTags = (propertyData) => {
-      // Não fazer nada - meta tags devem estar no servidor
-    }
 
     const fetchProperty = async () => {
       loading.value = true
@@ -420,8 +407,6 @@ export default {
           mainImage.value = getPropertyImage(data)
           // Update page title with property name
           setTitle(`${data.title} - Property Details`)
-          // Update meta tags for social sharing (WhatsApp preview) - after mainImage is set
-          updateMetaTags(data)
           // Validate initial investment amount after property is loaded
           validateInvestmentAmount()
         } else {
@@ -564,17 +549,6 @@ export default {
       }
     }
 
-    const getShareLink = () => {
-      if (!property.value) return ''
-      
-      // URL de compartilhamento que retorna HTML com meta tags Open Graph
-      // Esta URL será usada pelo WhatsApp para fazer scraping e mostrar preview
-      const shareUrl = `https://ponte.finance/share/property/${property.value.id}`
-      
-      // Retornar diretamente a URL de share (sem wa.me)
-      // O usuário pode copiar e colar no WhatsApp ou usar o compartilhamento nativo do navegador
-      return shareUrl
-    }
 
     return {
       property,
@@ -596,9 +570,7 @@ export default {
       calculateAnnualIncome,
       calculateMonthlyIncome,
       calculateSharePercentage,
-      handleInvestNow,
-      getShareLink,
-      updateMetaTags
+      handleInvestNow
     }
   }
 }
