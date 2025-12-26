@@ -316,6 +316,12 @@
               <i class="fas fa-paper-plane mr-2"></i>Invest Now
             </button>
             <div class="mt-6 space-y-3">
+              <button 
+                @click="shareOnWhatsApp"
+                class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 hover:cursor-pointer transition-colors bg-green-50 border-green-300 hover:bg-green-100"
+              >
+                <i class="fab fa-whatsapp mr-2 text-green-600"></i>Share on WhatsApp
+              </button>
               <button class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 hover:cursor-pointer transition-colors">
                 <i class="fas fa-download mr-2"></i>Download Investment Summary
               </button>
@@ -549,6 +555,30 @@ export default {
       }
     }
 
+    const shareOnWhatsApp = () => {
+      if (!property.value) return
+      
+      // URL de compartilhamento (WordPress)
+      const shareUrl = `https://ponte.finance/share/property/${property.value.id}`
+      
+      // Preparar descrição curta (máximo 150 caracteres)
+      let description = property.value.description || property.value.full_description || ''
+      if (description.length > 150) {
+        description = description.substring(0, 147) + '...'
+      }
+      
+      // Texto para compartilhar
+      const shareText = encodeURIComponent(
+        `🏠 ${property.value.title}\n\n` +
+        `${description}\n\n` +
+        `💰 Investimento mínimo: ${formatCurrency(property.value.minimum_investment)}\n` +
+        `📈 Retorno anual projetado: ${formatPercentage(property.value.expected_annual_return)}\n\n` +
+        `🔗 ${shareUrl}`
+      )
+      
+      // Abrir WhatsApp
+      window.open(`https://wa.me/?text=${shareText}`, '_blank')
+    }
 
     return {
       property,
@@ -570,7 +600,8 @@ export default {
       calculateAnnualIncome,
       calculateMonthlyIncome,
       calculateSharePercentage,
-      handleInvestNow
+      handleInvestNow,
+      shareOnWhatsApp
     }
   }
 }
