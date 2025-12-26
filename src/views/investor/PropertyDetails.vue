@@ -407,7 +407,17 @@ export default {
       const propertyUrl = `${baseUrl}/investor/property/${propertyData.id}`
       const propertyTitle = propertyData.title || 'Property Investment Opportunity'
       const propertyDescription = propertyData.description || propertyData.full_description || 'Check out this property investment opportunity on Ponte Finance'
-      const propertyImage = mainImage.value || getPropertyImage(propertyData)
+      let propertyImage = mainImage.value || getPropertyImage(propertyData)
+      
+      // Ensure image URL is absolute
+      if (propertyImage && !propertyImage.startsWith('http')) {
+        // If relative URL, make it absolute
+        if (propertyImage.startsWith('/')) {
+          propertyImage = `${baseUrl}${propertyImage}`
+        } else {
+          propertyImage = `${baseUrl}/${propertyImage}`
+        }
+      }
       
       // Update or create Open Graph meta tags
       const updateMetaTag = (property, content) => {
@@ -431,12 +441,33 @@ export default {
         element.setAttribute('content', content)
       }
       
+      // Update or create Twitter Card meta tags
+      const updateTwitterMetaTag = (name, content) => {
+        let element = document.querySelector(`meta[name="${name}"]`)
+        if (!element) {
+          element = document.createElement('meta')
+          element.setAttribute('name', name)
+          document.head.appendChild(element)
+        }
+        element.setAttribute('content', content)
+      }
+      
       // Open Graph tags for WhatsApp preview
       updateMetaTag('og:title', propertyTitle)
       updateMetaTag('og:description', propertyDescription.substring(0, 200))
       updateMetaTag('og:image', propertyImage)
+      updateMetaTag('og:image:url', propertyImage)
+      updateMetaTag('og:image:secure_url', propertyImage)
+      updateMetaTag('og:image:type', 'image/jpeg')
       updateMetaTag('og:url', propertyUrl)
       updateMetaTag('og:type', 'website')
+      updateMetaTag('og:site_name', 'Ponte Finance')
+      
+      // Twitter Card tags (WhatsApp also uses these)
+      updateTwitterMetaTag('twitter:card', 'summary_large_image')
+      updateTwitterMetaTag('twitter:title', propertyTitle)
+      updateTwitterMetaTag('twitter:description', propertyDescription.substring(0, 200))
+      updateTwitterMetaTag('twitter:image', propertyImage)
       
       // Standard meta tags
       updateStandardMetaTag('description', propertyDescription.substring(0, 200))
