@@ -325,14 +325,6 @@
               <button class="w-full flex items-center justify-center px-4 py-2 border rounded-lg transition-colors border-gray-300 hover:cursor-pointer hover:bg-gray-50">
                 <i class="fas fa-heart mr-2"></i>Add to Favorites
               </button>
-              <a 
-                :href="getShareLink()" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                class="w-full flex items-center justify-center px-4 py-2 border rounded-lg transition-colors border-gray-300 hover:cursor-pointer hover:bg-gray-50"
-              >
-                <i class="fab fa-whatsapp mr-2 text-green-600"></i>Share on WhatsApp
-              </a>
             </div>
             <div class="mt-6 p-4 rounded-lg" style="background-color: rgba(0, 18, 66, 0.1);">
               <h4 class="font-semibold mb-2" style="color: rgb(0, 18, 66);">Need Help?</h4>
@@ -402,76 +394,6 @@ export default {
       }
     })
 
-    const updateMetaTags = (propertyData) => {
-      const baseUrl = window.location.origin
-      const propertyUrl = `${baseUrl}/investor/property/${propertyData.id}`
-      const propertyTitle = propertyData.title || 'Property Investment Opportunity'
-      const propertyDescription = propertyData.description || propertyData.full_description || 'Check out this property investment opportunity on Ponte Finance'
-      let propertyImage = mainImage.value || getPropertyImage(propertyData)
-      
-      // Ensure image URL is absolute
-      if (propertyImage && !propertyImage.startsWith('http')) {
-        // If relative URL, make it absolute
-        if (propertyImage.startsWith('/')) {
-          propertyImage = `${baseUrl}${propertyImage}`
-        } else {
-          propertyImage = `${baseUrl}/${propertyImage}`
-        }
-      }
-      
-      // Update or create Open Graph meta tags
-      const updateMetaTag = (property, content) => {
-        let element = document.querySelector(`meta[property="${property}"]`)
-        if (!element) {
-          element = document.createElement('meta')
-          element.setAttribute('property', property)
-          document.head.appendChild(element)
-        }
-        element.setAttribute('content', content)
-      }
-      
-      // Update or create standard meta tags
-      const updateStandardMetaTag = (name, content) => {
-        let element = document.querySelector(`meta[name="${name}"]`)
-        if (!element) {
-          element = document.createElement('meta')
-          element.setAttribute('name', name)
-          document.head.appendChild(element)
-        }
-        element.setAttribute('content', content)
-      }
-      
-      // Update or create Twitter Card meta tags
-      const updateTwitterMetaTag = (name, content) => {
-        let element = document.querySelector(`meta[name="${name}"]`)
-        if (!element) {
-          element = document.createElement('meta')
-          element.setAttribute('name', name)
-          document.head.appendChild(element)
-        }
-        element.setAttribute('content', content)
-      }
-      
-      // Open Graph tags for WhatsApp preview
-      updateMetaTag('og:title', propertyTitle)
-      updateMetaTag('og:description', propertyDescription.substring(0, 200))
-      updateMetaTag('og:image', propertyImage)
-      updateMetaTag('og:image:url', propertyImage)
-      updateMetaTag('og:image:secure_url', propertyImage)
-      updateMetaTag('og:image:type', 'image/jpeg')
-      updateMetaTag('og:url', propertyUrl)
-      updateMetaTag('og:type', 'website')
-      updateMetaTag('og:site_name', 'Ponte Finance')
-      
-      // Twitter Card tags (WhatsApp also uses these)
-      updateTwitterMetaTag('twitter:card', 'summary_large_image')
-      updateTwitterMetaTag('twitter:title', propertyTitle)
-      updateTwitterMetaTag('twitter:description', propertyDescription.substring(0, 200))
-      updateTwitterMetaTag('twitter:image', propertyImage)
-      
-      // Standard meta tags
-      updateStandardMetaTag('description', propertyDescription.substring(0, 200))
-    }
 
     const fetchProperty = async () => {
       loading.value = true
@@ -485,8 +407,6 @@ export default {
           mainImage.value = getPropertyImage(data)
           // Update page title with property name
           setTitle(`${data.title} - Property Details`)
-          // Update meta tags for social sharing (WhatsApp preview) - after mainImage is set
-          updateMetaTags(data)
           // Validate initial investment amount after property is loaded
           validateInvestmentAmount()
         } else {
@@ -629,21 +549,6 @@ export default {
       }
     }
 
-    const getShareLink = () => {
-      if (!property.value) return ''
-      
-      // URL de compartilhamento que retorna HTML com meta tags Open Graph
-      // Esta URL será usada pelo WhatsApp para fazer scraping e mostrar preview
-      const shareUrl = `https://ponte.finance/share/property/${property.value.id}`
-      
-      // Codificar a URL para o WhatsApp
-      const encodedUrl = encodeURIComponent(shareUrl)
-      
-      // Retornar link do WhatsApp com a URL de compartilhamento
-      // O WhatsApp fará scraping dessa URL, encontrará as meta tags com a imagem
-      // e ao clicar, redirecionará para a página da propriedade no marketplace
-      return `https://wa.me/?text=${encodedUrl}`
-    }
 
     return {
       property,
@@ -665,9 +570,7 @@ export default {
       calculateAnnualIncome,
       calculateMonthlyIncome,
       calculateSharePercentage,
-      handleInvestNow,
-      getShareLink,
-      updateMetaTags
+      handleInvestNow
     }
   }
 }
