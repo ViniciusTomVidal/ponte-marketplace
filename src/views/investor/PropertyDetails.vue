@@ -632,20 +632,13 @@ export default {
     const getWhatsAppShareLink = () => {
       if (!property.value) return ''
       
-      const baseUrl = window.location.origin
-      const propertyUrl = `${baseUrl}/investor/property/${property.value.id}`
-      const propertyTitle = property.value.title || 'Property Investment Opportunity'
-      const propertyDescription = property.value.description || property.value.full_description || ''
-      const propertyImage = mainImage.value || getPropertyImage(property.value)
+      // Usar a rota da API que retorna HTML com OG tags
+      const shareUrl = `https://ponte.finance/wp-json/ponte/v1/properties/${property.value.id}/share`
       
-      // Create message with property details
-      const message = `${propertyTitle}\n\n${propertyDescription.substring(0, 200)}${propertyDescription.length > 200 ? '...' : ''}\n\n${propertyUrl}`
+      // WhatsApp Web link com a URL de compartilhamento
+      const encodedUrl = encodeURIComponent(shareUrl)
       
-      // Encode the message for WhatsApp
-      const encodedMessage = encodeURIComponent(message)
-      
-      // WhatsApp Web link with message
-      return `https://wa.me/?text=${encodedMessage}`
+      return `https://wa.me/?text=${encodedUrl}`
     }
 
     return {
