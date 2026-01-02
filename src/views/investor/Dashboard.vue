@@ -51,7 +51,7 @@
       </div>
     </section>
 
-    <!-- Properties Section -->
+    <!-- Investment Opportunities Section -->
     <section id="properties" class="bg-white py-16">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
@@ -73,12 +73,12 @@
           </button>
         </div>
 
-        <!-- Properties Grid -->
-        <div v-else class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Funding Properties Grid -->
+        <div v-else-if="fundingProperties.length > 0" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           <div 
-            v-for="property in availableProperties" 
+            v-for="property in fundingProperties" 
             :key="property.id"
-            class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200"
+            class="bg-white rounded-lg shadow-lg overflow-hidden transition-all hover:shadow-xl border border-gray-200"
           >
             <div class="relative">
               <img
@@ -87,7 +87,11 @@
                 class="w-full h-48 object-cover"
                 @error="handleImageError"
               >
-              <div class="absolute top-4 right-4 text-white px-3 py-1 rounded-full text-xs font-semibold" style="background-color: rgb(166, 133, 66);">
+              <div 
+                class="absolute top-4 right-4 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-lg"
+                style="background-color: rgb(166, 133, 66);"
+              >
+                <i class="fas fa-clock text-xs"></i>
                 {{ property.status_badge_text || 'funding' }}
               </div>
             </div>
@@ -105,10 +109,15 @@
                     <div class="w-full bg-gray-200 rounded-full h-2 mr-2">
                       <div 
                         class="h-2 rounded-full" 
-                        :style="{ backgroundColor: 'rgb(166, 133, 66)', width: fundedPercentage(property) + '%' }"
+                        :style="{ 
+                          backgroundColor: 'rgb(166, 133, 66)', 
+                          width: fundedPercentage(property) + '%' 
+                        }"
                       ></div>
                     </div>
-                    <span class="text-xs text-gray-600">{{ fundedPercentage(property) }}%</span>
+                    <span class="text-xs text-gray-600">
+                      {{ fundedPercentage(property) }}%
+                    </span>
                   </div>
                 </div>
                 <div>
@@ -144,6 +153,104 @@
               <i class="text-xs text-gray-500 text-justify">*Figures are illustrative and not guaranteed. Your capital is at risk.</i>
             </div>
           </div>
+        </div>
+        <div v-else-if="!loading && !error" class="text-center py-12">
+          <p class="text-gray-600">No investment opportunities available at the moment.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Funded Properties Section -->
+    <section id="funded-properties" class="bg-gray-50 py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h3 class="text-4xl font-bold text-gray-900 mb-4">Funded Properties</h3>
+          <p class="text-xl text-gray-700">Properties that have been fully funded and are in progress</p>
+        </div>
+        
+        <!-- Funded Properties Grid -->
+        <div v-if="fundedProperties.length > 0" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div 
+            v-for="property in fundedProperties" 
+            :key="property.id"
+            class="bg-white rounded-lg shadow-lg overflow-hidden transition-all hover:shadow-xl border border-gray-200"
+          >
+            <div class="relative">
+              <img
+                :src="getPropertyImage(property)"
+                :alt="property.title"
+                class="w-full h-48 object-cover"
+                @error="handleImageError"
+              >
+              <div 
+                class="absolute top-4 right-4 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-lg"
+                style="background-color: rgb(34, 197, 94);"
+              >
+                <i class="fas fa-check-circle text-xs"></i>
+                {{ property.status_badge_text || 'funded' }}
+              </div>
+            </div>
+            <div class="p-6">
+              <h4 class="text-lg font-semibold text-gray-900 mb-2">{{ property.title }}</h4>
+              <p class="text-gray-600 text-sm mb-4">{{ property.description }}</p>
+              <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <p class="text-xs text-gray-500">Total Value</p>
+                  <p class="font-semibold text-gray-900">{{ formatCurrency(property.total_value) }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Funded</p>
+                  <div class="flex items-center">
+                    <div class="w-full bg-gray-200 rounded-full h-2 mr-2">
+                      <div 
+                        class="h-2 rounded-full" 
+                        :style="{ 
+                          backgroundColor: 'rgb(34, 197, 94)', 
+                          width: fundedPercentage(property) + '%' 
+                        }"
+                      ></div>
+                    </div>
+                    <span class="text-xs text-gray-600">
+                      {{ fundedPercentage(property) }}%
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Funding in Process</p>
+                  <p class="font-semibold text-gray-900">{{ formatCurrency(property.funding_in_process || 0) }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Projected Annual Return*</p>
+                  <p class="font-semibold" style="color: rgb(166, 133, 66);">{{ formatPercentage(property.expected_annual_return) }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Minimum Investment</p>
+                  <p class="font-semibold text-gray-900">{{ formatCurrency(property.minimum_investment) }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Loan Term</p>
+                  <p class="font-semibold text-gray-900">{{ property.loan_term ? property.loan_term + ' months' : 'N/A' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">LTV (%)</p>
+                  <p class="font-semibold text-gray-900">{{ property.loan_to_value ? formatPercentage(property.loan_to_value) : 'N/A' }}</p>
+                </div>
+              </div>
+              <div class="flex space-x-2">
+                <router-link 
+                  :to="`/investor/property/${property.id}`" 
+                  class="flex-1 border py-2 px-4 rounded-lg transition-colors text-sm text-center hover:bg-opacity-90" 
+                  style="border-color: rgb(166, 133, 66); color: rgb(166, 133, 66); background-color: transparent;"
+                >
+                  View Details
+                </router-link>
+              </div>
+              <i class="text-xs text-gray-500 text-justify">*Figures are illustrative and not guaranteed. Your capital is at risk.</i>
+            </div>
+          </div>
+        </div>
+        <div v-else class="text-center py-12">
+          <p class="text-gray-600">No funded properties available at the moment.</p>
         </div>
       </div>
     </section>
@@ -264,6 +371,20 @@ export default {
       return `${parseFloat(percentage).toFixed(1)}%`
     }
 
+    // Check if property is funded
+    const isFunded = (property) => {
+      return property.status === 'funded'
+    }
+
+    // Separate properties by status
+    const fundingProperties = computed(() => {
+      return properties.value.filter(prop => prop.status === 'funding')
+    })
+
+    const fundedProperties = computed(() => {
+      return properties.value.filter(prop => prop.status === 'funded')
+    })
+
     // Fetch properties and portfolio summary on component mount
     onMounted(() => {
       fetchProperties()
@@ -275,6 +396,8 @@ export default {
       loading,
       error,
       availableProperties,
+      fundingProperties,
+      fundedProperties,
       fetchProperties,
       fundedPercentage,
       formatCurrency,
@@ -286,7 +409,8 @@ export default {
       propertiesCount,
       averageROI,
       formatCurrencyStats,
-      formatPercentageStats
+      formatPercentageStats,
+      isFunded
     }
   }
 }
