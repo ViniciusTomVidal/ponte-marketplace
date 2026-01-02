@@ -12,22 +12,6 @@
         <p class="text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
           Manage your real estate investments and explore new opportunities in the UK property market.
         </p>
-        <div class="flex justify-center gap-4">
-          <router-link 
-            to="/investor/add-property" 
-            class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold flex items-center justify-center"
-          >
-            <i class="fas fa-plus mr-2"></i>
-            Register New Property
-          </router-link>
-          <router-link 
-            to="/investor/my-properties" 
-            class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center justify-center"
-          >
-            <i class="fas fa-building mr-2"></i>
-            My Properties
-          </router-link>
-        </div>
       </div>
     </section>
 

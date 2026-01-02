@@ -29,9 +29,6 @@
           <router-link to="/investor/orders" class="text-gray-300 transition-colors hover:text-white">
             <i class="fas fa-shopping-cart mr-2"></i>Orders
           </router-link>
-          <router-link to="/investor/my-properties" class="text-gray-300 transition-colors hover:text-white">
-            <i class="fas fa-building mr-2"></i>My Properties
-          </router-link>
           <div class="flex items-center space-x-3">
             <div class="text-right hidden lg:block">
               <p class="text-sm font-medium text-white">{{ userData.first_name || 'Investor' }}</p>
@@ -127,13 +124,6 @@
               class="text-gray-300 transition-colors hover:text-white py-2 px-4 rounded-lg hover:bg-opacity-20 hover:bg-white flex items-center"
             >
               <i class="fas fa-shopping-cart mr-3 w-5"></i>Orders
-            </router-link>
-            <router-link 
-              to="/investor/my-properties" 
-              @click="closeMobileMenu"
-              class="text-gray-300 transition-colors hover:text-white py-2 px-4 rounded-lg hover:bg-opacity-20 hover:bg-white flex items-center"
-            >
-              <i class="fas fa-building mr-3 w-5"></i>My Properties
             </router-link>
             
             <!-- User Info Mobile -->
