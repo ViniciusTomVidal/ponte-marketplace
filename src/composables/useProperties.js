@@ -57,7 +57,7 @@ export function useProperties() {
 
     // Computed properties
     const availableProperties = computed(() =>
-        properties.value.filter(prop => prop.status === 'funding')
+        properties.value.filter(prop => prop.status === 'funding' || prop.status === 'funded')
     )
 
     const fundedPercentage = (property) => {
