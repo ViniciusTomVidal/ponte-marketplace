@@ -5,7 +5,9 @@ import { setRouteLoading } from '@/composables/useRouteLoading'
 import Home from '@/views/Home.vue'
 import LoginInvestor from '@/views/auth/LoginInvestor.vue'
 import LoginBroker from '@/views/auth/LoginBroker.vue'
+import LoginBorrower from '@/views/auth/LoginBorrower.vue'
 import RegisterInvestor from '@/views/auth/RegisterInvestor.vue'
+import RegisterBorrower from '@/views/auth/RegisterBorrower.vue'
 import Questionnaire from '@/views/auth/Questionnaire.vue'
 import RiskDeclaration from '@/views/auth/RiskDeclaration.vue'
 import KycVerification from '@/views/auth/KycVerification.vue'
@@ -19,6 +21,7 @@ import BrokerAddProperty from '@/views/broker/AddProperty.vue'
 import BrokerEditProperty from '@/views/broker/EditProperty.vue'
 import BrokerPropertyDetails from '@/views/broker/BrokerPropertyDetails.vue'
 import BrokerCommissions from '@/views/broker/Commissions.vue'
+import BorrowerDashboard from '@/views/borrower/Dashboard.vue'
 import InvestorPortfolio from "@/views/investor/InvestorPortfolio.vue";
 import InvestorOrders from "@/views/investor/Orders.vue";
 import OrderDetails from "@/views/investor/OrderDetails.vue";
@@ -49,10 +52,28 @@ const routes = [
         meta: { title: 'Broker Login - Ponte Finance' }
     },
     {
+        path: '/auth/borrower/login',
+        name: 'LoginBorrower',
+        component: LoginBorrower,
+        meta: { title: 'Borrower Login - Ponte Finance' }
+    },
+    {
         path: '/auth/investor/register',
         name: 'RegisterInvestor',
         component: RegisterInvestor,
         meta: { title: 'Register as Investor - Ponte Finance' }
+    },
+    {
+        path: '/auth/borrower/register',
+        name: 'RegisterBorrower',
+        component: RegisterBorrower,
+        meta: { title: 'Register as Borrower - Ponte Finance' }
+    },
+    {
+        path: '/auth/register-borrower',
+        name: 'RegisterBorrowerAlt',
+        component: RegisterBorrower,
+        meta: { title: 'Register as Borrower - Ponte Finance' }
     },
     {
         path: '/auth/questionnaire',
@@ -157,6 +178,13 @@ const routes = [
         component: InvestorPropertyDetails,
         props: true,
         meta: { title: 'Property Details - Ponte Finance' }
+    },
+    // Borrower routes
+    {
+        path: '/borrower/dashboard',
+        name: 'BorrowerDashboard',
+        component: BorrowerDashboard,
+        meta: { title: 'Borrower Dashboard - Ponte Finance' }
     },
     // Broker routes
     {
