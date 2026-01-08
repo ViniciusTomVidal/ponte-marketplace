@@ -108,6 +108,98 @@
                      :class="['w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.companies_house_id ? 'border-red-500' : 'border-gray-300']"
                      placeholder="e.g., 15859004">
               <p v-if="formErrors.companies_house_id" class="text-red-500 text-xs mt-1">{{ formErrors.companies_house_id }}</p>
+              <p v-if="form.officers.length > 0 || form.pscs.length > 0" class="text-green-600 text-xs mt-1">
+                <i class="fas fa-check-circle mr-1"></i>Companies House ID validated. Please fill in the officers and PSCs information below.
+              </p>
+            </div>
+          </div>
+          
+          <!-- Officers and PSCs Information -->
+          <div v-if="form.officers.length > 0 || form.pscs.length > 0" class="mt-6 pt-6 border-t border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Officers and PSCs Information</h3>
+            
+            <!-- Officers Section -->
+            <div v-if="form.officers.length > 0" class="mb-6">
+              <h4 class="text-md font-medium text-gray-800 mb-4">Officers</h4>
+              <div class="space-y-4">
+                <div v-for="(officer, index) in form.officers" :key="`officer-${index}`" 
+                     class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <div class="mb-3">
+                    <p class="text-sm font-medium text-gray-700">{{ officer.name }}</p>
+                    <p class="text-xs text-gray-500">{{ officer.role }}</p>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label :for="`officer-email-${index}`" class="block text-sm font-medium text-gray-700 mb-1">
+                        Email *
+                      </label>
+                      <input type="email" 
+                             :id="`officer-email-${index}`"
+                             v-model="officer.email"
+                             @input="onClearFieldError(`officer_email_${index}`)"
+                             :class="['w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors[`officer_email_${index}`] ? 'border-red-500' : 'border-gray-300']"
+                             placeholder="email@example.com"
+                             required>
+                      <p v-if="formErrors[`officer_email_${index}`]" class="text-red-500 text-xs mt-1">{{ formErrors[`officer_email_${index}`] }}</p>
+                    </div>
+                    <div>
+                      <label :for="`officer-passport-${index}`" class="block text-sm font-medium text-gray-700 mb-1">
+                        Passport Number *
+                      </label>
+                      <input type="text" 
+                             :id="`officer-passport-${index}`"
+                             v-model="officer.passport_number"
+                             @input="onClearFieldError(`officer_passport_${index}`)"
+                             :class="['w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors[`officer_passport_${index}`] ? 'border-red-500' : 'border-gray-300']"
+                             placeholder="Passport number"
+                             required>
+                      <p v-if="formErrors[`officer_passport_${index}`]" class="text-red-500 text-xs mt-1">{{ formErrors[`officer_passport_${index}`] }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- PSCs Section -->
+            <div v-if="form.pscs.length > 0" class="mb-6">
+              <h4 class="text-md font-medium text-gray-800 mb-4">PSCs (People with Significant Control)</h4>
+              <div class="space-y-4">
+                <div v-for="(psc, index) in form.pscs" :key="`psc-${index}`" 
+                     class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <div class="mb-3">
+                    <p class="text-sm font-medium text-gray-700">{{ psc.name }}</p>
+                    <p class="text-xs text-gray-500">{{ psc.kind }}</p>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label :for="`psc-email-${index}`" class="block text-sm font-medium text-gray-700 mb-1">
+                        Email *
+                      </label>
+                      <input type="email" 
+                             :id="`psc-email-${index}`"
+                             v-model="psc.email"
+                             @input="onClearFieldError(`psc_email_${index}`)"
+                             :class="['w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors[`psc_email_${index}`] ? 'border-red-500' : 'border-gray-300']"
+                             placeholder="email@example.com"
+                             required>
+                      <p v-if="formErrors[`psc_email_${index}`]" class="text-red-500 text-xs mt-1">{{ formErrors[`psc_email_${index}`] }}</p>
+                    </div>
+                    <div>
+                      <label :for="`psc-passport-${index}`" class="block text-sm font-medium text-gray-700 mb-1">
+                        Passport Number *
+                      </label>
+                      <input type="text" 
+                             :id="`psc-passport-${index}`"
+                             v-model="psc.passport_number"
+                             @input="onClearFieldError(`psc_passport_${index}`)"
+                             :class="['w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors[`psc_passport_${index}`] ? 'border-red-500' : 'border-gray-300']"
+                             placeholder="Passport number"
+                             required>
+                      <p v-if="formErrors[`psc_passport_${index}`]" class="text-red-500 text-xs mt-1">{{ formErrors[`psc_passport_${index}`] }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -675,6 +767,8 @@ export default {
         
         // Companies House
         companies_house_id: '',
+        officers: [],
+        pscs: [],
         
         // Contact
         contact_phone: '',
@@ -740,22 +834,128 @@ export default {
     onClearFieldError(fieldName) {
       this.clearFieldError(this.formErrors, fieldName)
     },
+    // Check if officer is corporate (company)
+    isCorporateOfficer(role) {
+      if (!role) return false
+      return role.toLowerCase().includes('corporate')
+    },
+    // Check if PSC is corporate (company)
+    isCorporatePSC(kind) {
+      if (!kind) return false
+      return kind.toLowerCase().includes('corporate') || kind.toLowerCase().includes('firm') || kind.toLowerCase().includes('legal')
+    },
+    // Fetch existing PSC/Officers data from database
+    async fetchExistingPscOfficersData(officers, pscs) {
+      try {
+        const token = localStorage.getItem('jwt_token')
+        if (!token) return
+        
+        const response = await fetch('https://ponte.finance/wp-json/marketplace/v1/broker/get-psc-officers-data', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            officers: officers,
+            pscs: pscs
+          })
+        })
+        
+        const result = await response.json()
+        
+        if (result.success && result.data) {
+          // Update officers with existing data
+          if (result.data.officers && Array.isArray(result.data.officers)) {
+            result.data.officers.forEach(existingOfficer => {
+              const officer = this.form.officers.find(o => o.name === existingOfficer.name)
+              if (officer && existingOfficer.email) {
+                officer.email = existingOfficer.email
+              }
+              if (officer && existingOfficer.passport_number) {
+                officer.passport_number = existingOfficer.passport_number
+              }
+            })
+          }
+          
+          // Update PSCs with existing data
+          if (result.data.pscs && Array.isArray(result.data.pscs)) {
+            result.data.pscs.forEach(existingPsc => {
+              const psc = this.form.pscs.find(p => p.name === existingPsc.name)
+              if (psc && existingPsc.email) {
+                psc.email = existingPsc.email
+              }
+              if (psc && existingPsc.passport_number) {
+                psc.passport_number = existingPsc.passport_number
+              }
+            })
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching existing PSC/Officers data:', error)
+      }
+    },
     // Validate Companies House ID via API
     async validateCompaniesHouseId() {
       const companiesHouseId = this.form.companies_house_id?.trim()
       
       if (!companiesHouseId) {
+        // Reset officers and PSCs if ID is cleared
+        this.form.officers = []
+        this.form.pscs = []
         return // Don't validate if empty, let required validation handle it
       }
       
       const result = await validateCompaniesHouseId(companiesHouseId)
       
       if (!result.success) {
-        alert(result.error || 'Companies House ID não encontrado. Por favor, verifique o ID informado.')
-        this.formErrors.companies_house_id = result.error || 'Companies House ID não encontrado'
+        alert(result.error || 'Companies House ID not found. Please verify the ID provided.')
+        this.formErrors.companies_house_id = result.error || 'Companies House ID not found'
+        this.form.officers = []
+        this.form.pscs = []
       } else {
         // Clear error if validation passes
         this.clearFieldError(this.formErrors, 'companies_house_id')
+        
+        // Extract officers and PSCs from the response
+        // Note: officers and psc are at the root level of the response, not inside data
+        const officers = result.officers || []
+        const pscs = result.psc || [] // Note: API returns 'psc', not 'pscs'
+        
+        // Initialize officers array - filter out corporate entities
+        this.form.officers = []
+        let filteredOfficers = []
+        if (Array.isArray(officers) && officers.length > 0) {
+          filteredOfficers = officers
+            .filter(officer => !this.isCorporateOfficer(officer.officer_role || ''))
+            .map(officer => ({
+              name: officer.name || '',
+              role: officer.officer_role || '',
+              email: '',
+              passport_number: ''
+            }))
+          this.form.officers = filteredOfficers
+        }
+        
+        // Initialize PSCs array - filter out corporate entities
+        this.form.pscs = []
+        let filteredPSCs = []
+        if (Array.isArray(pscs) && pscs.length > 0) {
+          filteredPSCs = pscs
+            .filter(psc => !this.isCorporatePSC(psc.kind || ''))
+            .map(psc => ({
+              name: psc.name || '',
+              kind: psc.kind || '',
+              email: '',
+              passport_number: ''
+            }))
+          this.form.pscs = filteredPSCs
+        }
+        
+        // Fetch existing data for officers and PSCs
+        if (filteredOfficers.length > 0 || filteredPSCs.length > 0) {
+          this.fetchExistingPscOfficersData(filteredOfficers, filteredPSCs)
+        }
       }
     },
     
@@ -768,7 +968,38 @@ export default {
       const imageValidation = this.validateMainImage(this.form.mainImageFile)
       if (!imageValidation.isValid) {
         this.formErrors.main_image = imageValidation.error
-        return false
+        isValid = false
+      }
+      
+      // Validate officers and PSCs data (only individuals, corporate entities are filtered out)
+      if (this.form.officers && this.form.officers.length > 0) {
+        for (let i = 0; i < this.form.officers.length; i++) {
+          const officer = this.form.officers[i]
+          
+          if (!officer.email || !officer.email.trim()) {
+            this.formErrors[`officer_email_${i}`] = `Email is required for ${officer.name}`
+            isValid = false
+          }
+          if (!officer.passport_number || !officer.passport_number.trim()) {
+            this.formErrors[`officer_passport_${i}`] = `Passport number is required for ${officer.name}`
+            isValid = false
+          }
+        }
+      }
+      
+      if (this.form.pscs && this.form.pscs.length > 0) {
+        for (let i = 0; i < this.form.pscs.length; i++) {
+          const psc = this.form.pscs[i]
+          
+          if (!psc.email || !psc.email.trim()) {
+            this.formErrors[`psc_email_${i}`] = `Email is required for ${psc.name}`
+            isValid = false
+          }
+          if (!psc.passport_number || !psc.passport_number.trim()) {
+            this.formErrors[`psc_passport_${i}`] = `Passport number is required for ${psc.name}`
+            isValid = false
+          }
+        }
       }
       
       if (!isValid) {
@@ -927,6 +1158,39 @@ export default {
         }
         if (this.form.companies_house_id && this.form.companies_house_id.trim() !== '') {
           propertyData.companies_house_id = this.form.companies_house_id.trim()
+        }
+        
+        // Add officers and PSCs data
+        if (this.form.officers && this.form.officers.length > 0) {
+          propertyData.officers = this.form.officers.map(officer => {
+            const officerData = {
+              name: officer.name,
+              role: officer.role,
+              is_corporate: officer.is_corporate || false
+            }
+            // Only include email and passport if not corporate
+            if (!officer.is_corporate) {
+              officerData.email = officer.email?.trim() || ''
+              officerData.passport_number = officer.passport_number?.trim() || ''
+            }
+            return officerData
+          })
+        }
+        
+        if (this.form.pscs && this.form.pscs.length > 0) {
+          propertyData.pscs = this.form.pscs.map(psc => {
+            const pscData = {
+              name: psc.name,
+              kind: psc.kind,
+              is_corporate: psc.is_corporate || false
+            }
+            // Only include email and passport if not corporate
+            if (!psc.is_corporate) {
+              pscData.email = psc.email?.trim() || ''
+              pscData.passport_number = psc.passport_number?.trim() || ''
+            }
+            return pscData
+          })
         }
         
         // Process key_features and main_risks (comma separated strings to arrays)

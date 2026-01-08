@@ -12,39 +12,27 @@
           <router-link to="/" class="text-gray-300 transition-colors hover:text-white">Home</router-link>
           <button class="text-gray-300 transition-colors hover:text-white" style="color: gray;">How It Works</button>
           <a class="text-gray-300 transition-colors hover:text-white" href="/">About</a>
-          <div class="flex items-center space-x-2">
-            <router-link to="/auth/broker/login" class="text-white px-4 py-2 rounded-lg hover:opacity-90 transition-all font-semibold border-2 text-sm" style="background-color: transparent; border-color: rgb(166, 133, 66); color: rgb(166, 133, 66);">Broker</router-link>
-            <router-link to="/auth/borrower/login" class="text-white px-4 py-2 rounded-lg hover:opacity-90 transition-all font-semibold border-2 text-sm" style="background-color: transparent; border-color: rgb(166, 133, 66); color: rgb(166, 133, 66);">Borrower</router-link>
-            <router-link to="/auth/investor/login" class="text-white px-4 py-2 rounded-lg hover:opacity-90 transition-all font-semibold text-sm" style="background-color: rgb(166, 133, 66);">Investor</router-link>
+          <div class="flex items-center space-x-3">
+            <router-link to="/auth/broker/login" class="text-white px-6 py-2 rounded-lg hover:opacity-90 transition-all font-semibold border-2" style="background-color: transparent; border-color: rgb(166, 133, 66); color: rgb(166, 133, 66);">Broker Login</router-link>
+            <router-link to="/auth/investor/login" class="text-white px-6 py-2 rounded-lg hover:opacity-90 transition-all font-semibold" style="background-color: rgb(166, 133, 66);">Investor Login</router-link>
           </div>
         </nav>
         
         <!-- Desktop Navigation - Authenticated -->
         <nav v-else class="hidden md:flex items-center space-x-8">
-          <!-- Investor Navigation -->
-          <template v-if="userRole === 'investor'">
-            <router-link to="/investor/dashboard" class="text-gray-300 transition-colors hover:text-white">
-              <i class="fas fa-home mr-2"></i>Dashboard
-            </router-link>
-            <router-link to="/investor/portfolio" class="text-gray-300 transition-colors hover:text-white">
-              <i class="fas fa-chart-pie mr-2"></i>My Portfolio
-            </router-link>
-            <router-link to="/investor/orders" class="text-gray-300 transition-colors hover:text-white">
-              <i class="fas fa-shopping-cart mr-2"></i>Orders
-            </router-link>
-          </template>
-          
-          <!-- Borrower Navigation -->
-          <template v-else-if="userRole === 'borrower'">
-            <router-link to="/borrower/dashboard" class="text-gray-300 transition-colors hover:text-white">
-              <i class="fas fa-building mr-2"></i>Dashboard
-            </router-link>
-          </template>
-          
+          <router-link to="/investor/dashboard" class="text-gray-300 transition-colors hover:text-white">
+            <i class="fas fa-home mr-2"></i>Dashboard
+          </router-link>
+          <router-link to="/investor/portfolio" class="text-gray-300 transition-colors hover:text-white">
+            <i class="fas fa-chart-pie mr-2"></i>My Portfolio
+          </router-link>
+          <router-link to="/investor/orders" class="text-gray-300 transition-colors hover:text-white">
+            <i class="fas fa-shopping-cart mr-2"></i>Orders
+          </router-link>
           <div class="flex items-center space-x-3">
             <div class="text-right hidden lg:block">
-              <p class="text-sm font-medium text-white">{{ userData.first_name || userData.name || (userRole === 'borrower' ? 'Borrower' : 'Investor') }}</p>
-              <p class="text-xs text-gray-300">{{ userRole === 'borrower' ? 'Borrower' : 'Verified Investor' }}</p>
+              <p class="text-sm font-medium text-white">{{ userData.first_name || 'Investor' }}</p>
+              <p class="text-xs text-gray-300">Verified Investor</p>
             </div>
             <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: rgb(166, 133, 66);">
               <span class="text-white text-sm font-semibold">{{ userInitials }}</span>
@@ -105,14 +93,6 @@
               Broker Login
             </router-link>
             <router-link 
-              to="/auth/borrower/login" 
-              @click="closeMobileMenu"
-              class="text-white px-6 py-3 rounded-lg hover:opacity-90 transition-all font-semibold text-center border-2" 
-              style="background-color: transparent; border-color: rgb(166, 133, 66); color: rgb(166, 133, 66);"
-            >
-              Borrower Login
-            </router-link>
-            <router-link 
               to="/auth/investor/login" 
               @click="closeMobileMenu"
               class="text-white px-6 py-3 rounded-lg hover:opacity-90 transition-all font-semibold text-center" 
@@ -124,41 +104,27 @@
 
           <!-- Authenticated Mobile Menu -->
           <nav v-else class="flex flex-col space-y-4">
-            <!-- Investor Navigation -->
-            <template v-if="userRole === 'investor'">
-              <router-link 
-                to="/investor/dashboard" 
-                @click="closeMobileMenu"
-                class="text-gray-300 transition-colors hover:text-white py-2 px-4 rounded-lg hover:bg-opacity-20 hover:bg-white flex items-center"
-              >
-                <i class="fas fa-home mr-3 w-5"></i>Dashboard
-              </router-link>
-              <router-link 
-                to="/investor/portfolio" 
-                @click="closeMobileMenu"
-                class="text-gray-300 transition-colors hover:text-white py-2 px-4 rounded-lg hover:bg-opacity-20 hover:bg-white flex items-center"
-              >
-                <i class="fas fa-chart-pie mr-3 w-5"></i>My Portfolio
-              </router-link>
-              <router-link 
-                to="/investor/orders" 
-                @click="closeMobileMenu"
-                class="text-gray-300 transition-colors hover:text-white py-2 px-4 rounded-lg hover:bg-opacity-20 hover:bg-white flex items-center"
-              >
-                <i class="fas fa-shopping-cart mr-3 w-5"></i>Orders
-              </router-link>
-            </template>
-            
-            <!-- Borrower Navigation -->
-            <template v-else-if="userRole === 'borrower'">
-              <router-link 
-                to="/borrower/dashboard" 
-                @click="closeMobileMenu"
-                class="text-gray-300 transition-colors hover:text-white py-2 px-4 rounded-lg hover:bg-opacity-20 hover:bg-white flex items-center"
-              >
-                <i class="fas fa-building mr-3 w-5"></i>Dashboard
-              </router-link>
-            </template>
+            <router-link 
+              to="/investor/dashboard" 
+              @click="closeMobileMenu"
+              class="text-gray-300 transition-colors hover:text-white py-2 px-4 rounded-lg hover:bg-opacity-20 hover:bg-white flex items-center"
+            >
+              <i class="fas fa-home mr-3 w-5"></i>Dashboard
+            </router-link>
+            <router-link 
+              to="/investor/portfolio" 
+              @click="closeMobileMenu"
+              class="text-gray-300 transition-colors hover:text-white py-2 px-4 rounded-lg hover:bg-opacity-20 hover:bg-white flex items-center"
+            >
+              <i class="fas fa-chart-pie mr-3 w-5"></i>My Portfolio
+            </router-link>
+            <router-link 
+              to="/investor/orders" 
+              @click="closeMobileMenu"
+              class="text-gray-300 transition-colors hover:text-white py-2 px-4 rounded-lg hover:bg-opacity-20 hover:bg-white flex items-center"
+            >
+              <i class="fas fa-shopping-cart mr-3 w-5"></i>Orders
+            </router-link>
             
             <!-- User Info Mobile -->
             <div class="pt-4 border-t border-gray-700 mt-2">
@@ -167,8 +133,8 @@
                   <span class="text-white text-sm font-semibold">{{ userInitials }}</span>
                 </div>
                 <div class="flex-1">
-                  <p class="text-sm font-medium text-white">{{ userData.first_name || userData.name || (userRole === 'borrower' ? 'Borrower' : 'Investor') }}</p>
-                  <p class="text-xs text-gray-300">{{ userRole === 'borrower' ? 'Borrower' : 'Verified Investor' }}</p>
+                  <p class="text-sm font-medium text-white">{{ userData.first_name || 'Investor' }}</p>
+                  <p class="text-xs text-gray-300">Verified Investor</p>
                 </div>
               </div>
               <button 
@@ -205,11 +171,6 @@ export default {
       return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase() || 'IN'
     })
 
-    // Get user role
-    const userRole = computed(() => {
-      return userData.value.role || 'investor'
-    })
-
     // Load user data and check authentication
     const loadUserData = () => {
       const storedUserData = localStorage.getItem('user_data')
@@ -234,20 +195,11 @@ export default {
     // Logout function
     const logout = () => {
       if (confirm('Do you really want to log out?')) {
-        const role = userData.value.role || 'investor'
         authService.clearAuth()
         isAuthenticated.value = false
         userData.value = {}
         closeMobileMenu()
-        
-        // Redirect based on role
-        if (role === 'borrower') {
-          router.push('/auth/borrower/login')
-        } else if (role === 'broker') {
-          router.push('/auth/broker/login')
-        } else {
-          router.push('/auth/investor/login')
-        }
+        router.push('/auth/investor/login')
       }
     }
 
@@ -270,7 +222,6 @@ export default {
     return {
       userData,
       userInitials,
-      userRole,
       isAuthenticated,
       mobileMenuOpen,
       toggleMobileMenu,
