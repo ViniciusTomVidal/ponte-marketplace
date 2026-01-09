@@ -49,6 +49,38 @@ export const api = {
             const data = await response.json()
             return data.data
         } catch (error) {
+            console.error('Error fetching property:', error)
+            throw error
+        }
+    },
+
+    // Fetch single borrower property by ID
+    async getBorrowerProperty(id) {
+        try {
+            const token = localStorage.getItem('jwt_token')
+            
+            if (!token) {
+                throw new Error('No authentication token found')
+            }
+
+            const response = await fetch(`${API_BASE_URL_PONTE}/borrower/properties/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error('Unauthorized access')
+                }
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            const data = await response.json()
+            return data.property || data.data || data
+        } catch (error) {
             console.error('Error fetching properties:', error)
         }
     },

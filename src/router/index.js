@@ -22,6 +22,9 @@ import BrokerEditProperty from '@/views/broker/EditProperty.vue'
 import BrokerPropertyDetails from '@/views/broker/BrokerPropertyDetails.vue'
 import BrokerCommissions from '@/views/broker/Commissions.vue'
 import BorrowerDashboard from '@/views/borrower/Dashboard.vue'
+import BorrowerAddProperty from '@/views/borrower/AddProperty.vue'
+import BorrowerEditProperty from '@/views/borrower/EditProperty.vue'
+import BorrowerPropertyDetails from '@/views/borrower/PropertyDetails.vue'
 import InvestorPortfolio from "@/views/investor/InvestorPortfolio.vue";
 import InvestorOrders from "@/views/investor/Orders.vue";
 import OrderDetails from "@/views/investor/OrderDetails.vue";
@@ -186,6 +189,26 @@ const routes = [
         component: BorrowerDashboard,
         meta: { title: 'Borrower Dashboard - Ponte Finance' }
     },
+    {
+        path: '/borrower/add-property',
+        name: 'BorrowerAddProperty',
+        component: BorrowerAddProperty,
+        meta: { title: 'Add Property - Ponte Finance' }
+    },
+    {
+        path: '/borrower/edit-property/:id',
+        name: 'BorrowerEditProperty',
+        component: BorrowerEditProperty,
+        props: true,
+        meta: { title: 'Edit Property - Ponte Finance' }
+    },
+    {
+        path: '/borrower/property/:id',
+        name: 'BorrowerPropertyDetails',
+        component: BorrowerPropertyDetails,
+        props: true,
+        meta: { title: 'Property Details - Ponte Finance' }
+    },
     // Broker routes
     {
         path: '/broker/dashboard',
@@ -258,6 +281,13 @@ router.beforeEach(async (to, from, next) => {
         '/broker/commissions',
     ]
     
+    const borrowerProtectedRoutes = [
+        '/borrower/dashboard',
+        '/borrower/add-property',
+        '/borrower/edit-property',
+        '/borrower/property',
+    ]
+    
     // Routes that are part of the onboarding flow (should not be protected)
     const onboardingRoutes = [
         '/auth/questionnaire',
@@ -268,6 +298,7 @@ router.beforeEach(async (to, from, next) => {
     // Check if route is protected
     const isInvestorProtected = investorProtectedRoutes.some(route => to.path.startsWith(route))
     const isBrokerProtected = brokerProtectedRoutes.some(route => to.path.startsWith(route))
+    const isBorrowerProtected = borrowerProtectedRoutes.some(route => to.path.startsWith(route))
     
     if (isInvestorProtected) {
         try {
@@ -374,6 +405,40 @@ router.beforeEach(async (to, from, next) => {
             console.error('Error checking broker status:', error)
             setRouteLoading(false)
             return next('/auth/broker/login')
+        }
+    } else if (isBorrowerProtected) {
+        try {
+            const jwt_token = localStorage.getItem('jwt_token');
+
+            if (!jwt_token) {
+                setRouteLoading(false)
+                return next('/auth/borrower/login')
+            }
+
+            const response = await fetch(`${API_BASE_URL}/wp-json/ponte/v1/borrower/check-status`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${jwt_token}`
+                }
+            })
+
+            if (!response.ok) {
+                throw new Error('Borrower status check failed')
+            }
+
+            const data = await response.json()
+
+            if (!data.logged_in) {
+                setRouteLoading(false)
+                return next('/auth/borrower/login')
+            }
+
+            next()
+        } catch (error) {
+            console.error('Error checking borrower status:', error)
+            setRouteLoading(false)
+            return next('/auth/borrower/login')
         }
     } else {
         next()

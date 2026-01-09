@@ -67,29 +67,8 @@ export function usePropertyValidation() {
       isValid = false
     }
 
-    if (!form.minimum_investment || form.minimum_investment === null || form.minimum_investment === '') {
-      errors.minimum_investment = 'Minimum investment is required'
-      isValid = false
-    } else if (parseFloat(form.minimum_investment) <= 0) {
-      errors.minimum_investment = 'Minimum investment must be greater than 0'
-      isValid = false
-    }
-
-    if (!form.expected_annual_return || form.expected_annual_return === null || form.expected_annual_return === '') {
-      errors.expected_annual_return = 'Expected annual return is required'
-      isValid = false
-    } else if (parseFloat(form.expected_annual_return) < 0 || parseFloat(form.expected_annual_return) > 100) {
-      errors.expected_annual_return = 'Expected annual return must be between 0 and 100%'
-      isValid = false
-    }
-
-    if (!form.investment_term_years || form.investment_term_years === null || form.investment_term_years === '') {
-      errors.investment_term_years = 'Investment term is required'
-      isValid = false
-    } else if (parseInt(form.investment_term_years) < 1) {
-      errors.investment_term_years = 'Investment term must be at least 1 year'
-      isValid = false
-    }
+    // Admin-only fields validation removed: minimum_investment, expected_annual_return, investment_term_years
+    // These fields are only editable by administrators in WordPress admin panel
 
     if (!form.companies_house_id || form.companies_house_id.trim() === '') {
       errors.companies_house_id = 'Companies House ID is required'

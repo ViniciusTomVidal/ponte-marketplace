@@ -8,7 +8,7 @@
         >
           <i :class="icon" class="text-white text-lg"></i>
         </div>
-        <div>
+        <div class="flex-1">
           <p class="font-medium text-gray-900">{{ title }}</p>
           <p class="text-sm text-gray-600">{{ description }}</p>
         </div>
@@ -23,13 +23,34 @@
       >
       <label 
         :for="inputId" 
-        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 cursor-pointer"
+        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 cursor-pointer ml-3"
         :class="{ 'opacity-50 cursor-not-allowed': disabled }"
       >
-        {{ file ? 'Change' : 'Upload' }}
+        {{ file ? 'Change' : (existingUrl ? 'Replace' : 'Upload') }}
       </label>
     </div>
-    <p v-if="file" class="text-xs text-gray-500 mt-2">{{ file.name }}</p>
+    <!-- Current file display -->
+    <div v-if="file || existingUrl" class="mt-3 p-3 bg-gray-50 rounded-lg">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center flex-1 min-w-0">
+          <i :class="icon" class="text-gray-500 mr-2"></i>
+          <div class="flex-1 min-w-0">
+            <p v-if="file" class="text-sm font-medium text-gray-900 truncate">{{ file.name }}</p>
+            <p v-else-if="existingUrl" class="text-sm font-medium text-gray-900 truncate">{{ existingFileName || 'Existing file' }}</p>
+          </div>
+        </div>
+        <a 
+          v-if="existingUrl && !file" 
+          :href="existingUrl" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          class="ml-3 text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center"
+        >
+          <i class="fas fa-external-link-alt mr-1"></i>
+          View
+        </a>
+      </div>
+    </div>
     <p v-if="error" class="text-xs text-red-500 mt-2">{{ error }}</p>
   </div>
 </template>
@@ -56,6 +77,14 @@ export default {
       type: File,
       default: null
     },
+    existingUrl: {
+      type: String,
+      default: null
+    },
+    existingFileName: {
+      type: String,
+      default: ''
+    },
     error: {
       type: String,
       default: ''
@@ -67,7 +96,7 @@ export default {
     type: {
       type: String,
       default: 'default',
-      validator: (value) => ['valuation', 'title', 'rental', 'default'].includes(value)
+      validator: (value) => ['valuation', 'title', 'rental', 'schedule_of_works', 'default'].includes(value)
     },
     inputId: {
       type: String,

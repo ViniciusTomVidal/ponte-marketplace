@@ -279,80 +279,8 @@
               </div>
             </div>
 
-            <div>
-              <label for="minimumInvestment" class="block text-sm font-medium text-gray-700 mb-2">
-                Minimum Investment *
-              </label>
-              <div class="relative">
-                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-                <input type="number" id="minimumInvestment" v-model.number="form.minimum_investment"
-                       @input="onClearFieldError('minimum_investment')"
-                       :class="['w-full pl-8 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.minimum_investment ? 'border-red-500' : 'border-gray-300']"
-                       step="0.01" min="0" placeholder="10000">
-              </div>
-              <p v-if="formErrors.minimum_investment" class="text-red-500 text-xs mt-1">{{ formErrors.minimum_investment }}</p>
-            </div>
-
-            <div>
-              <label for="expectedAnnualReturn" class="block text-sm font-medium text-gray-700 mb-2">
-                Expected Annual Return (%) *
-              </label>
-              <div class="relative">
-                <input type="number" id="expectedAnnualReturn" v-model.number="form.expected_annual_return"
-                       @input="onClearFieldError('expected_annual_return')"
-                       :class="['w-full pr-12 pl-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.expected_annual_return ? 'border-red-500' : 'border-gray-300']"
-                       placeholder="9.2" step="0.01" min="0" max="100">
-                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
-              </div>
-              <p v-if="formErrors.expected_annual_return" class="text-red-500 text-xs mt-1">{{ formErrors.expected_annual_return }}</p>
-            </div>
-
-            <div>
-              <label for="investmentTermYears" class="block text-sm font-medium text-gray-700 mb-2">
-                Investment Term (Years) *
-              </label>
-              <input type="number" id="investmentTermYears" v-model.number="form.investment_term_years"
-                     @input="onClearFieldError('investment_term_years')"
-                     :class="['w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.investment_term_years ? 'border-red-500' : 'border-gray-300']"
-                     min="1" placeholder="5">
-              <p v-if="formErrors.investment_term_years" class="text-red-500 text-xs mt-1">{{ formErrors.investment_term_years }}</p>
-            </div>
-
-            <div>
-              <label for="managementFeeRate" class="block text-sm font-medium text-gray-700 mb-2">
-                Management Fee Rate (%)
-              </label>
-              <div class="relative">
-                <input type="number" id="managementFeeRate" v-model.number="form.management_fee_rate"
-                       class="w-full pr-12 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                       placeholder="1.50" step="0.01" min="0" max="100">
-                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
-              </div>
-            </div>
-
-            <div>
-              <label for="loanToValue" class="block text-sm font-medium text-gray-700 mb-2">
-                Loan to Value (LTV) (%)
-              </label>
-              <div class="relative">
-                <input type="number" id="loanToValue" v-model.number="form.loan_to_value"
-                       class="w-full pr-12 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                       placeholder="75.5" step="0.01" min="0" max="100">
-                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
-              </div>
-            </div>
-
-            <div>
-              <label for="loanTerm" class="block text-sm font-medium text-gray-700 mb-2">
-                Loan Term (months)
-              </label>
-              <div class="relative">
-                <input type="number" id="loanTerm" v-model.number="form.loan_term"
-                       class="w-full pr-16 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                       placeholder="36" min="0" step="1">
-                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">months</span>
-              </div>
-            </div>
+            <!-- Admin-only fields: Minimum Investment, Expected Annual Return, Investment Term, Management Fee Rate, Loan to Value, Loan Term -->
+            <!-- These fields are hidden from broker view and can only be edited by administrators in WordPress -->
           </div>
 
           <!-- GDV Section -->
@@ -419,6 +347,15 @@
             </div>
 
             <div>
+              <label for="developmentPlan" class="block text-sm font-medium text-gray-700 mb-2">
+                Development Plan
+              </label>
+              <textarea id="developmentPlan" v-model="form.development_plan"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        rows="6" placeholder="Describe the development plan for this property"></textarea>
+            </div>
+
+            <div>
               <label for="mainRisks" class="block text-sm font-medium text-gray-700 mb-2">
                 Main Risks (comma separated)
               </label>
@@ -469,24 +406,6 @@
             </div>
 
             <div>
-              <label for="scheduleOfWorksUrl" class="block text-sm font-medium text-gray-700 mb-2">
-                Schedule of Works URL
-              </label>
-              <input type="url" id="scheduleOfWorksUrl" v-model="form.schedule_of_works_url"
-                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     placeholder="https://example.com/schedule.pdf">
-            </div>
-
-            <div>
-              <label for="developmentPlanUrl" class="block text-sm font-medium text-gray-700 mb-2">
-                Development Plan URL
-              </label>
-              <input type="url" id="developmentPlanUrl" v-model="form.development_plan_url"
-                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     placeholder="https://example.com/plan.pdf">
-            </div>
-
-            <div>
               <label for="exitStrategyUrl" class="block text-sm font-medium text-gray-700 mb-2">
                 Exit Strategy URL
               </label>
@@ -506,12 +425,15 @@
           
           <div class="space-y-4">
             <DocumentUpload
-              title="Property Valuation Report"
-              description="Professional property valuation from a certified surveyor"
-              type="valuation"
-              accept=".pdf"
-              :file="form.documents.valuation"
-              @change="handleDocumentChange('valuation', $event)"
+              title="Schedule of Works"
+              description="Upload the schedule of works document (PDF, DOC, DOCX)"
+              accept=".pdf,.doc,.docx"
+              type="schedule_of_works"
+              :file="form.scheduleOfWorksFile"
+              :existing-url="form.scheduleOfWorksUrl"
+              existing-file-name="Schedule of Works"
+              :error="formErrors.schedule_of_works"
+              @change="onScheduleOfWorksChange"
             />
 
             <DocumentUpload
@@ -520,16 +442,9 @@
               type="title"
               accept=".pdf"
               :file="form.documents.title"
+              :existing-url="form.titleDeedUrl"
+              :existing-file-name="form.titleDeedFileName"
               @change="handleDocumentChange('title', $event)"
-            />
-
-            <DocumentUpload
-              title="Rental History"
-              description="Documentation of rental income history (if applicable)"
-              type="rental"
-              accept=".pdf,.xlsx,.xls"
-              :file="form.documents.rental"
-              @change="handleDocumentChange('rental', $event)"
             />
           </div>
         </div>
@@ -677,12 +592,7 @@ export default {
         total_value: null,
         funding_required: null,
         funding_raised: 0,
-        minimum_investment: null,
-        expected_annual_return: null,
-        investment_term_years: null,
-        management_fee_rate: 1.50,
-        loan_to_value: null,
-        loan_term: null,
+        // Admin-only fields removed (minimum_investment, expected_annual_return, investment_term_years, management_fee_rate, loan_to_value, loan_term)
         gdv_value: null,
         construction_costs: null,
         
@@ -701,19 +611,24 @@ export default {
         
         // Document URLs
         prospectus_url: '',
-        schedule_of_works_url: '',
-        development_plan_url: '',
         exit_strategy_url: '',
+        
+        // Schedule of Works (file upload)
+        scheduleOfWorksFile: null,
+        scheduleOfWorksUrl: null, // Existing file URL
+        
+        // Development Plan (text field)
+        development_plan: '',
         
         // Status
         status_badge_text: 'Available for Investment',
         
         // Documents
         documents: {
-          valuation: null,
-          title: null,
-          rental: null
+          title: null
         },
+        titleDeedUrl: null, // Existing file URL
+        titleDeedFileName: '', // Existing file name
         
         // Images (store both file objects and preview URLs)
         mainImageFile: null,
@@ -771,6 +686,14 @@ export default {
       if (!file) return
       this.form.documents[type] = file
     },
+    onScheduleOfWorksChange(file) {
+      if (!file) {
+        this.form.scheduleOfWorksFile = null
+        return
+      }
+      this.form.scheduleOfWorksFile = file
+      this.clearFieldError(this.formErrors, 'schedule_of_works')
+    },
     // Clear error for a specific field
     onClearFieldError(fieldName) {
       this.clearFieldError(this.formErrors, fieldName)
@@ -803,12 +726,10 @@ export default {
         const fieldMap = {
           'property_type': 'propertyType',
           'address_line1': 'addressLine1',
-          'investment_term_years': 'investmentTermYears',
-          'expected_annual_return': 'expectedAnnualReturn',
-          'minimum_investment': 'minimumInvestment',
           'funding_required': 'fundingRequired',
           'total_value': 'totalValue',
-          'companies_house_id': 'companiesHouseId'
+          'companies_house_id': 'companiesHouseId',
+          'schedule_of_works': 'scheduleOfWorks'
         }
         this.scrollToFirstError(this.formErrors, fieldMap)
         return false
@@ -862,9 +783,7 @@ export default {
           this.form.total_value = propertyData.total_value || null
           this.form.funding_required = propertyData.funding_required || null
           this.form.funding_raised = propertyData.funding_raised || 0
-          this.form.minimum_investment = propertyData.minimum_investment || null
-          this.form.expected_annual_return = propertyData.expected_annual_return || null
-          this.form.investment_term_years = propertyData.investment_term_years || null
+          // Admin-only fields removed from form
           this.form.management_fee_rate = propertyData.management_fee_rate || 1.50
           this.form.loan_to_value = propertyData.loan_to_value || null
           this.form.loan_term = propertyData.loan_term || null
@@ -914,9 +833,23 @@ export default {
           
           // Document URLs
           this.form.prospectus_url = propertyData.prospectus_url || ''
-          this.form.schedule_of_works_url = propertyData.schedule_of_works_url || ''
-          this.form.development_plan_url = propertyData.development_plan_url || ''
           this.form.exit_strategy_url = propertyData.exit_strategy_url || ''
+          
+          // Schedule of Works (URL from backend, file will be set if user uploads new one)
+          // scheduleOfWorksFile is null by default, will be set if user uploads
+          this.form.scheduleOfWorksUrl = propertyData.schedule_of_works_url || null
+          
+          // Load existing documents
+          if (propertyData.documents && Array.isArray(propertyData.documents)) {
+            const titleDoc = propertyData.documents.find(doc => doc.type === 'title' || doc.type === 'title_deed')
+            if (titleDoc && titleDoc.url) {
+              this.form.titleDeedUrl = titleDoc.url
+              this.form.titleDeedFileName = titleDoc.name || 'Title Deed'
+            }
+          }
+          
+          // Development Plan (text field)
+          this.form.development_plan = propertyData.development_plan || ''
           
           // Load main image
           let mainImageUrl = null
@@ -981,14 +914,12 @@ export default {
         const firstErrorField = Object.keys(this.formErrors)[0]
         if (firstErrorField) {
           const errorElement = document.getElementById(
-            firstErrorField === 'property_type' ? 'property_type' : 
-            firstErrorField === 'address_line1' ? 'address_line1' :
-            firstErrorField === 'investment_term_years' ? 'investment_term_years' :
-            firstErrorField === 'expected_annual_return' ? 'expected_annual_return' :
-            firstErrorField === 'minimum_investment' ? 'minimum_investment' :
-            firstErrorField === 'funding_required' ? 'funding_required' :
-            firstErrorField === 'total_value' ? 'total_value' :
-            firstErrorField === 'companies_house_id' ? 'companiesHouseId' : firstErrorField
+            firstErrorField === 'property_type' ? 'propertyType' : 
+            firstErrorField === 'address_line1' ? 'addressLine1' :
+            firstErrorField === 'funding_required' ? 'fundingRequired' :
+            firstErrorField === 'total_value' ? 'totalValue' :
+            firstErrorField === 'companies_house_id' ? 'companiesHouseId' :
+            firstErrorField === 'schedule_of_works' ? 'scheduleOfWorks' : firstErrorField
           )
           if (errorElement) {
             errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -1010,9 +941,7 @@ export default {
           postcode: this.form.postcode,
           total_value: parseFloat(this.form.total_value),
           funding_required: parseFloat(this.form.funding_required),
-          minimum_investment: parseFloat(this.form.minimum_investment),
-          expected_annual_return: parseFloat(this.form.expected_annual_return),
-          investment_term_years: parseInt(this.form.investment_term_years),
+          // Admin-only fields removed (minimum_investment, expected_annual_return, investment_term_years, management_fee_rate, loan_to_value, loan_term)
         }
 
         // Add optional fields if they have values (skip empty strings and null)
@@ -1055,15 +984,7 @@ export default {
         if (this.form.funding_raised !== null && this.form.funding_raised !== '' && this.form.funding_raised !== 0 && !isNaN(this.form.funding_raised)) {
           propertyData.funding_raised = parseFloat(this.form.funding_raised)
         }
-        if (this.form.loan_to_value !== null && this.form.loan_to_value !== '' && !isNaN(this.form.loan_to_value)) {
-          propertyData.loan_to_value = parseFloat(this.form.loan_to_value)
-        }
-        if (this.form.loan_term !== null && this.form.loan_term !== '' && !isNaN(this.form.loan_term)) {
-          propertyData.loan_term = parseInt(this.form.loan_term)
-        }
-        if (this.form.management_fee_rate !== null && this.form.management_fee_rate !== '' && !isNaN(this.form.management_fee_rate)) {
-          propertyData.management_fee_rate = parseFloat(this.form.management_fee_rate)
-        }
+        // Admin-only fields removed (loan_to_value, loan_term, management_fee_rate)
         if (this.form.gdv_value !== null && this.form.gdv_value !== '' && !isNaN(this.form.gdv_value)) {
           propertyData.gdv_value = parseFloat(this.form.gdv_value)
         }
@@ -1079,12 +1000,7 @@ export default {
         if (this.form.prospectus_url && this.form.prospectus_url.trim() !== '') {
           propertyData.prospectus_url = this.form.prospectus_url.trim()
         }
-        if (this.form.schedule_of_works_url && this.form.schedule_of_works_url.trim() !== '') {
-          propertyData.schedule_of_works_url = this.form.schedule_of_works_url.trim()
-        }
-        if (this.form.development_plan_url && this.form.development_plan_url.trim() !== '') {
-          propertyData.development_plan_url = this.form.development_plan_url.trim()
-        }
+        // schedule_of_works_url and development_plan_url removed - now using scheduleOfWorksFile and development_plan
         if (this.form.exit_strategy_url && this.form.exit_strategy_url.trim() !== '') {
           propertyData.exit_strategy_url = this.form.exit_strategy_url.trim()
         }
@@ -1163,16 +1079,13 @@ export default {
           propertyData.property_images = propertyImages
         }
 
+        // Development Plan (text field)
+        if (this.form.development_plan && this.form.development_plan.trim() !== '') {
+          propertyData.development_plan = this.form.development_plan.trim()
+        }
+        
         // Prepare documents array for JSON (convert to base64)
         const documents = {}
-        if (this.form.documents.valuation) {
-          const valuationBase64 = await this.fileToBase64(this.form.documents.valuation)
-          documents.valuation = {
-            data: valuationBase64,
-            name: this.form.documents.valuation.name,
-            type: this.form.documents.valuation.type
-          }
-        }
         if (this.form.documents.title) {
           const titleBase64 = await this.fileToBase64(this.form.documents.title)
           documents.title = {
@@ -1181,12 +1094,14 @@ export default {
             type: this.form.documents.title.type
           }
         }
-        if (this.form.documents.rental) {
-          const rentalBase64 = await this.fileToBase64(this.form.documents.rental)
-          documents.rental = {
-            data: rentalBase64,
-            name: this.form.documents.rental.name,
-            type: this.form.documents.rental.type
+        
+        // Schedule of Works (file upload)
+        if (this.form.scheduleOfWorksFile) {
+          const scheduleBase64 = await this.fileToBase64(this.form.scheduleOfWorksFile)
+          documents.schedule_of_works = {
+            data: scheduleBase64,
+            name: this.form.scheduleOfWorksFile.name,
+            type: this.form.scheduleOfWorksFile.type
           }
         }
         
@@ -1208,9 +1123,8 @@ export default {
         console.log('Additional images - Existing URLs to keep:', this.form.existingAdditionalImageUrls.length)
         console.log('Total images in property_images array:', propertyImages.length)
         console.log('Documents:', {
-          valuation: this.form.documents.valuation?.name,
           title: this.form.documents.title?.name,
-          rental: this.form.documents.rental?.name
+          schedule_of_works: this.form.scheduleOfWorksFile?.name
         })
         console.log('=== End Form Submission Debug ===')
 
