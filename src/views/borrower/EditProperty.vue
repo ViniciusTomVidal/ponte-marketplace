@@ -646,7 +646,7 @@ export default {
       this.loadProperty()
     } else {
       alert('Property ID is required')
-      this.router.push('/broker/dashboard')
+      this.router.push('/borrower/dashboard')
     }
   },
   methods: {

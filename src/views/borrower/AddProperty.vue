@@ -1,7 +1,7 @@
 <template>
   <div class="bg-gray-50 min-h-screen">
     <!-- Header -->
-    <BrokerHeader :user-name="userName" />
+    <BorrowerHeader :user-name="userName" />
 
     <!-- Loading Overlay -->
     <LoadingOverlay 
@@ -568,7 +568,7 @@
 
         <!-- Submit -->
         <div class="flex justify-between">
-          <router-link to="/broker/dashboard" 
+          <router-link to="/borrower/dashboard" 
                       :class="['bg-gray-600 text-white px-8 py-3 rounded-lg transition-colors hover:cursor-pointer', loading ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-gray-700']">
             Cancel
           </router-link>
@@ -590,7 +590,7 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import authService from '@/services/auth'
 import { validateCompaniesHouseId } from '@/services/companies'
-import BrokerHeader from '@/components/BrokerHeader.vue'
+import BorrowerHeader from '@/components/BorrowerHeader.vue'
 import LoadingOverlay from '@/components/broker/LoadingOverlay.vue'
 import ImageUpload from '@/components/broker/ImageUpload.vue'
 import DocumentUpload from '@/components/broker/DocumentUpload.vue'
@@ -600,7 +600,7 @@ import { usePropertyImages } from '@/composables/usePropertyImages'
 export default {
   name: 'AddProperty',
   components: {
-    BrokerHeader,
+    BorrowerHeader,
     LoadingOverlay,
     ImageUpload,
     DocumentUpload
