@@ -1,7 +1,7 @@
 <template>
   <div class="bg-[#001242] min-h-screen">
-    <div class="max-w-4xl mx-auto py-12 px-4">
-      <div class="bg-[#001242] border-2 border-[#A68542] rounded-lg p-8">
+    <div class="max-w-4xl mx-auto py-6 sm:py-12 px-4 sm:px-6">
+      <div class="bg-[#001242] border-2 border-[#A68542] rounded-lg p-4 sm:p-8">
         <div class="text-center mb-8">
           <i class="fas fa-building text-[#A68542] text-5xl mb-4"></i>
           <h2 class="text-2xl font-bold text-[#A68542]">Borrower Registration</h2>
@@ -22,12 +22,12 @@
 
         <form @submit.prevent="handleRegister" class="space-y-6">
           <!-- Company Information -->
-          <div class="bg-gray-900 rounded-lg p-6 border border-gray-700">
+          <div class="bg-gray-900 rounded-lg p-4 sm:p-6 border border-gray-700">
             <h3 class="text-xl font-semibold text-[#A68542] mb-4">Company Information</h3>
             
             <div>
               <label class="block text-sm font-medium text-gray-300 mb-2">Companies House ID *</label>
-              <div class="flex gap-2">
+              <div class="flex flex-col sm:flex-row gap-2">
                 <input
                     required
                     class="flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#A68542] focus:border-transparent bg-white text-gray-900"
@@ -41,10 +41,11 @@
                     type="button"
                     @click="validateCompaniesHouseId"
                     :disabled="loadingCompany || !form.companiesHouseId || validating"
-                    class="px-6 py-3 bg-[#A68542] text-white rounded-lg hover:bg-[#8B6F3A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="px-4 sm:px-6 py-3 bg-[#A68542] text-white rounded-lg hover:bg-[#8B6F3A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                 >
                   <i v-if="loadingCompany" class="fas fa-spinner fa-spin mr-2"></i>
-                  {{ loadingCompany ? 'Loading...' : 'Search' }}
+                  <span class="hidden sm:inline">{{ loadingCompany ? 'Loading...' : 'Search' }}</span>
+                  <span class="sm:hidden">{{ loadingCompany ? '...' : 'Search' }}</span>
                 </button>
               </div>
               <p v-if="companyError" class="text-red-400 text-xs mt-1">{{ companyError }}</p>
@@ -63,7 +64,7 @@
           </div>
 
           <!-- Officers and PSCs Information -->
-          <div v-if="officers.length > 0 || pscs.length > 0" class="bg-gray-900 rounded-lg p-6 border border-gray-700">
+          <div v-if="officers.length > 0 || pscs.length > 0" class="bg-gray-900 rounded-lg p-4 sm:p-6 border border-gray-700">
             <h3 class="text-xl font-semibold text-[#A68542] mb-2">Officers & Persons with Significant Control</h3>
             <p class="text-gray-400 text-sm mb-6">Select which officer or PSC you are (this is you)</p>
             
@@ -93,7 +94,7 @@
                       <p class="text-xs text-gray-500">{{ officer.role }}</p>
                     </label>
                   </div>
-                  <div class="grid md:grid-cols-2 gap-4">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label :for="`officer-email-${index}`" class="block text-sm font-medium text-gray-300 mb-1">
                         Email <span v-if="selectedPersonType === 'officer' && selectedPersonIndex === index" class="text-[#A68542]">*</span>
@@ -125,7 +126,7 @@
                   <div v-if="selectedPersonType === 'officer' && selectedPersonIndex === index" class="mt-6 pt-6 border-t border-gray-600">
                     <h4 class="text-lg font-semibold text-[#A68542] mb-4">Your Personal Information</h4>
                     
-                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                       <div>
                         <label :for="`officer-firstname-${index}`" class="block text-sm font-medium text-gray-300 mb-1">First Name *</label>
                         <input
@@ -169,7 +170,7 @@
                       />
                     </div>
 
-                    <div class="grid md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label :for="`officer-password-${index}`" class="block text-sm font-medium text-gray-300 mb-1">Password *</label>
                         <input
@@ -224,7 +225,7 @@
                       <p class="text-xs text-gray-500">{{ psc.kind }}</p>
                     </label>
                   </div>
-                  <div class="grid md:grid-cols-2 gap-4">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label :for="`psc-email-${index}`" class="block text-sm font-medium text-gray-300 mb-1">
                         Email <span v-if="selectedPersonType === 'psc' && selectedPersonIndex === index" class="text-[#A68542]">*</span>
@@ -256,7 +257,7 @@
                   <div v-if="selectedPersonType === 'psc' && selectedPersonIndex === index" class="mt-6 pt-6 border-t border-gray-600">
                     <h4 class="text-lg font-semibold text-[#A68542] mb-4">Your Personal Information</h4>
                     
-                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                       <div>
                         <label :for="`psc-firstname-${index}`" class="block text-sm font-medium text-gray-300 mb-1">First Name *</label>
                         <input
@@ -300,7 +301,7 @@
                       />
                     </div>
 
-                    <div class="grid md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label :for="`psc-password-${index}`" class="block text-sm font-medium text-gray-300 mb-1">Password *</label>
                         <input
@@ -344,14 +345,14 @@
           </div>
 
           <!-- Submit Button -->
-          <div class="flex justify-between mt-6">
-            <router-link to="/" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+          <div class="flex flex-col sm:flex-row justify-between gap-4 mt-6">
+            <router-link to="/" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-center">
               Cancel
             </router-link>
             <button
                 type="submit"
                 :disabled="loading || !form.agreeTerms"
-                class="px-6 py-3 bg-[#A68542] text-white rounded-lg hover:bg-[#8B6F3A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-6 py-3 bg-[#A68542] text-white rounded-lg hover:bg-[#8B6F3A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
             >
               <i v-if="loading" class="fas fa-spinner fa-spin mr-2"></i>
               {{ loading ? 'Registering...' : 'Complete Registration' }}
@@ -426,15 +427,91 @@ export default {
       companyError.value = '';
     };
 
+    // Função auxiliar para extrair primeiro e último nome de um nome completo
+    const extractFirstAndLastName = (fullName) => {
+      if (!fullName || !fullName.trim()) {
+        return { firstName: '', lastName: '' };
+      }
+      
+      // Remover títulos/cargos comuns do início e fim
+      const name = fullName.trim();
+      const titles = ['director', 'directors', 'secretary', 'manager', 'ceo', 'cfo', 'cto', 'president', 'chairman'];
+      
+      let cleanedName = name;
+      // Remover título no início
+      for (const title of titles) {
+        const regex = new RegExp(`^${title}\\s+`, 'i');
+        cleanedName = cleanedName.replace(regex, '');
+      }
+      
+      // Remover título após vírgula (e.g., "Name, Director")
+      if (cleanedName.includes(',')) {
+        const parts = cleanedName.split(',');
+        cleanedName = parts[0].trim();
+      }
+      
+      // Remover título no final
+      for (const title of titles) {
+        const regex = new RegExp(`\\s+${title}$`, 'i');
+        cleanedName = cleanedName.replace(regex, '');
+      }
+      
+      // Dividir o nome em partes
+      const nameParts = cleanedName.trim().split(/\s+/).filter(part => part.length > 0);
+      
+      if (nameParts.length === 0) {
+        return { firstName: '', lastName: '' };
+      } else if (nameParts.length === 1) {
+        // Se só tem uma palavra, considerar como sobrenome
+        return { firstName: '', lastName: nameParts[0] };
+      } else {
+        // Primeira palavra é o primeiro nome, última palavra é o sobrenome
+        const firstName = nameParts[0];
+        const lastName = nameParts[nameParts.length - 1]; // Apenas a última palavra
+        return { firstName, lastName };
+      }
+    };
+
     const onPersonSelected = (type, index) => {
       selectedPersonType.value = type;
       selectedPersonIndex.value = index;
       
-      // Preencher automaticamente o email do cadastro com o email do PSC/Officer selecionado
-      if (type === 'officer' && officers.value[index] && officers.value[index].email) {
-        form.value.email = officers.value[index].email.trim();
-      } else if (type === 'psc' && pscs.value[index] && pscs.value[index].email) {
-        form.value.email = pscs.value[index].email.trim();
+      if (type === 'officer' && officers.value[index]) {
+        const officer = officers.value[index];
+        
+        // Preencher automaticamente o email do cadastro com o email do Officer selecionado
+        if (officer.email) {
+          form.value.email = officer.email.trim();
+        }
+        
+        // Preencher automaticamente First Name e Last Name do nome do Officer
+        if (officer.name) {
+          const { firstName, lastName } = extractFirstAndLastName(officer.name);
+          if (firstName) {
+            form.value.firstName = firstName;
+          }
+          if (lastName) {
+            form.value.lastName = lastName;
+          }
+        }
+      } else if (type === 'psc' && pscs.value[index]) {
+        const psc = pscs.value[index];
+        
+        // Preencher automaticamente o email do cadastro com o email do PSC selecionado
+        if (psc.email) {
+          form.value.email = psc.email.trim();
+        }
+        
+        // Preencher automaticamente First Name e Last Name do nome do PSC
+        if (psc.name) {
+          const { firstName, lastName } = extractFirstAndLastName(psc.name);
+          if (firstName) {
+            form.value.firstName = firstName;
+          }
+          if (lastName) {
+            form.value.lastName = lastName;
+          }
+        }
       }
     };
 
@@ -681,31 +758,55 @@ export default {
         });
 
         if (response.ok) {
-          const data = await response.json();
+          const responseData = await response.json();
           
-          // Preencher dados de officers
-          if (data.officers && data.officers.length > 0) {
-            data.officers.forEach((prefilledOfficer, index) => {
-              if (officers.value[index] && officers.value[index].name === prefilledOfficer.name) {
+          // A resposta pode vir em data.officers ou diretamente em officers
+          const officersData = responseData.data?.officers || responseData.officers || [];
+          const pscsData = responseData.data?.pscs || responseData.pscs || [];
+          
+          // Preencher dados de officers - buscar por nome ao invés de índice
+          if (officersData && officersData.length > 0) {
+            officersData.forEach((prefilledOfficer) => {
+              if (!prefilledOfficer.name) return;
+              
+              // Buscar o officer correspondente pelo nome (comparação case-insensitive)
+              const officerIndex = officers.value.findIndex(o => {
+                if (!o.name || !prefilledOfficer.name) return false;
+                const oName = o.name.toLowerCase().trim();
+                const prefilledName = prefilledOfficer.name.toLowerCase().trim();
+                return oName === prefilledName;
+              });
+              
+              if (officerIndex !== -1) {
                 if (prefilledOfficer.email) {
-                  officers.value[index].email = prefilledOfficer.email;
+                  officers.value[officerIndex].email = prefilledOfficer.email;
                 }
                 if (prefilledOfficer.passport_number) {
-                  officers.value[index].passport_number = prefilledOfficer.passport_number;
+                  officers.value[officerIndex].passport_number = prefilledOfficer.passport_number;
                 }
               }
             });
           }
 
-          // Preencher dados de PSCs
-          if (data.pscs && data.pscs.length > 0) {
-            data.pscs.forEach((prefilledPsc, index) => {
-              if (pscs.value[index] && pscs.value[index].name === prefilledPsc.name) {
+          // Preencher dados de PSCs - buscar por nome ao invés de índice
+          if (pscsData && pscsData.length > 0) {
+            pscsData.forEach((prefilledPsc) => {
+              if (!prefilledPsc.name) return;
+              
+              // Buscar o PSC correspondente pelo nome (comparação case-insensitive)
+              const pscIndex = pscs.value.findIndex(p => {
+                if (!p.name || !prefilledPsc.name) return false;
+                const pName = p.name.toLowerCase().trim();
+                const prefilledName = prefilledPsc.name.toLowerCase().trim();
+                return pName === prefilledName;
+              });
+              
+              if (pscIndex !== -1) {
                 if (prefilledPsc.email) {
-                  pscs.value[index].email = prefilledPsc.email;
+                  pscs.value[pscIndex].email = prefilledPsc.email;
                 }
                 if (prefilledPsc.passport_number) {
-                  pscs.value[index].passport_number = prefilledPsc.passport_number;
+                  pscs.value[pscIndex].passport_number = prefilledPsc.passport_number;
                 }
               }
             });
