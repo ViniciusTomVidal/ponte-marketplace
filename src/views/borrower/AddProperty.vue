@@ -364,7 +364,7 @@
             </div>
 
             <!-- Admin-only fields: Minimum Investment, Expected Annual Return, Investment Term, Management Fee Rate, Loan to Value, Loan Term -->
-            <!-- These fields are hidden from broker view and can only be edited by administrators in WordPress -->
+            <!-- These fields are hidden from borrower view and can only be edited by administrators in WordPress -->
           </div>
 
           <!-- GDV Section -->
@@ -770,7 +770,7 @@ export default {
         const token = localStorage.getItem('jwt_token')
         if (!token) return
         
-        const response = await fetch('https://ponte.finance/wp-json/marketplace/v1/broker/get-psc-officers-data', {
+        const response = await fetch('https://ponte.finance/wp-json/ponte/v1/borrower/get-psc-officers-data', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -1182,7 +1182,7 @@ export default {
           return
         }
 
-        const response = await fetch('https://ponte.finance/wp-json/marketplace/v1/broker/create-property', {
+        const response = await fetch('https://ponte.finance/wp-json/ponte/v1/borrower/create-property', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -1196,7 +1196,7 @@ export default {
         if (response.ok && result.success) {
           // Redirect to dashboard with success state
           this.router.push({
-            path: '/broker/dashboard',
+            path: '/borrower/dashboard',
             query: { success: 'property_created' }
           })
         } else {

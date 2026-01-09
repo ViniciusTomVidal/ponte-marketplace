@@ -12,7 +12,7 @@ export async function validateCompaniesHouseId(companyId) {
   if (!trimmedId) {
     return {
       success: false,
-      error: 'Companies House ID é obrigatório'
+      error: 'Companies House ID is required'
     }
   }
   
@@ -31,23 +31,26 @@ export async function validateCompaniesHouseId(companyId) {
     if (!response.ok) {
       return {
         success: false,
-        error: 'Companies House ID não encontrado. Por favor, verifique o ID informado.'
+        error: 'Companies House ID not found. Please verify the ID provided.'
       }
     }
     
     // Parse response as JSON
     const result = await response.json()
     
-    // Server returns { success: true/false, data?: {...} }
-    if (result.success === true && result.data) {
+    // Server returns { success: true/false, data?: {...}, officers?: [...], psc?: [...] }
+    // Note: officers and psc are at root level, not inside data
+    if (result.success === true) {
       return {
         success: true,
-        data: result.data
+        data: result.data || {},
+        officers: result.officers || [],
+        psc: result.psc || [] // API returns 'psc', not 'pscs'
       }
     } else {
       return {
         success: false,
-        error: 'Companies House ID não encontrado. Por favor, verifique o ID informado.'
+        error: 'Companies House ID not found. Please verify the ID provided.'
       }
     }
   } catch (error) {
@@ -55,7 +58,7 @@ export async function validateCompaniesHouseId(companyId) {
     
     return {
       success: false,
-      error: 'Erro ao validar Companies House ID. Por favor, tente novamente.'
+      error: 'Error validating Companies House ID. Please try again.'
     }
   }
 }

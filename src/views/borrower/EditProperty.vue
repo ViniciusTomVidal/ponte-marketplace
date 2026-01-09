@@ -1,20 +1,28 @@
 <template>
   <div class="bg-gray-50 min-h-screen">
     <!-- Header -->
-    <BrokerHeader :user-name="userName" />
+    <BorrowerHeader :user-name="userName" />
 
     <!-- Loading Overlay -->
     <LoadingOverlay 
       :loading="loading"
-      message="Submitting property..."
+      message="Updating property..."
       submessage="Please wait while we process your request"
     />
 
+    <!-- Loading Property Data -->
+    <div v-if="loadingProperty" class="min-h-screen flex items-center justify-center">
+      <div class="text-center">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+        <p class="text-gray-600">Loading property data...</p>
+      </div>
+    </div>
+
     <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8" :class="{ 'opacity-50 pointer-events-none': loading }">
+    <main v-if="!loadingProperty" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8" :class="{ 'opacity-50 pointer-events-none': loading }">
       <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Register New Property</h1>
-        <p class="text-gray-600">Add a new property to your portfolio for investor consideration</p>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Edit Property</h1>
+        <p class="text-gray-600">Update property information and submit for review</p>
       </div>
 
       <form @submit.prevent="handleSubmit" class="space-y-8">
@@ -108,98 +116,6 @@
                      :class="['w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.companies_house_id ? 'border-red-500' : 'border-gray-300']"
                      placeholder="e.g., 15859004">
               <p v-if="formErrors.companies_house_id" class="text-red-500 text-xs mt-1">{{ formErrors.companies_house_id }}</p>
-              <p v-if="form.officers.length > 0 || form.pscs.length > 0" class="text-green-600 text-xs mt-1">
-                <i class="fas fa-check-circle mr-1"></i>Companies House ID validated. Please fill in the officers and PSCs information below.
-              </p>
-            </div>
-          </div>
-          
-          <!-- Officers and PSCs Information -->
-          <div v-if="form.officers.length > 0 || form.pscs.length > 0" class="mt-6 pt-6 border-t border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Officers and PSCs Information</h3>
-            
-            <!-- Officers Section -->
-            <div v-if="form.officers.length > 0" class="mb-6">
-              <h4 class="text-md font-medium text-gray-800 mb-4">Officers</h4>
-              <div class="space-y-4">
-                <div v-for="(officer, index) in form.officers" :key="`officer-${index}`" 
-                     class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <div class="mb-3">
-                    <p class="text-sm font-medium text-gray-700">{{ officer.name }}</p>
-                    <p class="text-xs text-gray-500">{{ officer.role }}</p>
-                  </div>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label :for="`officer-email-${index}`" class="block text-sm font-medium text-gray-700 mb-1">
-                        Email *
-                      </label>
-                      <input type="email" 
-                             :id="`officer-email-${index}`"
-                             v-model="officer.email"
-                             @input="onClearFieldError(`officer_email_${index}`)"
-                             :class="['w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors[`officer_email_${index}`] ? 'border-red-500' : 'border-gray-300']"
-                             placeholder="email@example.com"
-                             required>
-                      <p v-if="formErrors[`officer_email_${index}`]" class="text-red-500 text-xs mt-1">{{ formErrors[`officer_email_${index}`] }}</p>
-                    </div>
-                    <div>
-                      <label :for="`officer-passport-${index}`" class="block text-sm font-medium text-gray-700 mb-1">
-                        Passport Number *
-                      </label>
-                      <input type="text" 
-                             :id="`officer-passport-${index}`"
-                             v-model="officer.passport_number"
-                             @input="onClearFieldError(`officer_passport_${index}`)"
-                             :class="['w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors[`officer_passport_${index}`] ? 'border-red-500' : 'border-gray-300']"
-                             placeholder="Passport number"
-                             required>
-                      <p v-if="formErrors[`officer_passport_${index}`]" class="text-red-500 text-xs mt-1">{{ formErrors[`officer_passport_${index}`] }}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- PSCs Section -->
-            <div v-if="form.pscs.length > 0" class="mb-6">
-              <h4 class="text-md font-medium text-gray-800 mb-4">PSCs (People with Significant Control)</h4>
-              <div class="space-y-4">
-                <div v-for="(psc, index) in form.pscs" :key="`psc-${index}`" 
-                     class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <div class="mb-3">
-                    <p class="text-sm font-medium text-gray-700">{{ psc.name }}</p>
-                    <p class="text-xs text-gray-500">{{ psc.kind }}</p>
-                  </div>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label :for="`psc-email-${index}`" class="block text-sm font-medium text-gray-700 mb-1">
-                        Email *
-                      </label>
-                      <input type="email" 
-                             :id="`psc-email-${index}`"
-                             v-model="psc.email"
-                             @input="onClearFieldError(`psc_email_${index}`)"
-                             :class="['w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors[`psc_email_${index}`] ? 'border-red-500' : 'border-gray-300']"
-                             placeholder="email@example.com"
-                             required>
-                      <p v-if="formErrors[`psc_email_${index}`]" class="text-red-500 text-xs mt-1">{{ formErrors[`psc_email_${index}`] }}</p>
-                    </div>
-                    <div>
-                      <label :for="`psc-passport-${index}`" class="block text-sm font-medium text-gray-700 mb-1">
-                        Passport Number *
-                      </label>
-                      <input type="text" 
-                             :id="`psc-passport-${index}`"
-                             v-model="psc.passport_number"
-                             @input="onClearFieldError(`psc_passport_${index}`)"
-                             :class="['w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors[`psc_passport_${index}`] ? 'border-red-500' : 'border-gray-300']"
-                             placeholder="Passport number"
-                             required>
-                      <p v-if="formErrors[`psc_passport_${index}`]" class="text-red-500 text-xs mt-1">{{ formErrors[`psc_passport_${index}`] }}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -500,6 +416,39 @@
           </div>
         </div>
 
+        <!-- Required Documentation -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+            <i class="fas fa-file-alt text-blue-600 mr-3"></i>
+            Required Documentation
+          </h2>
+          
+          <div class="space-y-4">
+            <DocumentUpload
+              title="Schedule of Works"
+              description="Upload the schedule of works document (PDF, DOC, DOCX)"
+              accept=".pdf,.doc,.docx"
+              type="schedule_of_works"
+              :file="form.scheduleOfWorksFile"
+              :existing-url="form.scheduleOfWorksUrl"
+              existing-file-name="Schedule of Works"
+              :error="formErrors.schedule_of_works"
+              @change="onScheduleOfWorksChange"
+            />
+
+            <DocumentUpload
+              title="Title Deed"
+              description="Official property ownership documentation"
+              type="title"
+              accept=".pdf"
+              :file="form.documents.title"
+              :existing-url="form.titleDeedUrl"
+              :existing-file-name="form.titleDeedFileName"
+              @change="handleDocumentChange('title', $event)"
+            />
+          </div>
+        </div>
+
         <!-- Property Images -->
         <div class="bg-white rounded-lg shadow p-6" id="propertyImagesSection">
           <h2 class="text-xl font-semibold text-gray-900 mb-6">Property Images</h2>
@@ -508,11 +457,10 @@
             <div id="mainImageContainer">
               <ImageUpload
                 label="Main Property Image"
-                :required="true"
                 placeholder="Click to upload main property image"
                 :error="formErrors.main_image"
                 :preview="form.mainImagePreview"
-                :fileName="form.mainImageFile?.name"
+                :fileName="form.mainImageFile?.name || 'Current image'"
                 @change="onMainImageChange"
               />
             </div>
@@ -541,34 +489,9 @@
           </div>
         </div>
 
-        <!-- Documentation -->
-        <div class="bg-white rounded-lg shadow p-6">
-          <h2 class="text-xl font-semibold text-gray-900 mb-6">Required Documentation</h2>
-          
-          <div class="space-y-4">
-            <DocumentUpload
-              title="Schedule of Works"
-              description="Upload the schedule of works document (PDF, DOC, DOCX)"
-              accept=".pdf,.doc,.docx"
-              :file="form.scheduleOfWorksFile"
-              :error="formErrors.schedule_of_works"
-              @change="onScheduleOfWorksChange"
-            />
-
-            <DocumentUpload
-              title="Title Deed"
-              description="Official property ownership documentation"
-              type="title"
-              accept=".pdf"
-              :file="form.documents.title"
-              @change="handleDocumentChange('title', $event)"
-            />
-          </div>
-        </div>
-
         <!-- Submit -->
         <div class="flex justify-between">
-          <router-link to="/broker/dashboard" 
+          <router-link :to="`/borrower/property/${propertyId}`" 
                       :class="['bg-gray-600 text-white px-8 py-3 rounded-lg transition-colors hover:cursor-pointer', loading ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-gray-700']">
             Cancel
           </router-link>
@@ -576,8 +499,8 @@
                   :disabled="loading"
                   :class="['bg-blue-600 text-white px-8 py-3 rounded-lg transition-colors font-semibold flex items-center hover:cursor-pointer', loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700']">
             <div v-if="loading" class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-            <i v-else class="fas fa-paper-plane mr-2"></i>
-            {{ loading ? 'Submitting...' : 'Submit for Review' }}
+            <i v-else class="fas fa-save mr-2"></i>
+            {{ loading ? 'Updating...' : 'Update Property' }}
           </button>
         </div>
       </form>
@@ -586,11 +509,12 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import authService from '@/services/auth'
+import { api } from '@/services/api'
 import { validateCompaniesHouseId } from '@/services/companies'
-import BrokerHeader from '@/components/BrokerHeader.vue'
+import BorrowerHeader from '@/components/BorrowerHeader.vue'
 import LoadingOverlay from '@/components/broker/LoadingOverlay.vue'
 import ImageUpload from '@/components/broker/ImageUpload.vue'
 import DocumentUpload from '@/components/broker/DocumentUpload.vue'
@@ -598,40 +522,48 @@ import { usePropertyValidation } from '@/composables/usePropertyValidation'
 import { usePropertyImages } from '@/composables/usePropertyImages'
 
 export default {
-  name: 'AddProperty',
+  name: 'EditProperty',
   components: {
-    BrokerHeader,
+    BorrowerHeader,
     LoadingOverlay,
     ImageUpload,
     DocumentUpload
   },
   setup() {
+    const route = useRoute()
     const router = useRouter()
     const userData = ref(authService.getUserData())
     
     // Composables
-    const { clearFieldError, validatePropertyForm, validateMainImage, scrollToFirstError } = usePropertyValidation()
-    const { handleMainImage, handleAdditionalImages, removeAdditionalImage } = usePropertyImages()
+    const { clearFieldError, validatePropertyForm, scrollToFirstError } = usePropertyValidation()
+    const { handleMainImage, handleAdditionalImages, removeAdditionalImage, fileToBase64 } = usePropertyImages()
     
     const userName = computed(() => {
       return userData.value?.name || userData.value?.display_name || 'Broker'
     })
     
+    const propertyId = computed(() => {
+      return route.params.id || null
+    })
+    
     return {
       userName,
+      propertyId,
+      route,
       router,
       clearFieldError,
       validatePropertyForm,
-      validateMainImage,
       scrollToFirstError,
       handleMainImage,
       handleAdditionalImages,
-      removeAdditionalImage
+      removeAdditionalImage,
+      fileToBase64
     }
   },
   data() {
     return {
       loading: false,
+      loadingProperty: false,
       formErrors: {},
       form: {
         // Basic Information
@@ -660,12 +592,7 @@ export default {
         total_value: null,
         funding_required: null,
         funding_raised: 0,
-        minimum_investment: null,
-        expected_annual_return: null,
-        investment_term_years: null,
-        management_fee_rate: 1.50,
-        loan_to_value: null,
-        loan_term: null,
+        // Admin-only fields removed (minimum_investment, expected_annual_return, investment_term_years, management_fee_rate, loan_to_value, loan_term)
         gdv_value: null,
         construction_costs: null,
         
@@ -677,8 +604,6 @@ export default {
         
         // Companies House
         companies_house_id: '',
-        officers: [],
-        pscs: [],
         
         // Contact
         contact_phone: '',
@@ -686,21 +611,42 @@ export default {
         
         // Document URLs
         prospectus_url: '',
-        schedule_of_works_url: '',
-        scheduleOfWorksFile: null,
-        development_plan: '',
         exit_strategy_url: '',
+        
+        // Schedule of Works (file upload)
+        scheduleOfWorksFile: null,
+        scheduleOfWorksUrl: null, // Existing file URL
+        
+        // Development Plan (text field)
+        development_plan: '',
+        
+        // Status
+        status_badge_text: 'Available for Investment',
+        
+        // Documents
+        documents: {
+          title: null
+        },
+        titleDeedUrl: null, // Existing file URL
+        titleDeedFileName: '', // Existing file name
         
         // Images (store both file objects and preview URLs)
         mainImageFile: null,
         mainImagePreview: '',
+        mainImageUrl: null, // URL da imagem principal existente (se houver)
         additionalImageFiles: [],
         additionalImagesPreview: [],
-        documents: {
-          // Property Valuation and Rental History are admin-only fields - removed from form
-          title: null
-        }
+        existingAdditionalImageUrls: [] // URLs das imagens adicionais existentes que devem ser mantidas
       }
+    }
+  },
+  mounted() {
+    // Load property data when component mounts
+    if (this.propertyId) {
+      this.loadProperty()
+    } else {
+      alert('Property ID is required')
+      this.router.push('/broker/dashboard')
     }
   },
   methods: {
@@ -719,16 +665,6 @@ export default {
       }
       
       this.handleMainImage(mockEvent, this.form, this.formErrors)
-    },
-    onScheduleOfWorksChange(file) {
-      if (!file) {
-        this.form.scheduleOfWorksFile = null
-        this.clearFieldError(this.formErrors, 'schedule_of_works')
-        return
-      }
-      
-      this.clearFieldError(this.formErrors, 'schedule_of_works')
-      this.form.scheduleOfWorksFile = file
     },
     onAdditionalImagesChange(files) {
       if (!files || files.length === 0) return
@@ -750,185 +686,40 @@ export default {
       if (!file) return
       this.form.documents[type] = file
     },
+    onScheduleOfWorksChange(file) {
+      if (!file) {
+        this.form.scheduleOfWorksFile = null
+        return
+      }
+      this.form.scheduleOfWorksFile = file
+      this.clearFieldError(this.formErrors, 'schedule_of_works')
+    },
     // Clear error for a specific field
     onClearFieldError(fieldName) {
       this.clearFieldError(this.formErrors, fieldName)
-    },
-    // Check if officer is corporate (company)
-    isCorporateOfficer(role) {
-      if (!role) return false
-      return role.toLowerCase().includes('corporate')
-    },
-    // Check if PSC is corporate (company)
-    isCorporatePSC(kind) {
-      if (!kind) return false
-      return kind.toLowerCase().includes('corporate') || kind.toLowerCase().includes('firm') || kind.toLowerCase().includes('legal')
-    },
-    // Fetch existing PSC/Officers data from database
-    async fetchExistingPscOfficersData(officers, pscs) {
-      try {
-        const token = localStorage.getItem('jwt_token')
-        if (!token) return
-        
-        const response = await fetch('https://ponte.finance/wp-json/marketplace/v1/broker/get-psc-officers-data', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            officers: officers,
-            pscs: pscs
-          })
-        })
-        
-        const result = await response.json()
-        
-        if (result.success && result.data) {
-          // Update officers with existing data
-          if (result.data.officers && Array.isArray(result.data.officers)) {
-            result.data.officers.forEach(existingOfficer => {
-              const officer = this.form.officers.find(o => o.name === existingOfficer.name)
-              if (officer && existingOfficer.email) {
-                officer.email = existingOfficer.email
-              }
-              if (officer && existingOfficer.passport_number) {
-                officer.passport_number = existingOfficer.passport_number
-              }
-            })
-          }
-          
-          // Update PSCs with existing data
-          if (result.data.pscs && Array.isArray(result.data.pscs)) {
-            result.data.pscs.forEach(existingPsc => {
-              const psc = this.form.pscs.find(p => p.name === existingPsc.name)
-              if (psc && existingPsc.email) {
-                psc.email = existingPsc.email
-              }
-              if (psc && existingPsc.passport_number) {
-                psc.passport_number = existingPsc.passport_number
-              }
-            })
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching existing PSC/Officers data:', error)
-      }
     },
     // Validate Companies House ID via API
     async validateCompaniesHouseId() {
       const companiesHouseId = this.form.companies_house_id?.trim()
       
       if (!companiesHouseId) {
-        // Reset officers and PSCs if ID is cleared
-        this.form.officers = []
-        this.form.pscs = []
         return // Don't validate if empty, let required validation handle it
       }
       
       const result = await validateCompaniesHouseId(companiesHouseId)
       
       if (!result.success) {
-        alert(result.error || 'Companies House ID not found. Please verify the ID provided.')
-        this.formErrors.companies_house_id = result.error || 'Companies House ID not found'
-        this.form.officers = []
-        this.form.pscs = []
+        alert(result.error || 'Companies House ID não encontrado. Por favor, verifique o ID informado.')
+        this.formErrors.companies_house_id = result.error || 'Companies House ID não encontrado'
       } else {
         // Clear error if validation passes
         this.clearFieldError(this.formErrors, 'companies_house_id')
-        
-        // Extract officers and PSCs from the response
-        // Note: officers and psc are at the root level of the response, not inside data
-        const officers = result.officers || []
-        const pscs = result.psc || [] // Note: API returns 'psc', not 'pscs'
-        
-        // Initialize officers array - filter out corporate entities
-        this.form.officers = []
-        let filteredOfficers = []
-        if (Array.isArray(officers) && officers.length > 0) {
-          filteredOfficers = officers
-            .filter(officer => !this.isCorporateOfficer(officer.officer_role || ''))
-            .map(officer => ({
-              name: officer.name || '',
-              role: officer.officer_role || '',
-              email: '',
-              passport_number: ''
-            }))
-          this.form.officers = filteredOfficers
-        }
-        
-        // Initialize PSCs array - filter out corporate entities
-        this.form.pscs = []
-        let filteredPSCs = []
-        if (Array.isArray(pscs) && pscs.length > 0) {
-          filteredPSCs = pscs
-            .filter(psc => !this.isCorporatePSC(psc.kind || ''))
-            .map(psc => ({
-              name: psc.name || '',
-              kind: psc.kind || '',
-              email: '',
-              passport_number: ''
-            }))
-          this.form.pscs = filteredPSCs
-        }
-        
-        // Fetch existing data for officers and PSCs
-        if (filteredOfficers.length > 0 || filteredPSCs.length > 0) {
-          this.fetchExistingPscOfficersData(filteredOfficers, filteredPSCs)
-        }
       }
     },
-    
     // Validate form fields
     validateForm() {
-      const { errors, isValid: formIsValid } = this.validatePropertyForm(this.form)
+      const { errors, isValid } = this.validatePropertyForm(this.form)
       this.formErrors = errors
-      
-      let isValid = formIsValid
-      
-      // Validate main image
-      const imageValidation = this.validateMainImage(this.form.mainImageFile)
-      if (!imageValidation.isValid) {
-        this.formErrors.main_image = imageValidation.error
-        isValid = false
-      }
-      
-      // Validate Schedule of Works file (required)
-      if (!this.form.scheduleOfWorksFile) {
-        this.formErrors.schedule_of_works = 'Schedule of Works file is required'
-        isValid = false
-      }
-      
-      // Validate officers and PSCs data (only individuals, corporate entities are filtered out)
-      if (this.form.officers && this.form.officers.length > 0) {
-        for (let i = 0; i < this.form.officers.length; i++) {
-          const officer = this.form.officers[i]
-          
-          if (!officer.email || !officer.email.trim()) {
-            this.formErrors[`officer_email_${i}`] = `Email is required for ${officer.name}`
-            isValid = false
-          }
-          if (!officer.passport_number || !officer.passport_number.trim()) {
-            this.formErrors[`officer_passport_${i}`] = `Passport number is required for ${officer.name}`
-            isValid = false
-          }
-        }
-      }
-      
-      if (this.form.pscs && this.form.pscs.length > 0) {
-        for (let i = 0; i < this.form.pscs.length; i++) {
-          const psc = this.form.pscs[i]
-          
-          if (!psc.email || !psc.email.trim()) {
-            this.formErrors[`psc_email_${i}`] = `Email is required for ${psc.name}`
-            isValid = false
-          }
-          if (!psc.passport_number || !psc.passport_number.trim()) {
-            this.formErrors[`psc_passport_${i}`] = `Passport number is required for ${psc.name}`
-            isValid = false
-          }
-        }
-      }
       
       if (!isValid) {
         // Scroll to first error
@@ -938,7 +729,6 @@ export default {
           'funding_required': 'fundingRequired',
           'total_value': 'totalValue',
           'companies_house_id': 'companiesHouseId',
-          'main_image': 'mainImageContainer',
           'schedule_of_works': 'scheduleOfWorks'
         }
         this.scrollToFirstError(this.formErrors, fieldMap)
@@ -946,6 +736,173 @@ export default {
       }
       
       return true
+    },
+    
+    // Load property data for editing
+    async loadProperty() {
+      if (!this.propertyId) return
+      
+      this.loadingProperty = true
+      try {
+        const response = await api.getBorrowerProperty(this.propertyId)
+        
+        // Handle different response structures
+        let propertyData = null
+        if (response && response.data) {
+          propertyData = response.data
+        } else if (response && response.property) {
+          propertyData = response.property
+        } else if (response && !response.data && !response.property) {
+          propertyData = response
+        }
+        
+        if (propertyData) {
+          // Populate form with property data
+          this.form.title = propertyData.title || ''
+          this.form.property_type = propertyData.property_type || ''
+          this.form.description = propertyData.description || ''
+          this.form.full_description = propertyData.full_description || ''
+          this.form.bedrooms = propertyData.bedrooms || null
+          this.form.bathrooms = propertyData.bathrooms || null
+          this.form.area_sqm = propertyData.area_sqm || null
+          this.form.floor = propertyData.floor || null
+          this.form.construction_year = propertyData.construction_year || null
+          
+          // Location
+          this.form.address_line1 = propertyData.address_line1 || ''
+          this.form.address_line2 = propertyData.address_line2 || ''
+          this.form.city = propertyData.city || ''
+          this.form.postcode = propertyData.postcode || ''
+          this.form.country = propertyData.country || 'UK'
+          this.form.nearest_tube = propertyData.nearest_tube || ''
+          this.form.nearest_tube_distance = propertyData.nearest_tube_distance || ''
+          this.form.nearest_airport = propertyData.nearest_airport || ''
+          this.form.airport_distance = propertyData.airport_distance || ''
+          
+          // Financial Information
+          this.form.total_value = propertyData.total_value || null
+          this.form.funding_required = propertyData.funding_required || null
+          this.form.funding_raised = propertyData.funding_raised || 0
+          // Admin-only fields removed from form
+          this.form.management_fee_rate = propertyData.management_fee_rate || 1.50
+          this.form.loan_to_value = propertyData.loan_to_value || null
+          this.form.loan_term = propertyData.loan_term || null
+          this.form.gdv_value = propertyData.gdv_value || null
+          this.form.construction_costs = propertyData.construction_costs || null
+          
+          // Additional Information
+          if (propertyData.key_features) {
+            if (Array.isArray(propertyData.key_features)) {
+              this.form.key_features = propertyData.key_features.join(', ')
+            } else if (typeof propertyData.key_features === 'string') {
+              try {
+                const parsed = JSON.parse(propertyData.key_features)
+                this.form.key_features = Array.isArray(parsed) ? parsed.join(', ') : propertyData.key_features
+              } catch {
+                this.form.key_features = propertyData.key_features
+              }
+            } else {
+              this.form.key_features = ''
+            }
+          }
+          
+          this.form.investment_potential = propertyData.investment_potential || ''
+          this.form.risk_information = propertyData.risk_information || ''
+          
+          // Companies House ID
+          this.form.companies_house_id = propertyData.companies_house_id || ''
+          
+          if (propertyData.main_risks) {
+            if (Array.isArray(propertyData.main_risks)) {
+              this.form.main_risks = propertyData.main_risks.join(', ')
+            } else if (typeof propertyData.main_risks === 'string') {
+              try {
+                const parsed = JSON.parse(propertyData.main_risks)
+                this.form.main_risks = Array.isArray(parsed) ? parsed.join(', ') : propertyData.main_risks
+              } catch {
+                this.form.main_risks = propertyData.main_risks
+              }
+            } else {
+              this.form.main_risks = ''
+            }
+          }
+          
+          // Contact
+          this.form.contact_phone = propertyData.contact_phone || ''
+          this.form.contact_email = propertyData.contact_email || ''
+          
+          // Document URLs
+          this.form.prospectus_url = propertyData.prospectus_url || ''
+          this.form.exit_strategy_url = propertyData.exit_strategy_url || ''
+          
+          // Schedule of Works (URL from backend, file will be set if user uploads new one)
+          // scheduleOfWorksFile is null by default, will be set if user uploads
+          this.form.scheduleOfWorksUrl = propertyData.schedule_of_works_url || null
+          
+          // Load existing documents
+          if (propertyData.documents && Array.isArray(propertyData.documents)) {
+            const titleDoc = propertyData.documents.find(doc => doc.type === 'title' || doc.type === 'title_deed')
+            if (titleDoc && titleDoc.url) {
+              this.form.titleDeedUrl = titleDoc.url
+              this.form.titleDeedFileName = titleDoc.name || 'Title Deed'
+            }
+          }
+          
+          // Development Plan (text field)
+          this.form.development_plan = propertyData.development_plan || ''
+          
+          // Load main image
+          let mainImageUrl = null
+          if (propertyData.main_image) {
+            if (propertyData.main_image.url) {
+              mainImageUrl = propertyData.main_image.url
+              this.form.mainImagePreview = mainImageUrl
+              this.form.mainImageUrl = mainImageUrl // Rastrear a URL da imagem existente
+            } else if (typeof propertyData.main_image === 'string') {
+              mainImageUrl = propertyData.main_image
+              this.form.mainImagePreview = mainImageUrl
+              this.form.mainImageUrl = mainImageUrl // Rastrear a URL da imagem existente
+            }
+          }
+          
+          // Load all images array
+          if (propertyData.images && Array.isArray(propertyData.images) && propertyData.images.length > 0) {
+            // If no main_image was found, use first image as main
+            if (!mainImageUrl) {
+              const firstImage = propertyData.images[0]
+              mainImageUrl = firstImage.url || firstImage
+              this.form.mainImagePreview = mainImageUrl
+              this.form.mainImageUrl = mainImageUrl // Rastrear a URL da imagem existente
+            }
+            
+            // Load additional images (all except main)
+            // Images are objects with url property or can be strings
+            const additionalImages = propertyData.images
+              .map(img => {
+                if (typeof img === 'object' && img.url) {
+                  return img.url
+                } else if (typeof img === 'string') {
+                  return img
+                }
+                return null
+              })
+              .filter(url => url !== null && url !== mainImageUrl)
+            
+            this.form.additionalImagesPreview = additionalImages
+            // Inicializar a lista de URLs existentes que devem ser mantidas
+            this.form.existingAdditionalImageUrls = [...additionalImages]
+          } else {
+            // Se não há imagens, inicializar arrays vazios
+            this.form.existingAdditionalImageUrls = []
+          }
+        }
+      } catch (error) {
+        console.error('Error loading property:', error)
+        alert('Failed to load property data. Please try again.')
+        this.router.push('/borrower/dashboard')
+      } finally {
+        this.loadingProperty = false
+      }
     },
     
     async handleSubmit() {
@@ -956,27 +913,17 @@ export default {
         // Scroll to first error
         const firstErrorField = Object.keys(this.formErrors)[0]
         if (firstErrorField) {
-          let errorElement = null
-          
-          if (firstErrorField === 'main_image') {
-            // For main image, scroll to the image upload container
-            errorElement = document.getElementById('mainImageContainer')
-            if (errorElement) {
-              errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
-            }
-          } else {
-            errorElement = document.getElementById(
-              firstErrorField === 'property_type' ? 'propertyType' : 
-              firstErrorField === 'address_line1' ? 'addressLine1' :
-              firstErrorField === 'funding_required' ? 'fundingRequired' :
-              firstErrorField === 'total_value' ? 'totalValue' :
-              firstErrorField === 'companies_house_id' ? 'companiesHouseId' :
-              firstErrorField === 'schedule_of_works' ? 'scheduleOfWorks' : firstErrorField
-            )
-            if (errorElement) {
-              errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
-              errorElement.focus()
-            }
+          const errorElement = document.getElementById(
+            firstErrorField === 'property_type' ? 'propertyType' : 
+            firstErrorField === 'address_line1' ? 'addressLine1' :
+            firstErrorField === 'funding_required' ? 'fundingRequired' :
+            firstErrorField === 'total_value' ? 'totalValue' :
+            firstErrorField === 'companies_house_id' ? 'companiesHouseId' :
+            firstErrorField === 'schedule_of_works' ? 'scheduleOfWorks' : firstErrorField
+          )
+          if (errorElement) {
+            errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            errorElement.focus()
           }
         }
         return
@@ -994,7 +941,7 @@ export default {
           postcode: this.form.postcode,
           total_value: parseFloat(this.form.total_value),
           funding_required: parseFloat(this.form.funding_required),
-          // Admin-only fields removed from payload: minimum_investment, expected_annual_return, investment_term_years
+          // Admin-only fields removed (minimum_investment, expected_annual_return, investment_term_years, management_fee_rate, loan_to_value, loan_term)
         }
 
         // Add optional fields if they have values (skip empty strings and null)
@@ -1021,8 +968,6 @@ export default {
         }
         if (this.form.country && this.form.country.trim() !== '') {
           propertyData.country = this.form.country.trim()
-        } else {
-          propertyData.country = 'UK' // Default value
         }
         if (this.form.nearest_tube && this.form.nearest_tube.trim() !== '') {
           propertyData.nearest_tube = this.form.nearest_tube.trim()
@@ -1039,7 +984,7 @@ export default {
         if (this.form.funding_raised !== null && this.form.funding_raised !== '' && this.form.funding_raised !== 0 && !isNaN(this.form.funding_raised)) {
           propertyData.funding_raised = parseFloat(this.form.funding_raised)
         }
-        // Admin-only fields removed from payload: loan_to_value, loan_term, management_fee_rate
+        // Admin-only fields removed (loan_to_value, loan_term, management_fee_rate)
         if (this.form.gdv_value !== null && this.form.gdv_value !== '' && !isNaN(this.form.gdv_value)) {
           propertyData.gdv_value = parseFloat(this.form.gdv_value)
         }
@@ -1055,11 +1000,7 @@ export default {
         if (this.form.prospectus_url && this.form.prospectus_url.trim() !== '') {
           propertyData.prospectus_url = this.form.prospectus_url.trim()
         }
-        // Schedule of Works is now a file upload, handled separately in FormData
-        // Development Plan is now a text field
-        if (this.form.development_plan && this.form.development_plan.trim() !== '') {
-          propertyData.development_plan = this.form.development_plan.trim()
-        }
+        // schedule_of_works_url and development_plan_url removed - now using scheduleOfWorksFile and development_plan
         if (this.form.exit_strategy_url && this.form.exit_strategy_url.trim() !== '') {
           propertyData.exit_strategy_url = this.form.exit_strategy_url.trim()
         }
@@ -1069,41 +1010,11 @@ export default {
         if (this.form.risk_information && this.form.risk_information.trim() !== '') {
           propertyData.risk_information = this.form.risk_information.trim()
         }
+        if (this.form.status_badge_text && this.form.status_badge_text.trim() !== '') {
+          propertyData.status_badge_text = this.form.status_badge_text.trim()
+        }
         if (this.form.companies_house_id && this.form.companies_house_id.trim() !== '') {
           propertyData.companies_house_id = this.form.companies_house_id.trim()
-        }
-        
-        // Add officers and PSCs data
-        if (this.form.officers && this.form.officers.length > 0) {
-          propertyData.officers = this.form.officers.map(officer => {
-            const officerData = {
-              name: officer.name,
-              role: officer.role,
-              is_corporate: officer.is_corporate || false
-            }
-            // Only include email and passport if not corporate
-            if (!officer.is_corporate) {
-              officerData.email = officer.email?.trim() || ''
-              officerData.passport_number = officer.passport_number?.trim() || ''
-            }
-            return officerData
-          })
-        }
-        
-        if (this.form.pscs && this.form.pscs.length > 0) {
-          propertyData.pscs = this.form.pscs.map(psc => {
-            const pscData = {
-              name: psc.name,
-              kind: psc.kind,
-              is_corporate: psc.is_corporate || false
-            }
-            // Only include email and passport if not corporate
-            if (!psc.is_corporate) {
-              pscData.email = psc.email?.trim() || ''
-              pscData.passport_number = psc.passport_number?.trim() || ''
-            }
-            return pscData
-          })
         }
         
         // Process key_features and main_risks (comma separated strings to arrays)
@@ -1120,88 +1031,133 @@ export default {
           }
         }
 
-        // Create FormData to send files
-        const formData = new FormData()
+        // Prepare images array for JSON
+        const propertyImages = []
         
-        // Add all property data fields individually to FormData
-        // This allows backend to access them via $request->get_param() or $_POST
-        Object.keys(propertyData).forEach(key => {
-          const value = propertyData[key]
-          if (value !== null && value !== undefined) {
-            if (Array.isArray(value)) {
-              // For arrays (like key_features, main_risks), send as JSON string
-              formData.append(key, JSON.stringify(value))
-            } else if (typeof value === 'object') {
-              // For objects, send as JSON string
-              formData.append(key, JSON.stringify(value))
-            } else {
-              // For primitives, send as string
-              formData.append(key, String(value))
-            }
-          }
-        })
-        
-        // Add all images to property_images[] array
-        // First image (main) goes first, then additional images
-        // Backend will treat the first image as primary (sort_order = 0)
-        if (this.form.mainImageFile) {
-          formData.append('property_images[]', this.form.mainImageFile)
-        }
-        
-        // Add additional images to the same property_images[] array
-        if (this.form.additionalImageFiles.length > 0) {
-          this.form.additionalImageFiles.forEach((file) => {
-            formData.append('property_images[]', file)
+        // Add existing main image URL if not replaced
+        if (!this.form.mainImageFile && this.form.mainImageUrl) {
+          propertyImages.push({
+            url: this.form.mainImageUrl,
+            is_primary: true
           })
         }
         
-        // Add documents as files
-        // Property Valuation and Rental History are admin-only fields - not sent in payload
-        if (this.form.documents.title) {
-          formData.append('documents_file[title]', this.form.documents.title)
+        // Add new main image as base64 if provided
+        if (this.form.mainImageFile) {
+          const mainImageBase64 = await this.fileToBase64(this.form.mainImageFile)
+          propertyImages.push({
+            data: mainImageBase64,
+            name: this.form.mainImageFile.name,
+            is_primary: true
+          })
         }
         
-        // Add Schedule of Works file
+        // Add existing additional image URLs
+        if (this.form.existingAdditionalImageUrls && this.form.existingAdditionalImageUrls.length > 0) {
+          this.form.existingAdditionalImageUrls.forEach((url) => {
+            propertyImages.push({
+              url: url,
+              is_primary: false
+            })
+          })
+        }
+        
+        // Add new additional images as base64
+        if (this.form.additionalImageFiles && this.form.additionalImageFiles.length > 0) {
+          for (const file of this.form.additionalImageFiles) {
+            const imageBase64 = await this.fileToBase64(file)
+            propertyImages.push({
+              data: imageBase64,
+              name: file.name,
+              is_primary: false
+            })
+          }
+        }
+        
+        // Add images array to property data
+        if (propertyImages.length > 0) {
+          propertyData.property_images = propertyImages
+        }
+
+        // Development Plan (text field)
+        if (this.form.development_plan && this.form.development_plan.trim() !== '') {
+          propertyData.development_plan = this.form.development_plan.trim()
+        }
+        
+        // Prepare documents array for JSON (convert to base64)
+        const documents = {}
+        if (this.form.documents.title) {
+          const titleBase64 = await this.fileToBase64(this.form.documents.title)
+          documents.title = {
+            data: titleBase64,
+            name: this.form.documents.title.name,
+            type: this.form.documents.title.type
+          }
+        }
+        
+        // Schedule of Works (file upload)
         if (this.form.scheduleOfWorksFile) {
-          formData.append('schedule_of_works_file', this.form.scheduleOfWorksFile)
+          const scheduleBase64 = await this.fileToBase64(this.form.scheduleOfWorksFile)
+          documents.schedule_of_works = {
+            data: scheduleBase64,
+            name: this.form.scheduleOfWorksFile.name,
+            type: this.form.scheduleOfWorksFile.type
+          }
+        }
+        
+        // Add documents to property data if any
+        if (Object.keys(documents).length > 0) {
+          propertyData.documents_file = documents
         }
 
         // Log payload for debugging
-        console.log('Sending property data:', propertyData)
-        console.log('Main image file:', this.form.mainImageFile?.name)
-        console.log('Additional images:', this.form.additionalImageFiles.length)
+        console.log('=== Form Submission Debug ===')
+        console.log('Property data:', propertyData)
+        console.log('Main image - New file:', this.form.mainImageFile ? {
+          name: this.form.mainImageFile.name,
+          size: this.form.mainImageFile.size,
+          type: this.form.mainImageFile.type
+        } : 'null')
+        console.log('Main image - Existing URL:', this.form.mainImageUrl || 'null')
+        console.log('Additional images - New files count:', this.form.additionalImageFiles.length)
+        console.log('Additional images - Existing URLs to keep:', this.form.existingAdditionalImageUrls.length)
+        console.log('Total images in property_images array:', propertyImages.length)
         console.log('Documents:', {
-          title: this.form.documents.title?.name
+          title: this.form.documents.title?.name,
+          schedule_of_works: this.form.scheduleOfWorksFile?.name
         })
+        console.log('=== End Form Submission Debug ===')
 
-        // Call API to create property
+        // Call API to update property using JSON
         const token = localStorage.getItem('jwt_token')
         if (!token) {
-          alert('You must be logged in to submit a property')
+          alert('You must be logged in to update a property')
           this.loading = false
           return
         }
 
-        const response = await fetch('https://ponte.finance/wp-json/marketplace/v1/broker/create-property', {
-          method: 'POST',
+        const response = await fetch(`https://ponte.finance/wp-json/ponte/v1/borrower/properties/${this.propertyId}`, {
+          method: 'PUT',
           headers: {
-            'Authorization': `Bearer ${token}`
-            // Don't set Content-Type - browser will set it automatically with boundary for FormData
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           },
-          body: formData
+          body: JSON.stringify(propertyData)
         })
 
         const result = await response.json()
 
         if (response.ok && result.success) {
-          // Redirect to dashboard with success state
+          // Redirect to property details with success state
           this.router.push({
-            path: '/broker/dashboard',
-            query: { success: 'property_created' }
+            path: `/borrower/property/${this.propertyId}`,
+            query: { success: 'property_updated' }
           })
         } else {
           // Handle API validation errors
-          const errorMessage = result.message || result.error || 'Failed to submit property. Please try again.'
+          const errorMessage = result.message || result.error || 'Failed to update property. Please try again.'
+          console.error('API Error:', errorMessage)
+          console.error('Full error response:', result)
           
           // If API returns field-specific errors, map them to formErrors
           if (result.data && result.data.fields && Array.isArray(result.data.fields)) {
@@ -1216,7 +1172,9 @@ export default {
                 'postcode': 'postcode',
                 'total_value': 'total_value',
                 'funding_required': 'funding_required',
-                // Admin-only fields removed: minimum_investment, expected_annual_return, investment_term_years
+                'minimum_investment': 'minimum_investment',
+                'expected_annual_return': 'expected_annual_return',
+                'investment_term_years': 'investment_term_years',
                 'companies_house_id': 'companiesHouseId'
               }
               
@@ -1229,12 +1187,14 @@ export default {
             // Scroll to first error field
             const firstErrorField = Object.keys(this.formErrors)[0]
             if (firstErrorField) {
-              const errorElement = document.getElementById(firstErrorField === 'property_type' ? 'propertyType' : 
-                                                           firstErrorField === 'address_line1' ? 'addressLine1' :
-                                                           firstErrorField === 'funding_required' ? 'fundingRequired' :
-                                                           firstErrorField === 'total_value' ? 'totalValue' :
-                                                           firstErrorField === 'companies_house_id' ? 'companiesHouseId' :
-                                                           firstErrorField === 'schedule_of_works' ? 'scheduleOfWorks' : firstErrorField)
+              const errorElement = document.getElementById(firstErrorField === 'property_type' ? 'property_type' : 
+                                                           firstErrorField === 'address_line1' ? 'address_line1' :
+                                                           firstErrorField === 'investment_term_years' ? 'investment_term_years' :
+                                                           firstErrorField === 'expected_annual_return' ? 'expected_annual_return' :
+                                                           firstErrorField === 'minimum_investment' ? 'minimum_investment' :
+                                                           firstErrorField === 'funding_required' ? 'funding_required' :
+                                                           firstErrorField === 'total_value' ? 'total_value' :
+                                                           firstErrorField === 'companies_house_id' ? 'companiesHouseId' : firstErrorField)
               if (errorElement) {
                 errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
                 errorElement.focus()
@@ -1251,8 +1211,8 @@ export default {
           console.error('API Error Response:', result)
         }
       } catch (error) {
-        console.error('Error submitting property:', error)
-        alert('An error occurred while submitting the property. Please try again.')
+        console.error('Error updating property:', error)
+        alert('An error occurred while updating the property. Please try again.')
       } finally {
         this.loading = false
       }
@@ -1260,3 +1220,4 @@ export default {
   }
 }
 </script>
+

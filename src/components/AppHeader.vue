@@ -15,6 +15,7 @@
           <div class="flex items-center space-x-3">
             <router-link to="/auth/broker/login" class="text-white px-6 py-2 rounded-lg hover:opacity-90 transition-all font-semibold border-2" style="background-color: transparent; border-color: rgb(166, 133, 66); color: rgb(166, 133, 66);">Broker Login</router-link>
             <router-link to="/auth/investor/login" class="text-white px-6 py-2 rounded-lg hover:opacity-90 transition-all font-semibold" style="background-color: rgb(166, 133, 66);">Investor Login</router-link>
+            <router-link to="/auth/borrower/login" class="text-white px-6 py-2 rounded-lg hover:opacity-90 transition-all font-semibold" style="background-color: rgb(34, 197, 94);">Borrower Login</router-link>
           </div>
         </nav>
         
@@ -99,6 +100,14 @@
               style="background-color: rgb(166, 133, 66);"
             >
               Investor Login
+            </router-link>
+            <router-link 
+              to="/auth/borrower/login" 
+              @click="closeMobileMenu"
+              class="text-white px-6 py-3 rounded-lg hover:opacity-90 transition-all font-semibold text-center" 
+              style="background-color: rgb(34, 197, 94);"
+            >
+              Borrower Login
             </router-link>
           </nav>
 

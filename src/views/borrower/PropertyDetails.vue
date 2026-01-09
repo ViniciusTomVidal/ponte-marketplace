@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Header -->
-    <BrokerHeader :user-name="userName" />
+    <BorrowerHeader :user-name="userName" />
     
     <!-- Success Notification -->
     <SuccessNotification 
@@ -370,7 +370,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { api } from '@/services/api'
 import authService from '@/services/auth'
-import BrokerHeader from '@/components/BrokerHeader.vue'
+import BorrowerHeader from '@/components/BorrowerHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import SuccessNotification from '@/components/broker/SuccessNotification.vue'
 import StatusBadge from '@/components/broker/StatusBadge.vue'
@@ -379,9 +379,9 @@ import { usePropertyFormatters } from '@/composables/usePropertyFormatters'
 import { usePropertyImages } from '@/composables/usePropertyImages'
 
 export default {
-  name: 'BrokerPropertyDetails',
+  name: 'BorrowerPropertyDetails',
   components: {
-    BrokerHeader,
+    BorrowerHeader,
     AppFooter,
     SuccessNotification,
     StatusBadge
@@ -405,7 +405,7 @@ export default {
 
     // Get user name
     const userName = computed(() => {
-      return userData.value?.name || userData.value?.display_name || 'Broker'
+      return userData.value?.name || userData.value?.display_name || 'Borrower'
     })
     
     // Calculate sidebar top position based on header and action bar
@@ -482,18 +482,18 @@ export default {
       error.value = null
       
       try {
-        // Fetch property using broker-specific endpoint
-        const response = await api.getBrokerProperty(route.params.id)
+        // Fetch property using borrower-specific endpoint
+        const data = await api.getBorrowerProperty(route.params.id)
         
         // Handle different response structures
         let propertyData = null
-        if (response && response.data) {
-          propertyData = response.data
-        } else if (response && response.property) {
-          propertyData = response.property
-        } else if (response && !response.data && !response.property) {
+        if (data && data.property) {
+          propertyData = data.property
+        } else if (data && data.data) {
+          propertyData = data.data
+        } else if (data && !data.data && !data.property) {
           // Response might be the property object directly
-          propertyData = response
+          propertyData = data
         }
         
         if (propertyData) {
@@ -506,6 +506,11 @@ export default {
         error.value = err.message || 'Failed to load property details'
         console.error('Error fetching property:', err)
         property.value = null
+        
+        // Redirect to login if unauthorized
+        if (err.message === 'Unauthorized access' || err.message.includes('401') || err.message.includes('403')) {
+          router.push('/auth/borrower/login')
+        }
       } finally {
         loading.value = false
       }
@@ -513,7 +518,7 @@ export default {
 
     // Edit property
     const editProperty = () => {
-      router.push(`/broker/edit-property/${route.params.id}`)
+      router.push(`/borrower/edit-property/${route.params.id}`)
     }
 
     // View public page
