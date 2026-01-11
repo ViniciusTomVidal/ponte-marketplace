@@ -3,7 +3,7 @@
     <button 
       @click="toggleSort"
       :class="[
-        'px-4 py-2 text-sm border rounded-lg transition-colors flex items-center',
+        'px-4 py-2 text-sm border rounded-lg transition-colors flex items-center hover:cursor-pointer',
         showSortMenu ? 'bg-blue-50 border-blue-300 text-blue-700' : 'border-gray-300 hover:bg-gray-50'
       ]"
     >

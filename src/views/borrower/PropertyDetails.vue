@@ -20,7 +20,7 @@
           </p>
           <button 
             @click="editProperty" 
-            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm">
+            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 hover:cursor-pointer transition-colors font-medium text-sm">
             <i class="fas fa-edit mr-2"></i>
             Edit Property
           </button>
