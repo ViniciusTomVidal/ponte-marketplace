@@ -1161,9 +1161,9 @@ export default {
           formData.append('documents_file[title]', this.form.documents.title)
         }
         
-        // Add Schedule of Works file
+        // Add Schedule of Works file as part of documents_file
         if (this.form.scheduleOfWorksFile) {
-          formData.append('schedule_of_works_file', this.form.scheduleOfWorksFile)
+          formData.append('documents_file[schedule_of_works]', this.form.scheduleOfWorksFile)
         }
 
         // Log payload for debugging

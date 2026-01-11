@@ -835,17 +835,37 @@ export default {
           this.form.prospectus_url = propertyData.prospectus_url || ''
           this.form.exit_strategy_url = propertyData.exit_strategy_url || ''
           
-          // Schedule of Works (URL from backend, file will be set if user uploads new one)
-          // scheduleOfWorksFile is null by default, will be set if user uploads
-          this.form.scheduleOfWorksUrl = propertyData.schedule_of_works_url || null
-          
           // Load existing documents
-          if (propertyData.documents && Array.isArray(propertyData.documents)) {
-            const titleDoc = propertyData.documents.find(doc => doc.type === 'title' || doc.type === 'title_deed')
-            if (titleDoc && titleDoc.url) {
-              this.form.titleDeedUrl = titleDoc.url
-              this.form.titleDeedFileName = titleDoc.name || 'Title Deed'
+          let documentsArray = propertyData.documents
+          if (documentsArray) {
+            // Handle JSON string
+            if (typeof documentsArray === 'string') {
+              try {
+                documentsArray = JSON.parse(documentsArray)
+              } catch {
+                documentsArray = null
+              }
             }
+            
+            if (Array.isArray(documentsArray)) {
+              const titleDoc = documentsArray.find(doc => doc.type === 'title' || doc.type === 'title_deed')
+              if (titleDoc && titleDoc.url) {
+                this.form.titleDeedUrl = titleDoc.url
+                this.form.titleDeedFileName = titleDoc.name || 'Title Deed'
+              }
+              
+              // Load schedule_of_works from documents array
+              const scheduleDoc = documentsArray.find(doc => doc.type === 'schedule_of_works')
+              if (scheduleDoc && scheduleDoc.url) {
+                this.form.scheduleOfWorksUrl = scheduleDoc.url
+              }
+            }
+          }
+          
+          // Schedule of Works (also check schedule_of_works_url for backward compatibility)
+          // scheduleOfWorksFile is null by default, will be set if user uploads
+          if (!this.form.scheduleOfWorksUrl) {
+            this.form.scheduleOfWorksUrl = propertyData.schedule_of_works_url || null
           }
           
           // Development Plan (text field)
@@ -1085,29 +1105,34 @@ export default {
         }
         
         // Prepare documents array for JSON (convert to base64)
-        const documents = {}
+        // Backend expects documents as an array when sent as JSON
+        const documents = []
         if (this.form.documents.title) {
           const titleBase64 = await this.fileToBase64(this.form.documents.title)
-          documents.title = {
+          documents.push({
             data: titleBase64,
             name: this.form.documents.title.name,
-            type: this.form.documents.title.type
-          }
+            type: 'title',
+            mime_type: this.form.documents.title.type,
+            file_extension: this.form.documents.title.name.split('.').pop()
+          })
         }
         
         // Schedule of Works (file upload)
         if (this.form.scheduleOfWorksFile) {
           const scheduleBase64 = await this.fileToBase64(this.form.scheduleOfWorksFile)
-          documents.schedule_of_works = {
+          documents.push({
             data: scheduleBase64,
             name: this.form.scheduleOfWorksFile.name,
-            type: this.form.scheduleOfWorksFile.type
-          }
+            type: 'schedule_of_works',
+            mime_type: this.form.scheduleOfWorksFile.type,
+            file_extension: this.form.scheduleOfWorksFile.name.split('.').pop()
+          })
         }
         
         // Add documents to property data if any
-        if (Object.keys(documents).length > 0) {
-          propertyData.documents_file = documents
+        if (documents.length > 0) {
+          propertyData.documents = documents
         }
 
         // Log payload for debugging

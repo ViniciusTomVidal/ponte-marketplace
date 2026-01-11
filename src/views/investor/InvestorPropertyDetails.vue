@@ -10,24 +10,6 @@
       @close="showSuccessNotification = false"
     />
     
-    <!-- Action Bar -->
-    <div v-if="property && canEditProperty(property.status)" class="bg-blue-50 border-b border-blue-200">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-        <div class="flex items-center justify-between">
-          <p class="text-sm text-blue-800">
-            <i class="fas fa-info-circle mr-2"></i>
-            This property can be edited
-          </p>
-          <button 
-            @click="editProperty" 
-            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm">
-            <i class="fas fa-edit mr-2"></i>
-            Edit Property
-          </button>
-        </div>
-      </div>
-    </div>
-
     <!-- Loading State -->
     <div v-if="loading" class="min-h-screen flex items-center justify-center">
       <div class="text-center">
@@ -410,19 +392,17 @@ export default {
     const successMessage = ref('')
     
     // Composables
-    const { canEditProperty, getRejectionReason } = usePropertyStatus()
+    const { getRejectionReason } = usePropertyStatus()
     const { formatCurrency, formatPercentage, formatDate, getFundedPercentage, getPropertyImage, getImageUrl, parseKeyFeatures, parseMainRisks } = usePropertyFormatters()
     const { handleImageError } = usePropertyImages()
     
-    // Calculate sidebar top position based on header and action bar
+    // Calculate sidebar top position based on header
     const sidebarTop = computed(() => {
       // Header height: py-3 (12px) * 2 = 24px padding + ~56px content = ~80px total
       const headerHeight = 80
-      // Action bar height: py-3 (12px) * 2 = 24px padding + ~36px content = ~60px total
-      const actionBarHeight = property.value && canEditProperty(property.value.status) ? 60 : 0
       // Add margin for spacing
       const margin = 24
-      return headerHeight + actionBarHeight + margin
+      return headerHeight + margin
     })
 
     // Set main image
@@ -517,10 +497,6 @@ export default {
       }
     }
 
-    // Edit property
-    const editProperty = () => {
-      router.push(`/investor/edit-property/${route.params.id}`)
-    }
 
     // Download summary
     const downloadSummary = () => {
@@ -566,10 +542,8 @@ export default {
       formatCurrency,
       formatPercentage,
       formatDate,
-      canEditProperty,
       getRejectionReason,
       getFundedPercentage,
-      editProperty,
       downloadSummary,
       sidebarTop
     }

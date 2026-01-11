@@ -35,7 +35,7 @@
             Commissions
           </router-link>
           <button @click="exportData" 
-                  class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                  class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold hover:cursor-pointer">
             <i class="fas fa-download mr-2"></i>
             Export Data
           </button>
@@ -55,7 +55,7 @@
             <button 
               @click="showFilters = !showFilters"
               :class="[
-                'px-4 py-2 text-sm border rounded-lg transition-colors flex items-center',
+                'px-4 py-2 text-sm border rounded-lg transition-colors flex items-center hover:cursor-pointer',
                 showFilters || hasActiveFilters ? 'bg-blue-50 border-blue-300 text-blue-700' : 'border-gray-300 hover:bg-gray-50'
               ]"
             >
