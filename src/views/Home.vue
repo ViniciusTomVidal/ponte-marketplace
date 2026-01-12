@@ -27,7 +27,8 @@
     <!-- Stats Section -->
     <section class="bg-white py-16">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid md:grid-cols-4 gap-8">
+        <!-- Change grid-cols-4 when registered investors are added back -->
+        <div class="grid md:grid-cols-3 gap-8">
           <div class="bg-white rounded-lg shadow-lg p-8 text-center border border-gray-200">
             <div class="p-4 rounded-lg inline-block mb-4" style="background-color: rgb(245, 241, 232);">
               <i class="fas fa-home text-2xl" style="color: rgb(166, 133, 66);"></i>
@@ -35,13 +36,14 @@
             <p class="text-3xl font-bold text-gray-900 mb-2">{{ formatStatsNumber(dashboardData?.available_properties, 100) }}</p>
             <p class="text-gray-600">Available Properties</p>
           </div>
-          <div class="bg-white rounded-lg shadow-lg p-8 text-center border border-gray-200">
+          <!-- Registered Investors - Hidden for now -->
+          <!-- <div class="bg-white rounded-lg shadow-lg p-8 text-center border border-gray-200">
             <div class="p-4 rounded-lg inline-block mb-4" style="background-color: rgb(245, 241, 232);">
               <i class="fas fa-users text-2xl" style="color: rgb(166, 133, 66);"></i>
             </div>
             <p class="text-3xl font-bold text-gray-900 mb-2">{{ formatStatsNumber(dashboardData?.registered_investors, 100) }}</p>
             <p class="text-gray-600">Registered Investors</p>
-          </div>
+          </div> -->
           <div class="bg-white rounded-lg shadow-lg p-8 text-center border border-gray-200">
             <div class="p-4 rounded-lg inline-block mb-4" style="background-color: rgb(245, 241, 232);">
               <i class="fas fa-pound-sign text-2xl" style="color: rgb(166, 133, 66);"></i>

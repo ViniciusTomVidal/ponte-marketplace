@@ -198,20 +198,24 @@
 
             <div>
               <label for="nearestTube" class="block text-sm font-medium text-gray-700 mb-2">
-                Nearest Tube Station
+                Nearest Train or Underground Station
               </label>
               <input type="text" id="nearestTube" v-model="form.nearest_tube"
                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     placeholder="Tube station name">
+                     placeholder="Station name">
             </div>
 
             <div>
               <label for="nearestTubeDistance" class="block text-sm font-medium text-gray-700 mb-2">
-                Tube Distance
+                Distance to nearest station
               </label>
-              <input type="text" id="nearestTubeDistance" v-model="form.nearest_tube_distance"
+              <input type="text" id="nearestTubeDistance" 
+                     :value="formatDistanceField('nearest_tube_distance')"
+                     @input="formatDistanceInput('nearest_tube_distance', $event)"
+                     @keydown="handleDistanceKeydown('nearest_tube_distance', $event)"
+                     @blur="formatDistanceBlur('nearest_tube_distance')"
                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     placeholder="e.g., 0.5 miles">
+                     placeholder="0.5 miles">
             </div>
 
             <div>
@@ -227,9 +231,12 @@
               <label for="airportDistance" class="block text-sm font-medium text-gray-700 mb-2">
                 Airport Distance
               </label>
-              <input type="text" id="airportDistance" v-model="form.airport_distance"
+              <input type="text" id="airportDistance" 
+                     :value="formatDistanceField('airport_distance')"
+                     @input="formatDistanceInput('airport_distance', $event)"
+                     @blur="formatDistanceBlur('airport_distance')"
                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     placeholder="e.g., 10 miles">
+                     placeholder="10 miles">
             </div>
           </div>
         </div>
@@ -245,10 +252,12 @@
               </label>
               <div class="relative">
                 <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-                <input type="number" id="totalValue" v-model.number="form.total_value" 
-                       @input="onClearFieldError('total_value')"
+                <input type="text" id="totalValue" 
+                       :value="form.total_value !== null && form.total_value !== '' ? parseFloat(form.total_value).toFixed(2) : ''"
+                       @input="formatCurrencyInput('total_value', $event)"
+                       @blur="formatCurrencyField('total_value')"
                        :class="['w-full pl-8 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.total_value ? 'border-red-500' : 'border-gray-300']"
-                       step="0.01" min="0" placeholder="850000">
+                       placeholder="850000.00">
               </div>
               <p v-if="formErrors.total_value" class="text-red-500 text-xs mt-1">{{ formErrors.total_value }}</p>
             </div>
@@ -259,27 +268,17 @@
               </label>
               <div class="relative">
                 <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-                <input type="number" id="fundingRequired" v-model.number="form.funding_required"
-                       @input="onClearFieldError('funding_required')"
+                <input type="text" id="fundingRequired" 
+                       :value="form.funding_required !== null && form.funding_required !== '' ? parseFloat(form.funding_required).toFixed(2) : ''"
+                       @input="formatCurrencyInput('funding_required', $event)"
+                       @blur="formatCurrencyField('funding_required')"
                        :class="['w-full pl-8 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.funding_required ? 'border-red-500' : 'border-gray-300']"
-                       step="0.01" min="0" placeholder="500000">
+                       placeholder="500000.00">
               </div>
               <p v-if="formErrors.funding_required" class="text-red-500 text-xs mt-1">{{ formErrors.funding_required }}</p>
             </div>
 
-            <div>
-              <label for="fundingRaised" class="block text-sm font-medium text-gray-700 mb-2">
-                Funding Raised
-              </label>
-              <div class="relative">
-                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-                <input type="number" id="fundingRaised" v-model.number="form.funding_raised" step="0.01" min="0"
-                       class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                       placeholder="0">
-              </div>
-            </div>
-
-            <!-- Admin-only fields: Minimum Investment, Expected Annual Return, Investment Term, Management Fee Rate, Loan to Value, Loan Term -->
+            <!-- Admin-only fields: Minimum Investment, Expected Annual Return, Investment Term, Management Fee Rate, Loan to Value, Loan Term, Funding Raised -->
             <!-- These fields are hidden from broker view and can only be edited by administrators in WordPress -->
           </div>
 
@@ -293,9 +292,12 @@
                 </label>
                 <div class="relative">
                   <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-                  <input type="number" id="gdvValue" v-model.number="form.gdv_value" step="0.01" min="0"
+                  <input type="text" id="gdvValue" 
+                         :value="form.gdv_value !== null && form.gdv_value !== '' ? parseFloat(form.gdv_value).toFixed(2) : ''"
+                         @input="formatCurrencyInput('gdv_value', $event)"
+                         @blur="formatCurrencyField('gdv_value')"
                          class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                         placeholder="1000000">
+                         placeholder="1000000.00">
                 </div>
               </div>
 
@@ -305,9 +307,12 @@
                 </label>
                 <div class="relative">
                   <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-                  <input type="number" id="constructionCosts" v-model.number="form.construction_costs" step="0.01" min="0"
+                  <input type="text" id="constructionCosts" 
+                         :value="form.construction_costs !== null && form.construction_costs !== '' ? parseFloat(form.construction_costs).toFixed(2) : ''"
+                         @input="formatCurrencyInput('construction_costs', $event)"
+                         @blur="formatCurrencyField('construction_costs')"
                          class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                         placeholder="500000">
+                         placeholder="500000.00">
                 </div>
               </div>
             </div>
@@ -591,8 +596,7 @@ export default {
         // Financial Information
         total_value: null,
         funding_required: null,
-        funding_raised: 0,
-        // Admin-only fields removed (minimum_investment, expected_annual_return, investment_term_years, management_fee_rate, loan_to_value, loan_term)
+        // Admin-only fields removed (funding_raised, minimum_investment, expected_annual_return, investment_term_years, management_fee_rate, loan_to_value, loan_term)
         gdv_value: null,
         construction_costs: null,
         
@@ -698,6 +702,208 @@ export default {
     onClearFieldError(fieldName) {
       this.clearFieldError(this.formErrors, fieldName)
     },
+    // Format currency field to 2 decimal places
+    formatCurrencyField(fieldName) {
+      if (this.form[fieldName] !== null && this.form[fieldName] !== '' && !isNaN(this.form[fieldName])) {
+        this.form[fieldName] = parseFloat(parseFloat(this.form[fieldName]).toFixed(2))
+      }
+    },
+    // Format distance field to show value with "miles"
+    formatDistanceField(fieldName) {
+      if (this.form[fieldName] !== null && this.form[fieldName] !== '' && this.form[fieldName] !== undefined) {
+        const numValue = parseFloat(this.form[fieldName])
+        if (!isNaN(numValue) && numValue > 0) {
+          return `${numValue.toFixed(2)} miles`
+        }
+        return ''
+      }
+      return ''
+    },
+    // Format distance input (while typing) - automatic decimal formatting like currency
+    formatDistanceInput(fieldName, event) {
+      // Get the raw input value
+      let rawValue = event.target.value
+      
+      // Remove "miles" and all non-numeric characters
+      let value = rawValue.replace(/\s*miles\s*/gi, '').replace(/[^\d]/g, '')
+      
+      // If empty or only spaces, clear the field completely
+      if (value === '' || value.trim() === '') {
+        this.form[fieldName] = null
+        event.target.value = ''
+        return
+      }
+      
+      // Convert to number and divide by 100 to get the actual value
+      // This treats the input as hundredths (like cents/pence)
+      const numValue = parseFloat(value) / 100
+      
+      // If value is 0, clear the field
+      if (numValue === 0 || isNaN(numValue)) {
+        this.form[fieldName] = null
+        event.target.value = ''
+        return
+      }
+      
+      // Update the form value
+      this.form[fieldName] = numValue
+      
+      // Store cursor position before formatting
+      const cursorPos = event.target.selectionStart
+      
+      // Format to show with 2 decimal places and "miles"
+      const formattedValue = `${numValue.toFixed(2)} miles`
+      event.target.value = formattedValue
+      
+      // Try to maintain cursor position, but if at end, keep at end
+      this.$nextTick(() => {
+        if (cursorPos >= rawValue.length - 6) { // If cursor was near the end (before "miles")
+          event.target.setSelectionRange(formattedValue.length, formattedValue.length)
+        } else {
+          // Calculate new cursor position based on number of digits
+          const digitsBefore = rawValue.replace(/\s*miles\s*/gi, '').replace(/[^\d]/g, '').length
+          const newPos = Math.min(digitsBefore + 1, formattedValue.length - 6) // Position before "miles"
+          event.target.setSelectionRange(newPos, newPos)
+        }
+      })
+    },
+    // Handle keydown for distance fields to allow deletion
+    handleDistanceKeydown(fieldName, event) {
+      const input = event.target
+      const value = input.value
+      const cursorPos = input.selectionStart
+      const selectionEnd = input.selectionEnd
+      
+      // Check if cursor is in the "miles" part (last 6 characters including space)
+      const milesPartStart = value.length - 6 // " miles" is 6 chars
+      const isInMilesPart = cursorPos >= milesPartStart || selectionEnd >= milesPartStart
+      
+      // Handle backspace when cursor is in "miles" part
+      if (event.key === 'Backspace' && isInMilesPart && !event.ctrlKey && !event.metaKey) {
+        event.preventDefault()
+        // Get current numeric value
+        const numericValue = value.replace(/\s*miles\s*/gi, '').replace(/[^\d]/g, '')
+        if (numericValue.length > 0) {
+          // Remove last digit
+          const newNumericValue = numericValue.slice(0, -1)
+          if (newNumericValue === '') {
+            this.form[fieldName] = null
+            input.value = ''
+          } else {
+            const numValue = parseFloat(newNumericValue) / 100
+            // If value is 0, clear the field
+            if (numValue === 0 || isNaN(numValue)) {
+              this.form[fieldName] = null
+              input.value = ''
+            } else {
+              this.form[fieldName] = numValue
+              input.value = `${numValue.toFixed(2)} miles`
+              // Position cursor at end of number part
+              this.$nextTick(() => {
+                const newValue = input.value
+                const numPartEnd = newValue.length - 6
+                input.setSelectionRange(numPartEnd, numPartEnd)
+              })
+            }
+          }
+        }
+        return false
+      }
+      
+      // Handle delete when cursor is in "miles" part
+      if (event.key === 'Delete' && isInMilesPart && !event.ctrlKey && !event.metaKey) {
+        event.preventDefault()
+        // Same logic as backspace
+        const numericValue = value.replace(/\s*miles\s*/gi, '').replace(/[^\d]/g, '')
+        if (numericValue.length > 0) {
+          const newNumericValue = numericValue.slice(0, -1)
+          if (newNumericValue === '') {
+            this.form[fieldName] = null
+            input.value = ''
+          } else {
+            const numValue = parseFloat(newNumericValue) / 100
+            // If value is 0, clear the field
+            if (numValue === 0 || isNaN(numValue)) {
+              this.form[fieldName] = null
+              input.value = ''
+            } else {
+              this.form[fieldName] = numValue
+              input.value = `${numValue.toFixed(2)} miles`
+              this.$nextTick(() => {
+                const newValue = input.value
+                const numPartEnd = newValue.length - 6
+                input.setSelectionRange(numPartEnd, numPartEnd)
+              })
+            }
+          }
+        }
+        return false
+      }
+      
+      // Allow all navigation and editing keys
+      const allowedKeys = [
+        'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 
+        'Tab', 'Home', 'End', 'Enter', 'Escape',
+        'Control', 'Meta', 'Alt', 'Shift',
+        'a', 'c', 'v', 'x' // Allow select all, copy, paste, cut
+      ]
+      
+      // Allow Ctrl/Cmd combinations
+      if (event.ctrlKey || event.metaKey) {
+        return true
+      }
+      
+      // Allow navigation keys
+      if (allowedKeys.includes(event.key)) {
+        return true
+      }
+      
+      // Allow numeric keys
+      if (/^\d$/.test(event.key)) {
+        return true
+      }
+      
+      // Block everything else
+      event.preventDefault()
+      return false
+    },
+    // Format distance on blur
+    formatDistanceBlur(fieldName) {
+      if (this.form[fieldName] !== null && this.form[fieldName] !== '' && !isNaN(this.form[fieldName])) {
+        const numValue = parseFloat(parseFloat(this.form[fieldName]).toFixed(2))
+        // If value is 0, clear the field
+        if (numValue === 0) {
+          this.form[fieldName] = null
+        } else {
+          this.form[fieldName] = numValue
+        }
+      }
+    },
+    // Format currency field on input (while typing) - automatic decimal formatting
+    formatCurrencyInput(fieldName, event) {
+      // Clear error first
+      this.onClearFieldError(fieldName)
+      
+      // Get the input value and remove all non-numeric characters
+      let value = event.target.value.replace(/[^\d]/g, '')
+      
+      // If empty, clear the field
+      if (value === '') {
+        this.form[fieldName] = null
+        event.target.value = ''
+        return
+      }
+      
+      // Convert to number and divide by 100 to get the actual value
+      // This treats the input as cents/pence
+      const numValue = parseFloat(value) / 100
+      
+      // Update the form value
+      this.form[fieldName] = numValue
+      
+      // Format to show with 2 decimal places
+      event.target.value = numValue.toFixed(2)
+    },
     // Validate Companies House ID via API
     async validateCompaniesHouseId() {
       const companiesHouseId = this.form.companies_house_id?.trim()
@@ -782,8 +988,7 @@ export default {
           // Financial Information
           this.form.total_value = propertyData.total_value || null
           this.form.funding_required = propertyData.funding_required || null
-          this.form.funding_raised = propertyData.funding_raised || 0
-          // Admin-only fields removed from form
+          // Admin-only fields removed from form (funding_raised)
           this.form.management_fee_rate = propertyData.management_fee_rate || 1.50
           this.form.loan_to_value = propertyData.loan_to_value || null
           this.form.loan_term = propertyData.loan_term || null
@@ -992,19 +1197,16 @@ export default {
         if (this.form.nearest_tube && this.form.nearest_tube.trim() !== '') {
           propertyData.nearest_tube = this.form.nearest_tube.trim()
         }
-        if (this.form.nearest_tube_distance && this.form.nearest_tube_distance.trim() !== '') {
-          propertyData.nearest_tube_distance = this.form.nearest_tube_distance.trim()
+        if (this.form.nearest_tube_distance !== null && this.form.nearest_tube_distance !== '' && !isNaN(this.form.nearest_tube_distance)) {
+          propertyData.nearest_tube_distance = `${parseFloat(this.form.nearest_tube_distance).toFixed(2)} miles`
         }
         if (this.form.nearest_airport && this.form.nearest_airport.trim() !== '') {
           propertyData.nearest_airport = this.form.nearest_airport.trim()
         }
-        if (this.form.airport_distance && this.form.airport_distance.trim() !== '') {
-          propertyData.airport_distance = this.form.airport_distance.trim()
+        if (this.form.airport_distance !== null && this.form.airport_distance !== '' && !isNaN(this.form.airport_distance)) {
+          propertyData.airport_distance = `${parseFloat(this.form.airport_distance).toFixed(2)} miles`
         }
-        if (this.form.funding_raised !== null && this.form.funding_raised !== '' && this.form.funding_raised !== 0 && !isNaN(this.form.funding_raised)) {
-          propertyData.funding_raised = parseFloat(this.form.funding_raised)
-        }
-        // Admin-only fields removed (loan_to_value, loan_term, management_fee_rate)
+        // Admin-only fields removed (funding_raised, loan_to_value, loan_term, management_fee_rate)
         if (this.form.gdv_value !== null && this.form.gdv_value !== '' && !isNaN(this.form.gdv_value)) {
           propertyData.gdv_value = parseFloat(this.form.gdv_value)
         }
