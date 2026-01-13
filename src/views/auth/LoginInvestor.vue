@@ -169,16 +169,17 @@ export default {
 
         console.log('Login successful:', data);
         
+        // Código removido: redirect para WordPress
         // Se for investidor de shares, redirecionar para WordPress
-        if (data.wordpress_login_url) {
-          // Limpar autenticação do marketplace antes de redirecionar
-          // Investidores de shares não devem ficar logados no marketplace
-          authService.clearAuth();
-          
-          // Redirecionar para WordPress (usuário será autenticado automaticamente via SSO)
-          window.location.href = data.wordpress_login_url;
-          return; // Não continuar com o fluxo normal
-        }
+        // if (data.wordpress_login_url) {
+        //   // Limpar autenticação do marketplace antes de redirecionar
+        //   // Investidores de shares não devem ficar logados no marketplace
+        //   authService.clearAuth();
+        //   
+        //   // Redirecionar para WordPress (usuário será autenticado automaticamente via SSO)
+        //   window.location.href = data.wordpress_login_url;
+        //   return; // Não continuar com o fluxo normal
+        // }
         
         // Check if user needs to complete questionnaire or KYC
         if (data.status && data.status.redirect_to) {
