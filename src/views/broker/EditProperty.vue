@@ -510,6 +510,13 @@
         </div>
       </form>
     </main>
+
+    <!-- Draft Modal -->
+    <DraftModal 
+      :show="showDraftModal"
+      @continue="handleDraftContinue"
+      @cancel="handleDraftCancel"
+    />
   </div>
 </template>
 
@@ -524,8 +531,10 @@ import BrokerHeader from '@/components/BrokerHeader.vue'
 import LoadingOverlay from '@/components/broker/LoadingOverlay.vue'
 import ImageUpload from '@/components/broker/ImageUpload.vue'
 import DocumentUpload from '@/components/broker/DocumentUpload.vue'
+import DraftModal from '@/components/DraftModal.vue'
 import { usePropertyValidation } from '@/composables/usePropertyValidation'
 import { usePropertyImages } from '@/composables/usePropertyImages'
+import { usePropertyDraft } from '@/composables/usePropertyDraft'
 
 export default {
   name: 'EditProperty',
@@ -533,7 +542,8 @@ export default {
     BrokerHeader,
     LoadingOverlay,
     ImageUpload,
-    DocumentUpload
+    DocumentUpload,
+    DraftModal
   },
   setup() {
     const route = useRoute()
@@ -573,6 +583,10 @@ export default {
       formErrors: {},
       stationAutocomplete: null,
       airportAutocomplete: null,
+      draftKey: '',
+      isRestoringDraft: false,
+      saveDraftTimeout: null,
+      showDraftModal: false,
       form: {
         // Basic Information
         title: '',
@@ -647,14 +661,46 @@ export default {
       }
     }
   },
+  watch: {
+    // Salvar rascunho automaticamente quando o formulário mudar
+    form: {
+      handler() {
+        // Não salvar se estiver restaurando, se o modal estiver aberto ou se não houver draftKey
+        if (this.isRestoringDraft || !this.draftKey || this.showDraftModal) return
+        
+        // Debounce: salvar após 1 segundo de inatividade
+        clearTimeout(this.saveDraftTimeout)
+        this.saveDraftTimeout = setTimeout(() => {
+          usePropertyDraft.saveDraft(this.draftKey, this.form, this.isRestoringDraft)
+        }, 1000)
+      },
+      deep: true
+    }
+  },
   mounted() {
     // Load property data when component mounts
     if (this.propertyId) {
+      this.draftKey = `property_draft_broker_edit_${this.propertyId}`
       this.loadProperty()
     } else {
       alert('Property ID is required')
       this.router.push('/broker/dashboard')
     }
+    
+    // Verificar se há rascunho salvo após carregar os dados da propriedade
+    // Aguardar um pouco para garantir que os dados foram carregados
+    setTimeout(() => {
+      if (this.draftKey) {
+        const hasDraft = usePropertyDraft.hasDraft(this.draftKey)
+        
+        if (hasDraft) {
+          // Mostrar modal imediatamente ao entrar na página
+          setTimeout(() => {
+            this.showDraftModal = true
+          }, 100)
+        }
+      }
+    }, 1500)
     
     // Initialize Google Places autocomplete after a short delay to ensure DOM is ready
     this.$nextTick(() => {
@@ -664,6 +710,11 @@ export default {
     })
   },
   beforeUnmount() {
+    // Limpar timeout ao desmontar
+    if (this.saveDraftTimeout) {
+      clearTimeout(this.saveDraftTimeout)
+    }
+    
     // Clean up autocomplete instances if needed
     if (this.stationAutocomplete && this.stationAutocomplete.destroy) {
       this.stationAutocomplete.destroy()
@@ -814,6 +865,20 @@ export default {
           event.target.setSelectionRange(newPos, newPos)
         }
       })
+    },
+    // Handle draft modal actions
+    handleDraftContinue() {
+      this.showDraftModal = false
+      // Carregar o rascunho
+      this.isRestoringDraft = true
+      usePropertyDraft.loadDraft(this.draftKey, this.form)
+      this.isRestoringDraft = false
+      console.log('Draft restored')
+    },
+    handleDraftCancel() {
+      this.showDraftModal = false
+      // Limpar o rascunho se o usuário não quiser restaurar
+      usePropertyDraft.clearDraft(this.draftKey)
     },
     // Handle keydown for distance fields to allow deletion
     handleDistanceKeydown(fieldName, event) {
@@ -1423,6 +1488,11 @@ export default {
         const result = await response.json()
 
         if (response.ok && result.success) {
+          // Limpar rascunho após envio bem-sucedido
+          if (this.draftKey) {
+            usePropertyDraft.clearDraft(this.draftKey)
+          }
+          
           // Redirect to property details with success state
           this.router.push({
             path: `/broker/property/${this.propertyId}`,

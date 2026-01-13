@@ -588,6 +588,13 @@
         </div>
       </form>
     </main>
+
+    <!-- Draft Modal -->
+    <DraftModal 
+      :show="showDraftModal"
+      @continue="handleDraftContinue"
+      @cancel="handleDraftCancel"
+    />
   </div>
 </template>
 
@@ -601,8 +608,10 @@ import BorrowerHeader from '@/components/BorrowerHeader.vue'
 import LoadingOverlay from '@/components/broker/LoadingOverlay.vue'
 import ImageUpload from '@/components/broker/ImageUpload.vue'
 import DocumentUpload from '@/components/broker/DocumentUpload.vue'
+import DraftModal from '@/components/DraftModal.vue'
 import { usePropertyValidation } from '@/composables/usePropertyValidation'
 import { usePropertyImages } from '@/composables/usePropertyImages'
+import { usePropertyDraft } from '@/composables/usePropertyDraft'
 
 export default {
   name: 'AddProperty',
@@ -610,7 +619,8 @@ export default {
     BorrowerHeader,
     LoadingOverlay,
     ImageUpload,
-    DocumentUpload
+    DocumentUpload,
+    DraftModal
   },
   setup() {
     const router = useRouter()
@@ -642,6 +652,10 @@ export default {
       formErrors: {},
       stationAutocomplete: null,
       airportAutocomplete: null,
+      draftKey: 'property_draft_borrower_add',
+      isRestoringDraft: false,
+      saveDraftTimeout: null,
+      showDraftModal: false,
       form: {
         // Basic Information
         title: '',
@@ -711,11 +725,43 @@ export default {
       }
     }
   },
+  watch: {
+    // Salvar rascunho automaticamente quando o formulário mudar
+    form: {
+      handler() {
+        // Não salvar se estiver restaurando ou se o modal estiver aberto
+        if (this.isRestoringDraft || this.showDraftModal) return
+        
+        // Debounce: salvar após 1 segundo de inatividade
+        clearTimeout(this.saveDraftTimeout)
+        this.saveDraftTimeout = setTimeout(() => {
+          usePropertyDraft.saveDraft(this.draftKey, this.form, this.isRestoringDraft)
+        }, 1000)
+      },
+      deep: true
+    }
+  },
   mounted() {
-    // Initialize Google Places autocomplete for station and airport
-    this.initLocationAutocomplete()
+    // Verificar se há rascunho salvo ANTES de carregar
+    const hasDraft = usePropertyDraft.hasDraft(this.draftKey)
+    
+    if (hasDraft) {
+      // Mostrar modal imediatamente ao entrar na página
+      // Usar setTimeout para garantir que o DOM está totalmente renderizado
+      setTimeout(() => {
+        this.showDraftModal = true
+      }, 100)
+    } else {
+      // Initialize Google Places autocomplete for station and airport
+      this.initLocationAutocomplete()
+    }
   },
   beforeUnmount() {
+    // Limpar timeout ao desmontar
+    if (this.saveDraftTimeout) {
+      clearTimeout(this.saveDraftTimeout)
+    }
+    
     // Clean up autocomplete instances if needed
     if (this.stationAutocomplete && this.stationAutocomplete.destroy) {
       this.stationAutocomplete.destroy()
@@ -867,6 +913,28 @@ export default {
           const newPos = Math.min(digitsBefore + 1, formattedValue.length - 6) // Position before "miles"
           event.target.setSelectionRange(newPos, newPos)
         }
+      })
+    },
+    // Handle draft modal actions
+    handleDraftContinue() {
+      this.showDraftModal = false
+      // Carregar o rascunho
+      this.isRestoringDraft = true
+      usePropertyDraft.loadDraft(this.draftKey, this.form)
+      this.isRestoringDraft = false
+      console.log('Draft restored')
+      // Initialize Google Places autocomplete for station and airport
+      this.$nextTick(() => {
+        this.initLocationAutocomplete()
+      })
+    },
+    handleDraftCancel() {
+      this.showDraftModal = false
+      // Limpar o rascunho se o usuário não quiser restaurar
+      usePropertyDraft.clearDraft(this.draftKey)
+      // Initialize Google Places autocomplete for station and airport
+      this.$nextTick(() => {
+        this.initLocationAutocomplete()
       })
     },
     // Handle keydown for distance fields to allow deletion
@@ -1443,6 +1511,9 @@ export default {
         const result = await response.json()
 
         if (response.ok && result.success) {
+          // Limpar rascunho após envio bem-sucedido
+          usePropertyDraft.clearDraft(this.draftKey)
+          
           // Redirect to dashboard with success state
           this.router.push({
             path: '/borrower/dashboard',
