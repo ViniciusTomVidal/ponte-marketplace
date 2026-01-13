@@ -284,9 +284,9 @@
               <label for="nearestTube" class="block text-sm font-medium text-gray-700 mb-2">
                 Nearest Train or Underground Station
               </label>
-              <input type="text" id="nearestTube" v-model="form.nearest_tube"
+              <input type="text" id="nearestTube" ref="nearestTubeInput" v-model="form.nearest_tube"
                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     placeholder="Station name">
+                     placeholder="Start typing station name...">
             </div>
 
             <div>
@@ -306,9 +306,9 @@
               <label for="nearestAirport" class="block text-sm font-medium text-gray-700 mb-2">
                 Nearest Airport
               </label>
-              <input type="text" id="nearestAirport" v-model="form.nearest_airport"
+              <input type="text" id="nearestAirport" ref="nearestAirportInput" v-model="form.nearest_airport"
                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     placeholder="Airport name">
+                     placeholder="Start typing airport name...">
             </div>
 
             <div>
@@ -592,10 +592,11 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import authService from '@/services/auth'
 import { validateCompaniesHouseId } from '@/services/companies'
+import { initStationAutocomplete, initAirportAutocomplete } from '@/services/googlePlaces'
 import BorrowerHeader from '@/components/BorrowerHeader.vue'
 import LoadingOverlay from '@/components/broker/LoadingOverlay.vue'
 import ImageUpload from '@/components/broker/ImageUpload.vue'
@@ -639,6 +640,8 @@ export default {
     return {
       loading: false,
       formErrors: {},
+      stationAutocomplete: null,
+      airportAutocomplete: null,
       form: {
         // Basic Information
         title: '',
@@ -708,7 +711,49 @@ export default {
       }
     }
   },
+  mounted() {
+    // Initialize Google Places autocomplete for station and airport
+    this.initLocationAutocomplete()
+  },
+  beforeUnmount() {
+    // Clean up autocomplete instances if needed
+    if (this.stationAutocomplete && this.stationAutocomplete.destroy) {
+      this.stationAutocomplete.destroy()
+    }
+    if (this.airportAutocomplete && this.airportAutocomplete.destroy) {
+      this.airportAutocomplete.destroy()
+    }
+  },
   methods: {
+    async initLocationAutocomplete() {
+      try {
+        // Initialize station autocomplete
+        if (this.$refs.nearestTubeInput) {
+          this.stationAutocomplete = await initStationAutocomplete(
+            this.$refs.nearestTubeInput,
+            (place) => {
+              if (place && place.name) {
+                this.form.nearest_tube = place.name
+              }
+            }
+          )
+        }
+
+        // Initialize airport autocomplete
+        if (this.$refs.nearestAirportInput) {
+          this.airportAutocomplete = await initAirportAutocomplete(
+            this.$refs.nearestAirportInput,
+            (place) => {
+              if (place && place.name) {
+                this.form.nearest_airport = place.name
+              }
+            }
+          )
+        }
+      } catch (error) {
+        console.error('Error initializing Google Places autocomplete:', error)
+      }
+    },
     onMainImageChange(file) {
       if (!file) return
       
