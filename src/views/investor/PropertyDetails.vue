@@ -36,8 +36,8 @@
                 @error="handleImageError"
                 @click="handleImage"
               >
-              <div class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                {{ property.status_badge_text || 'Available for Investment' }}
+              <div :class="['absolute top-4 right-4 text-white px-3 py-1 rounded-full text-sm font-semibold', statusBadgeClass]">
+                {{ statusText }}
               </div>
             </div>
             <div class="p-6">
@@ -272,7 +272,13 @@
         <div class="lg:col-span-1">
           <div class="bg-white rounded-lg shadow-lg p-6 sticky top-8">
             <h3 class="text-xl font-semibold text-gray-900 mb-4">Invest Now</h3>
-            <div class="space-y-4 mb-6">
+            <div v-if="isFunded" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <div class="flex items-start">
+                <i class="fas fa-info-circle text-blue-500 mt-0.5 mr-2"></i>
+                <p class="text-sm text-blue-700">This property has been fully funded and is no longer accepting investments.</p>
+              </div>
+            </div>
+            <div v-if="!isFunded" class="space-y-4 mb-6">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Investment Amount</label>
                 <div class="relative">
@@ -308,6 +314,7 @@
               </div>
             </div>
             <button
+              v-if="!isFunded"
               @click="handleInvestNow"
               :disabled="!!error.investment_amount || !isValidInvestment"
               class="w-full text-white py-3 px-4 rounded-lg transition-colors font-semibold text-lg mb-4 block text-center disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer hover:opacity-95"
@@ -354,6 +361,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useProperties } from '@/composables/useProperties'
+import { usePropertyStatus } from '@/composables/usePropertyStatus'
 import { useDocumentTitle } from '@/composables/useDocumentTitle.js'
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
@@ -368,6 +376,7 @@ export default {
     const route = useRoute()
     const router = useRouter()
     const { getPropertyById, formatCurrency, formatPercentage, fundedPercentage } = useProperties()
+    const { getStatusText, getStatusBadgeClass } = usePropertyStatus()
     
     const property = ref(null)
     const loading = ref(true)
@@ -479,8 +488,27 @@ export default {
       }
     }
 
+    // Check if property is funded
+    const isFunded = computed(() => {
+      if (!property.value) return false
+      return property.value.status === 'funded' || 
+             (parseFloat(property.value.funding_raised || 0) >= parseFloat(property.value.funding_required || 0))
+    })
+
+    // Get status text for badge
+    const statusText = computed(() => {
+      if (!property.value) return 'Available for Investment'
+      return getStatusText(property.value.status)
+    })
+
+    // Get status badge class
+    const statusBadgeClass = computed(() => {
+      if (!property.value) return 'bg-green-500'
+      return getStatusBadgeClass(property.value.status)
+    })
+
     const isValidInvestment = computed(() => {
-      if (!property.value || !investmentAmount.value) return false
+      if (!property.value || !investmentAmount.value || isFunded.value) return false
       const amount = parseFloat(investmentAmount.value.toString().replace(/[£,]/g, ''))
       if (isNaN(amount) || amount <= 0) return false
       const min = parseFloat(property.value.minimum_investment)
@@ -510,6 +538,12 @@ export default {
     const validateInvestmentAmount = () => {
       if (!investmentAmount.value || !property.value) {
         error.value.investment_amount = ''
+        return
+      }
+
+      // Check if property is funded
+      if (isFunded.value) {
+        error.value.investment_amount = 'This property has been fully funded and is no longer accepting investments'
         return
       }
 
@@ -601,7 +635,10 @@ export default {
       calculateMonthlyIncome,
       calculateSharePercentage,
       handleInvestNow,
-      shareOnWhatsApp
+      shareOnWhatsApp,
+      isFunded,
+      statusText,
+      statusBadgeClass
     }
   }
 }
