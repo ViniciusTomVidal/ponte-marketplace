@@ -31,6 +31,7 @@ import OrderDetails from "@/views/investor/OrderDetails.vue";
 import PaymentConfirmed from "@/views/investor/PaymentConfirmed.vue";
 import PaymentCancelled from "@/views/investor/PaymentCancelled.vue";
 import InvestorPropertyDetails from "@/views/investor/InvestorPropertyDetails.vue";
+import SSOCallback from "@/views/auth/SSOCallback.vue";
 
 const routes = [
     {
@@ -99,6 +100,12 @@ const routes = [
         name: 'KycStatus',
         component: KycStatus,
         meta: { title: 'KYC Status - Ponte Finance' }
+    },
+    {
+        path: '/sso/callback',
+        name: 'SSOCallback',
+        component: SSOCallback,
+        meta: { title: 'SSO Authentication - Ponte Finance' }
     },
     // Investor routes
     {
