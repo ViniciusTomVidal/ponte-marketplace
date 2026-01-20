@@ -112,6 +112,15 @@
                 <i class="fas fa-check-circle mr-1"></i>Companies House ID validated. Please fill in the officers and PSCs information below.
               </p>
             </div>
+
+            <div>
+              <label for="titleNumber" class="block text-sm font-medium text-gray-700 mb-2">
+                Title Number
+              </label>
+              <input type="text" id="titleNumber" v-model="form.title_number"
+                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                     placeholder="e.g., NGL123456">
+            </div>
           </div>
           
           <!-- Officers and PSCs Information -->
@@ -595,6 +604,103 @@
       @continue="handleDraftContinue"
       @cancel="handleDraftCancel"
     />
+
+    <!-- OCR Extraction Modal -->
+    <div v-if="showOcrModal" class="fixed inset-0 z-50 overflow-y-auto">
+      <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+        <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="closeOcrModal"></div>
+        
+        <div class="relative inline-block w-full max-w-lg p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+          <!-- Loading State -->
+          <div v-if="ocrLoading" class="text-center py-8">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+            <p class="text-gray-600">Extracting information from document...</p>
+          </div>
+          
+          <!-- Results State -->
+          <div v-else-if="ocrResults">
+            <div class="flex items-center mb-4">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center mr-3" 
+                   :class="ocrHasDiscrepancy ? 'bg-yellow-100' : 'bg-green-100'">
+                <i :class="ocrHasDiscrepancy ? 'fas fa-exclamation-triangle text-yellow-600' : 'fas fa-check text-green-600'" class="text-lg"></i>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-900">
+                {{ ocrHasDiscrepancy ? 'Document Data Discrepancy' : 'Title Number Extracted' }}
+              </h3>
+            </div>
+            
+            <p class="text-sm text-gray-600 mb-6">
+              {{ ocrHasDiscrepancy 
+                ? 'The extracted Title Number differs from what you entered. Please review the information below.'
+                : 'The Title Number was extracted from your Title Deed document.' }}
+            </p>
+            
+            <!-- Title Number -->
+            <div class="mb-6 p-4 rounded-lg" :class="getFieldStatusClass('title_number')">
+              <div class="flex items-center justify-between mb-2">
+                <label class="text-sm font-medium text-gray-700">Title Number</label>
+                <span v-if="getFieldStatus('title_number') === 'match'" class="text-xs text-green-600 font-medium">
+                  <i class="fas fa-check-circle mr-1"></i>Match
+                </span>
+                <span v-else-if="getFieldStatus('title_number') === 'mismatch'" class="text-xs text-red-600 font-medium">
+                  <i class="fas fa-times-circle mr-1"></i>Mismatch
+                </span>
+                <span v-else-if="getFieldStatus('title_number') === 'empty'" class="text-xs text-blue-600 font-medium">
+                  <i class="fas fa-info-circle mr-1"></i>Not filled
+                </span>
+                <span v-else class="text-xs text-gray-500 font-medium">
+                  <i class="fas fa-minus-circle mr-1"></i>Not found in document
+                </span>
+              </div>
+              
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <p class="text-xs text-gray-500 mb-1">Your Input</p>
+                  <p class="text-sm font-medium">{{ form.title_number || '-' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 mb-1">From Document</p>
+                  <p class="text-sm font-medium">{{ ocrResults.title_number || '-' }}</p>
+                </div>
+              </div>
+              
+              <button 
+                v-if="getFieldStatus('title_number') === 'mismatch' || getFieldStatus('title_number') === 'empty'"
+                @click="applyOcrField('title_number')"
+                class="mt-3 w-full text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                {{ getFieldStatus('title_number') === 'empty' ? 'Use extracted value' : 'Replace with extracted value' }}
+              </button>
+            </div>
+            
+            <!-- Action Button -->
+            <div class="flex">
+              <button 
+                @click="closeOcrModal"
+                class="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+          
+          <!-- Error State -->
+          <div v-else-if="ocrError" class="text-center py-8">
+            <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-exclamation-circle text-red-600 text-xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Extraction Failed</h3>
+            <p class="text-sm text-gray-600 mb-4">{{ ocrError }}</p>
+            <button 
+              @click="closeOcrModal"
+              class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -656,6 +762,11 @@ export default {
       isRestoringDraft: false,
       saveDraftTimeout: null,
       showDraftModal: false,
+      // OCR Modal state
+      showOcrModal: false,
+      ocrLoading: false,
+      ocrResults: null,
+      ocrError: null,
       form: {
         // Basic Information
         title: '',
@@ -699,6 +810,7 @@ export default {
         
         // Companies House
         companies_house_id: '',
+        title_number: '',
         officers: [],
         pscs: [],
         
@@ -770,7 +882,95 @@ export default {
       this.airportAutocomplete.destroy()
     }
   },
+  computed: {
+    ocrHasDiscrepancy() {
+      if (!this.ocrResults) return false
+      
+      const titleStatus = this.getFieldStatus('title_number')
+      return titleStatus === 'mismatch'
+    }
+  },
   methods: {
+    // OCR Methods
+    getFieldStatus(fieldName) {
+      if (!this.ocrResults) return 'not_found'
+      
+      const ocrValue = this.ocrResults[fieldName]
+      const formValue = this.form[fieldName]?.trim() || ''
+      
+      if (!ocrValue) return 'not_found'
+      if (!formValue) return 'empty'
+      if (formValue.toUpperCase() === ocrValue.toUpperCase()) return 'match'
+      return 'mismatch'
+    },
+    getFieldStatusClass(fieldName) {
+      const status = this.getFieldStatus(fieldName)
+      switch (status) {
+        case 'match': return 'bg-green-50 border border-green-200'
+        case 'mismatch': return 'bg-red-50 border border-red-200'
+        case 'empty': return 'bg-blue-50 border border-blue-200'
+        default: return 'bg-gray-50 border border-gray-200'
+      }
+    },
+    applyOcrField(fieldName) {
+      if (this.ocrResults && this.ocrResults[fieldName]) {
+        this.form[fieldName] = this.ocrResults[fieldName]
+      }
+    },
+    closeOcrModal() {
+      this.showOcrModal = false
+      this.ocrLoading = false
+      this.ocrResults = null
+      this.ocrError = null
+    },
+    async extractDocumentFields(file) {
+      this.showOcrModal = true
+      this.ocrLoading = true
+      this.ocrResults = null
+      this.ocrError = null
+      
+      try {
+        const token = authService.getToken()
+        if (!token) {
+          throw new Error('Authentication required')
+        }
+        
+        const formData = new FormData()
+        formData.append('document', file)
+        
+        const response = await fetch('https://ponte.finance/wp-json/ponte/v1/extract-document-fields', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        })
+        
+        if (!response.ok) {
+          throw new Error('Failed to extract document fields')
+        }
+        
+        const result = await response.json()
+        
+        if (result.error) {
+          throw new Error(result.error)
+        }
+        
+        // Check if title_number was extracted
+        if (!result.title_number) {
+          throw new Error('Could not extract Title Number from the document. Please ensure the document contains this information clearly.')
+        }
+        
+        this.ocrResults = {
+          title_number: result.title_number
+        }
+      } catch (error) {
+        console.error('OCR extraction error:', error)
+        this.ocrError = error.message || 'An error occurred while extracting document fields'
+      } finally {
+        this.ocrLoading = false
+      }
+    },
     async initLocationAutocomplete() {
       try {
         // Initialize station autocomplete
@@ -845,6 +1045,11 @@ export default {
     handleDocumentChange(type, file) {
       if (!file) return
       this.form.documents[type] = file
+      
+      // If it's a Title Deed, extract fields via OCR
+      if (type === 'title') {
+        this.extractDocumentFields(file)
+      }
     },
     // Clear error for a specific field
     onClearFieldError(fieldName) {
@@ -1258,6 +1463,7 @@ export default {
           'funding_required': 'fundingRequired',
           'total_value': 'totalValue',
           'companies_house_id': 'companiesHouseId',
+          'title_number': 'titleNumber',
           'main_image': 'mainImageContainer',
           'schedule_of_works': 'scheduleOfWorks'
         }
@@ -1291,6 +1497,7 @@ export default {
               firstErrorField === 'funding_required' ? 'fundingRequired' :
               firstErrorField === 'total_value' ? 'totalValue' :
               firstErrorField === 'companies_house_id' ? 'companiesHouseId' :
+              firstErrorField === 'title_number' ? 'titleNumber' :
               firstErrorField === 'schedule_of_works' ? 'scheduleOfWorks' : firstErrorField
             )
             if (errorElement) {
@@ -1388,6 +1595,9 @@ export default {
         }
         if (this.form.companies_house_id && this.form.companies_house_id.trim() !== '') {
           propertyData.companies_house_id = this.form.companies_house_id.trim()
+        }
+        if (this.form.title_number && this.form.title_number.trim() !== '') {
+          propertyData.title_number = this.form.title_number.trim()
         }
         
         // Add officers and PSCs data
@@ -1537,7 +1747,8 @@ export default {
                 'total_value': 'total_value',
                 'funding_required': 'funding_required',
                 // Admin-only fields removed: minimum_investment, expected_annual_return, investment_term_years
-                'companies_house_id': 'companiesHouseId'
+                'companies_house_id': 'companiesHouseId',
+                'title_number': 'titleNumber'
               }
               
               const formField = fieldMap[field] || field
@@ -1554,6 +1765,7 @@ export default {
                                                            firstErrorField === 'funding_required' ? 'fundingRequired' :
                                                            firstErrorField === 'total_value' ? 'totalValue' :
                                                            firstErrorField === 'companies_house_id' ? 'companiesHouseId' :
+                                                           firstErrorField === 'title_number' ? 'titleNumber' :
                                                            firstErrorField === 'schedule_of_works' ? 'scheduleOfWorks' : firstErrorField)
               if (errorElement) {
                 errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
