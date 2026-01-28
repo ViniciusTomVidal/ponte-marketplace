@@ -83,9 +83,9 @@
 
           <div class="mt-6 text-center text-white">
             <p>
-              Interested in becoming a broker?
+              Interested in becoming a Ponte Broker Partner?
               <a href="https://ponte.finance/broker-interest-form/" class="font-medium text-[#A68542] hover:text-[#8B7355]">
-                Fill out interest form
+                Register your interest
               </a>
             </p>
           </div>
