@@ -34,11 +34,13 @@
             <i class="fas fa-pound-sign mr-2"></i>
             Commissions
           </router-link>
+          <!-- Export Data button removed (kept commented for future use)
           <button @click="exportData" 
                   class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold hover:cursor-pointer">
             <i class="fas fa-download mr-2"></i>
             Export Data
           </button>
+          -->
         </div>
       </div>
 
