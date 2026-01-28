@@ -499,7 +499,7 @@ function getMockProperties() {
             gdv_value: "180000.00",
             construction_costs: "22000.00",
             development_plan_url: "https://firebasestorage.googleapis.com/v0/b/ecouber-7cc97.firebasestorage.app/o/Development%20Plan%20-%20Example.docx?alt=media&token=e51a7a9b-e214-4ed2-bada-5de31b7016cf",
-            exit_strategy_url: "https://firebasestorage.googleapis.com/v0/b/ecouber-7cc97.firebasestorage.app/o/Exit%20Strategy%20-%20Example.docx?alt=media&token=0c92fba8-5000-4098-8ea1-0d49d6da146f",
+            exit_strategy: "Sample exit strategy: Sale of the property after development completion, or refinancing with institutional lenders.",
             contact_email: "support@ponte.finance",
             risk_information: "Real estate investments involve risks. The value of your investment may go up or down and you may receive less than you invested. Past returns are not indicative of future returns.",
             key_features: '["Open-plan living/dining area", "Sleek modern kitchen with integrated appliances", "Double bedroom with built-in storage", "Contemporary bathroom with rain shower", "Secure entry and intercom system", "High ceilings with large windows"]',

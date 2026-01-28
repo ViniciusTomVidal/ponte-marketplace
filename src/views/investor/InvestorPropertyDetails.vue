@@ -215,6 +215,9 @@
 
               <h4 v-if="property.investment_potential" class="text-lg font-semibold text-gray-900 mt-6 mb-3">Investment Potential:</h4>
               <p v-if="property.investment_potential">{{ property.investment_potential }}</p>
+
+              <h4 v-if="property.exit_strategy" class="text-lg font-semibold text-gray-900 mt-6 mb-3">Exit Strategy:</h4>
+              <p v-if="property.exit_strategy">{{ property.exit_strategy }}</p>
             </div>
           </div>
 
@@ -246,19 +249,7 @@
                     <i class="fas fa-download ml-auto text-blue-600 group-hover:text-blue-800 transition-colors"></i>
                   </a>
                 </div>
-                <div v-if="property.exit_strategy_url">
-                  <span class="text-gray-600 font-medium block mb-3">Exit Strategy</span>
-                  <a
-                    :href="property.exit_strategy_url"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="inline-flex items-center justify-center w-full px-4 py-3 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors group"
-                  >
-                    <i class="fas fa-file-word text-purple-600 text-lg mr-3"></i>
-                    <span class="font-semibold text-purple-800">Exit Strategy</span>
-                    <i class="fas fa-download ml-auto text-purple-600 group-hover:text-purple-800 transition-colors"></i>
-                  </a>
-                </div>
+                <!-- Exit Strategy is shown above (same style as Investment Potential) -->
               </div>
             </div>
           </div>

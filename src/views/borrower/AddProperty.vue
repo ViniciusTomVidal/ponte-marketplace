@@ -455,6 +455,15 @@
             </div>
 
             <div>
+              <label for="exitStrategy" class="block text-sm font-medium text-gray-700 mb-2">
+                Exit Strategy
+              </label>
+              <textarea id="exitStrategy" v-model="form.exit_strategy"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        rows="4" placeholder="Describe the exit strategy for this property"></textarea>
+            </div>
+
+            <div>
               <label for="mainRisks" class="block text-sm font-medium text-gray-700 mb-2">
                 Main Risks (comma separated)
               </label>
@@ -502,15 +511,6 @@
               <input type="url" id="prospectusUrl" v-model="form.prospectus_url"
                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                      placeholder="https://example.com/prospectus.pdf">
-            </div>
-
-            <div>
-              <label for="exitStrategyUrl" class="block text-sm font-medium text-gray-700 mb-2">
-                Exit Strategy URL
-              </label>
-              <input type="url" id="exitStrategyUrl" v-model="form.exit_strategy_url"
-                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     placeholder="https://example.com/exit-strategy.pdf">
             </div>
           </div>
         </div>
@@ -823,7 +823,7 @@ export default {
         schedule_of_works_url: '',
         scheduleOfWorksFile: null,
         development_plan: '',
-        exit_strategy_url: '',
+        exit_strategy: '',
         
         // Images (store both file objects and preview URLs)
         mainImageFile: null,
@@ -1584,8 +1584,8 @@ export default {
         if (this.form.development_plan && this.form.development_plan.trim() !== '') {
           propertyData.development_plan = this.form.development_plan.trim()
         }
-        if (this.form.exit_strategy_url && this.form.exit_strategy_url.trim() !== '') {
-          propertyData.exit_strategy_url = this.form.exit_strategy_url.trim()
+        if (this.form.exit_strategy && this.form.exit_strategy.trim() !== '') {
+          propertyData.exit_strategy = this.form.exit_strategy.trim()
         }
         if (this.form.investment_potential && this.form.investment_potential.trim() !== '') {
           propertyData.investment_potential = this.form.investment_potential.trim()
