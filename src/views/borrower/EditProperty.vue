@@ -1354,6 +1354,13 @@ export default {
           // Contact
           this.form.contact_phone = propertyData.contact_phone || ''
           this.form.contact_email = propertyData.contact_email || ''
+
+          // Prefill from logged user if property has no contact info
+          const user = authService.getUserData() || {}
+          const prefillEmail = (user.email || user.contact_email || '').toString()
+          const prefillPhone = (user.contact_phone || user.phone || user.phone_number || user.telephone || '').toString()
+          if (!this.form.contact_email && prefillEmail) this.form.contact_email = prefillEmail
+          if (!this.form.contact_phone && prefillPhone) this.form.contact_phone = prefillPhone
           
           // Document URLs
           this.form.prospectus_url = propertyData.prospectus_url || ''

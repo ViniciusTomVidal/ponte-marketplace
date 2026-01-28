@@ -753,6 +753,10 @@ export default {
     }
   },
   data() {
+    const user = authService.getUserData() || {}
+    const prefillEmail = (user.email || user.contact_email || '').toString()
+    const prefillPhone = (user.contact_phone || user.phone || user.phone_number || user.telephone || '').toString()
+
     return {
       loading: false,
       formErrors: {},
@@ -815,8 +819,8 @@ export default {
         pscs: [],
         
         // Contact
-        contact_phone: '',
-        contact_email: '',
+        contact_phone: prefillPhone,
+        contact_email: prefillEmail,
         
         // Document URLs
         prospectus_url: '',
