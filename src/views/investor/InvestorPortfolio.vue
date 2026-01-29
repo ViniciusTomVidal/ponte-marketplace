@@ -137,7 +137,7 @@
                   </h4>
                   <p class="text-sm text-gray-600">
                     <i class="fas fa-map-marker-alt mr-1"></i>
-                    {{ item.property.city }}{{ item.property.postcode ? ', ' + item.property.postcode : '' }}
+                    {{ item.property.city }}{{ item.property.postcode ? ', ' + maskPostcode(item.property.postcode) : '' }}
                   </p>
                 </router-link>
 
@@ -317,6 +317,14 @@ export default {
       return `${parseFloat(percentage).toFixed(2)}%`
     }
 
+    // Mask postcode - hide last 2 characters
+    const maskPostcode = (postcode) => {
+      if (!postcode) return ''
+      const trimmed = postcode.trim()
+      if (trimmed.length <= 2) return trimmed
+      return trimmed.slice(0, -2) + '**'
+    }
+
     // Get property image with fallback
     const getPropertyImage = (property) => {
       if (property.images && property.images.length > 0) {
@@ -364,6 +372,7 @@ export default {
       averageROI,
       formatCurrency,
       formatPercentage,
+      maskPostcode,
       getPropertyImage,
       handleImageError,
       fetchPortfolioData

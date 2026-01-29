@@ -144,7 +144,7 @@
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Postcode</span>
-                    <span class="font-semibold text-end">{{ property.postcode || 'N/A' }}</span>
+                    <span class="font-semibold text-end">{{ maskPostcode(property.postcode) }}</span>
                   </div>
                   <div v-if="property.nearest_tube" class="flex justify-between">
                     <span class="text-gray-600">Nearest Tube</span>
@@ -391,7 +391,7 @@ export default {
     
     // Composables
     const { canEditProperty, getRejectionReason } = usePropertyStatus()
-    const { formatCurrency, formatPercentage, formatDate, getFundedPercentage, getPropertyImage, getImageUrl, parseKeyFeatures, parseMainRisks } = usePropertyFormatters()
+    const { formatCurrency, formatPercentage, formatDate, getFundedPercentage, getPropertyImage, getImageUrl, parseKeyFeatures, parseMainRisks, maskPostcode } = usePropertyFormatters()
     const { handleImageError } = usePropertyImages()
 
     // Get user name
@@ -559,6 +559,7 @@ export default {
       canEditProperty,
       getRejectionReason,
       getFundedPercentage,
+      maskPostcode,
       editProperty,
       viewPublicPage,
       downloadSummary,

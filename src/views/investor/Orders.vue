@@ -97,7 +97,7 @@
                     </router-link>
                     <p class="text-sm text-gray-600 mb-3">
                       <i class="fas fa-map-marker-alt mr-1"></i>
-                      {{ order.property.city }}{{ order.property.postcode ? ', ' + order.property.postcode : '' }}
+                      {{ order.property.city }}{{ order.property.postcode ? ', ' + maskPostcode(order.property.postcode) : '' }}
                     </p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                       <div v-if="order.property.expected_annual_return" class="flex items-center">
@@ -289,6 +289,13 @@ export default {
       return `${numValue.toFixed(2)}%`
     }
 
+    const maskPostcode = (postcode) => {
+      if (!postcode) return ''
+      const trimmed = postcode.trim()
+      if (trimmed.length <= 2) return trimmed
+      return trimmed.slice(0, -2) + '**'
+    }
+
     onMounted(() => {
       fetchOrders()
     })
@@ -300,6 +307,7 @@ export default {
       fetchOrders,
       formatCurrency,
       formatPercentage,
+      maskPostcode,
       getStatusLabel,
       getStatusBadgeClass,
       getPaymentMethodLabel

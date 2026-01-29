@@ -126,7 +126,7 @@
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Postcode</span>
-                    <span class="font-semibold text-end">{{ property.postcode || 'N/A' }}</span>
+                    <span class="font-semibold text-end">{{ maskPostcode(property.postcode) }}</span>
                   </div>
                   <div v-if="property.nearest_tube" class="flex justify-between">
                     <span class="text-gray-600">Nearest Tube</span>
@@ -384,7 +384,7 @@ export default {
     
     // Composables
     const { getRejectionReason } = usePropertyStatus()
-    const { formatCurrency, formatPercentage, formatDate, getFundedPercentage, getPropertyImage, getImageUrl, parseKeyFeatures, parseMainRisks } = usePropertyFormatters()
+    const { formatCurrency, formatPercentage, formatDate, getFundedPercentage, getPropertyImage, getImageUrl, parseKeyFeatures, parseMainRisks, maskPostcode } = usePropertyFormatters()
     const { handleImageError } = usePropertyImages()
     
     // Calculate sidebar top position based on header
@@ -535,6 +535,7 @@ export default {
       formatDate,
       getRejectionReason,
       getFundedPercentage,
+      maskPostcode,
       downloadSummary,
       sidebarTop
     }

@@ -101,7 +101,7 @@
                   </div>
                   <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Postcode</span>
-                    <span class="font-semibold text-end">{{ property.postcode }}</span>
+                    <span class="font-semibold text-end">{{ maskPostcode(property.postcode) }}</span>
                   </div>
                   <div class="flex justify-between h-auto">
                     <span class="text-gray-600">Nearest Tube</span>
@@ -479,6 +479,13 @@ export default {
       }
     }
 
+    const maskPostcode = (postcode) => {
+      if (!postcode) return 'N/A'
+      const trimmed = postcode.trim()
+      if (trimmed.length <= 2) return trimmed
+      return trimmed.slice(0, -2) + '**'
+    }
+
     // Check if property is funded
     const isFunded = computed(() => {
       if (!property.value) return false
@@ -617,6 +624,7 @@ export default {
       handleImageError,
       parseKeyFeatures,
       parseMainRisks,
+      maskPostcode,
       formatCurrency,
       formatPercentage,
       fundedPercentage,

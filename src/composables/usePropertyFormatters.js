@@ -83,6 +83,14 @@ export function usePropertyFormatters() {
     }
   }
 
+  // Mask postcode - hide last 2 characters
+  const maskPostcode = (postcode) => {
+    if (!postcode) return 'N/A'
+    const trimmed = postcode.trim()
+    if (trimmed.length <= 2) return trimmed
+    return trimmed.slice(0, -2) + '**'
+  }
+
   return {
     formatCurrency,
     formatPercentage,
@@ -91,7 +99,8 @@ export function usePropertyFormatters() {
     getPropertyImage,
     getImageUrl,
     parseKeyFeatures,
-    parseMainRisks
+    parseMainRisks,
+    maskPostcode
   }
 }
 
