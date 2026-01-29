@@ -249,24 +249,25 @@
           <h2 class="text-xl font-semibold text-gray-900 mb-6">Location Information</h2>
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="md:col-span-2">
-              <label for="addressLine1" class="block text-sm font-medium text-gray-700 mb-2">
-                Address Line 1 *
+            <div>
+              <label for="street" class="block text-sm font-medium text-gray-700 mb-2">
+                Street *
               </label>
-              <input type="text" id="addressLine1" v-model="form.address_line1"
+              <input type="text" id="street" v-model="form.street"
                      @input="onClearFieldError('address_line1')"
                      :class="['w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.address_line1 ? 'border-red-500' : 'border-gray-300']"
-                     placeholder="Street address">
+                     placeholder="Street name">
               <p v-if="formErrors.address_line1" class="text-red-500 text-xs mt-1">{{ formErrors.address_line1 }}</p>
             </div>
 
-            <div class="md:col-span-2">
-              <label for="addressLine2" class="block text-sm font-medium text-gray-700 mb-2">
-                Address Line 2
+            <div>
+              <label for="number" class="block text-sm font-medium text-gray-700 mb-2">
+                Number *
               </label>
-              <input type="text" id="addressLine2" v-model="form.address_line2"
-                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     placeholder="Apartment, suite, unit, etc. (optional)">
+              <input type="text" id="number" v-model="form.number"
+                     @input="onClearFieldError('address_line1')"
+                     :class="['w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent', formErrors.address_line1 ? 'border-red-500' : 'border-gray-300']"
+                     placeholder="Street number">
             </div>
 
             <div>
@@ -777,8 +778,8 @@ export default {
         construction_year: null,
         
         // Location
-        address_line1: '',
-        address_line2: '',
+        street: '',
+        number: '',
         city: '',
         postcode: '',
         country: 'UK',
@@ -1455,7 +1456,7 @@ export default {
         // Scroll to first error
         const fieldMap = {
           'property_type': 'propertyType',
-          'address_line1': 'addressLine1',
+          'address_line1': 'street', // Use street as the first field for address
           'funding_required': 'fundingRequired',
           'total_value': 'totalValue',
           'companies_house_id': 'companiesHouseId',
@@ -1508,11 +1509,14 @@ export default {
       this.loading = true
       try {
         // Prepare data according to API endpoint format
+        // Combine street and number with comma to form address_line1
+        const addressLine1 = [this.form.street?.trim(), this.form.number?.trim()].filter(Boolean).join(', ')
+        
         const propertyData = {
           title: this.form.title,
           description: this.form.description,
           property_type: this.form.property_type,
-          address_line1: this.form.address_line1,
+          address_line1: addressLine1,
           city: this.form.city,
           postcode: this.form.postcode,
           total_value: parseFloat(this.form.total_value),
@@ -1538,9 +1542,6 @@ export default {
         }
         if (this.form.construction_year !== null && this.form.construction_year !== '' && !isNaN(this.form.construction_year)) {
           propertyData.construction_year = parseInt(this.form.construction_year)
-        }
-        if (this.form.address_line2 && this.form.address_line2.trim() !== '') {
-          propertyData.address_line2 = this.form.address_line2.trim()
         }
         if (this.form.country && this.form.country.trim() !== '') {
           propertyData.country = this.form.country.trim()

@@ -36,8 +36,12 @@ export function usePropertyValidation() {
       isValid = false
     }
 
-    if (!form.address_line1 || form.address_line1.trim() === '') {
-      errors.address_line1 = 'Address line 1 is required'
+    // Validate street and number (combined to form address_line1)
+    if (!form.street || form.street.trim() === '') {
+      errors.address_line1 = 'Street is required'
+      isValid = false
+    } else if (!form.number || form.number.trim() === '') {
+      errors.address_line1 = 'Number is required'
       isValid = false
     }
 
