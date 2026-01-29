@@ -121,6 +121,17 @@
                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                      placeholder="e.g., NGL123456">
             </div>
+
+            <div>
+              <DocumentUpload
+                title="Title Deed"
+                description="Official property ownership documentation"
+                type="title"
+                accept=".pdf"
+                :file="form.documents.title"
+                @change="handleDocumentChange('title', $event)"
+              />
+            </div>
           </div>
           
           <!-- Officers and PSCs Information -->
@@ -550,15 +561,6 @@
               :file="form.scheduleOfWorksFile"
               :error="formErrors.schedule_of_works"
               @change="onScheduleOfWorksChange"
-            />
-
-            <DocumentUpload
-              title="Title Deed"
-              description="Official property ownership documentation"
-              type="title"
-              accept=".pdf"
-              :file="form.documents.title"
-              @change="handleDocumentChange('title', $event)"
             />
           </div>
         </div>

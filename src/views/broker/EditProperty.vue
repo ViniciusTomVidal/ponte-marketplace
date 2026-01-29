@@ -126,6 +126,19 @@
                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                      placeholder="e.g., NGL123456">
             </div>
+
+            <div>
+              <DocumentUpload
+                title="Title Deed"
+                description="Official property ownership documentation"
+                type="title"
+                accept=".pdf"
+                :file="form.documents.title"
+                :existing-url="form.titleDeedUrl"
+                :existing-file-name="form.titleDeedFileName"
+                @change="handleDocumentChange('title', $event)"
+              />
+            </div>
           </div>
 
           <div class="mt-6">
@@ -439,17 +452,6 @@
               existing-file-name="Schedule of Works"
               :error="formErrors.schedule_of_works"
               @change="onScheduleOfWorksChange"
-            />
-
-            <DocumentUpload
-              title="Title Deed"
-              description="Official property ownership documentation"
-              type="title"
-              accept=".pdf"
-              :file="form.documents.title"
-              :existing-url="form.titleDeedUrl"
-              :existing-file-name="form.titleDeedFileName"
-              @change="handleDocumentChange('title', $event)"
             />
           </div>
         </div>
