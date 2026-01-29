@@ -1294,7 +1294,6 @@ export default {
             this.form.street = ''
             this.form.number = ''
           }
-          this.form.address_line2 = propertyData.address_line2 || ''
           this.form.city = propertyData.city || ''
           this.form.postcode = propertyData.postcode || ''
           this.form.country = propertyData.country || 'UK'
@@ -1515,9 +1514,6 @@ export default {
         }
         if (this.form.construction_year !== null && this.form.construction_year !== '' && !isNaN(this.form.construction_year)) {
           propertyData.construction_year = parseInt(this.form.construction_year)
-        }
-        if (this.form.address_line2 && this.form.address_line2.trim() !== '') {
-          propertyData.address_line2 = this.form.address_line2.trim()
         }
         if (this.form.country && this.form.country.trim() !== '') {
           propertyData.country = this.form.country.trim()
