@@ -502,22 +502,6 @@
           </div>
         </div>
 
-        <!-- Document URLs -->
-        <div class="bg-white rounded-lg shadow p-6">
-          <h2 class="text-xl font-semibold text-gray-900 mb-6">Document URLs</h2>
-          
-          <div class="space-y-4">
-            <div>
-              <label for="prospectusUrl" class="block text-sm font-medium text-gray-700 mb-2">
-                Prospectus URL
-              </label>
-              <input type="url" id="prospectusUrl" v-model="form.prospectus_url"
-                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     placeholder="https://example.com/prospectus.pdf">
-            </div>
-          </div>
-        </div>
-
         <!-- Property Images -->
         <div class="bg-white rounded-lg shadow p-6" id="propertyImagesSection">
           <h2 class="text-xl font-semibold text-gray-900 mb-6">Property Images</h2>
@@ -816,7 +800,6 @@ export default {
         contact_email: prefillEmail,
         
         // Document URLs
-        prospectus_url: '',
         schedule_of_works_url: '',
         scheduleOfWorksFile: null,
         development_plan: '',
@@ -1572,9 +1555,6 @@ export default {
         }
         if (this.form.contact_email && this.form.contact_email.trim() !== '') {
           propertyData.contact_email = this.form.contact_email.trim()
-        }
-        if (this.form.prospectus_url && this.form.prospectus_url.trim() !== '') {
-          propertyData.prospectus_url = this.form.prospectus_url.trim()
         }
         // Schedule of Works is now a file upload, handled separately in FormData
         // Development Plan is now a text field
