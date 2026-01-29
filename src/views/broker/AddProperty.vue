@@ -437,15 +437,6 @@
             </div>
 
             <div>
-              <label for="riskInformation" class="block text-sm font-medium text-gray-700 mb-2">
-                Risk Information
-              </label>
-              <textarea id="riskInformation" v-model="form.risk_information"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        rows="4" placeholder="Important risk information for investors"></textarea>
-            </div>
-
-            <div>
               <label for="developmentPlan" class="block text-sm font-medium text-gray-700 mb-2">
                 Development Plan
               </label>
@@ -809,7 +800,6 @@ export default {
         // Additional Information
         key_features: '',
         investment_potential: '',
-        risk_information: '',
         main_risks: '',
         
         // Companies House
@@ -1593,9 +1583,6 @@ export default {
         }
         if (this.form.investment_potential && this.form.investment_potential.trim() !== '') {
           propertyData.investment_potential = this.form.investment_potential.trim()
-        }
-        if (this.form.risk_information && this.form.risk_information.trim() !== '') {
-          propertyData.risk_information = this.form.risk_information.trim()
         }
         if (this.form.companies_house_id && this.form.companies_house_id.trim() !== '') {
           propertyData.companies_house_id = this.form.companies_house_id.trim()
